@@ -1,0 +1,190 @@
+{
+ "group": "http",
+ "mu_b": 0.5512285670049281,
+ "k": 0.05,
+ "m": 20,
+ "n_devices": 60,
+ "horizon": 80,
+ "false_quarantine": [
+  {
+   "rep": 1,
+   "m_eff": 20.0,
+   "alpha": 0.5,
+   "empirical": 0.0
+  },
+  {
+   "rep": 1,
+   "m_eff": 20.0,
+   "alpha": 0.2,
+   "empirical": 0.0
+  },
+  {
+   "rep": 1,
+   "m_eff": 20.0,
+   "alpha": 0.1,
+   "empirical": 0.0
+  },
+  {
+   "rep": 1,
+   "m_eff": 20.0,
+   "alpha": 0.01,
+   "empirical": 0.0
+  },
+  {
+   "rep": 2,
+   "m_eff": 10.0,
+   "alpha": 0.5,
+   "empirical": 0.0
+  },
+  {
+   "rep": 2,
+   "m_eff": 10.0,
+   "alpha": 0.2,
+   "empirical": 0.0
+  },
+  {
+   "rep": 2,
+   "m_eff": 10.0,
+   "alpha": 0.1,
+   "empirical": 0.0
+  },
+  {
+   "rep": 2,
+   "m_eff": 10.0,
+   "alpha": 0.01,
+   "empirical": 0.0
+  },
+  {
+   "rep": 4,
+   "m_eff": 5.0,
+   "alpha": 0.5,
+   "empirical": 0.0
+  },
+  {
+   "rep": 4,
+   "m_eff": 5.0,
+   "alpha": 0.2,
+   "empirical": 0.0
+  },
+  {
+   "rep": 4,
+   "m_eff": 5.0,
+   "alpha": 0.1,
+   "empirical": 0.0
+  },
+  {
+   "rep": 4,
+   "m_eff": 5.0,
+   "alpha": 0.01,
+   "empirical": 0.0
+  }
+ ],
+ "delay": [
+  {
+   "cls": "DoS",
+   "mu_a": 0.5788912848672346,
+   "drift": -0.02233728213769344,
+   "bound": null,
+   "mean_delay": null,
+   "detect": 0.0
+  },
+  {
+   "cls": "Probe",
+   "mu_a": 0.5915969334021731,
+   "drift": -0.009631633602754944,
+   "bound": null,
+   "mean_delay": null,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "mu_a": 0.5750317807449882,
+   "drift": -0.02619678625993989,
+   "bound": null,
+   "mean_delay": null,
+   "detect": 0.0
+  },
+  {
+   "cls": "U2R",
+   "mu_a": 0.7080679315462042,
+   "drift": 0.10683936454127611,
+   "bound": 14.747806485125421,
+   "mean_delay": 5.866666666666666,
+   "detect": 1.0
+  }
+ ],
+ "min_detectable": [
+  {
+   "cls": "DoS",
+   "f": 0.05,
+   "fstar": 1.8074868944143192,
+   "detect": 0.0
+  },
+  {
+   "cls": "DoS",
+   "f": 0.1,
+   "fstar": 1.8074868944143192,
+   "detect": 0.0
+  },
+  {
+   "cls": "DoS",
+   "f": 0.15,
+   "fstar": 1.8074868944143192,
+   "detect": 0.0
+  },
+  {
+   "cls": "DoS",
+   "f": 0.2,
+   "fstar": 1.8074868944143192,
+   "detect": 0.0
+  },
+  {
+   "cls": "DoS",
+   "f": 0.3,
+   "fstar": 1.8074868944143192,
+   "detect": 0.0
+  },
+  {
+   "cls": "DoS",
+   "f": 0.5,
+   "fstar": 1.8074868944143192,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "f": 0.05,
+   "fstar": 2.100556695663807,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "f": 0.1,
+   "fstar": 2.100556695663807,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "f": 0.15,
+   "fstar": 2.100556695663807,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "f": 0.2,
+   "fstar": 2.100556695663807,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "f": 0.3,
+   "fstar": 2.100556695663807,
+   "detect": 0.0
+  },
+  {
+   "cls": "R2L",
+   "f": 0.5,
+   "fstar": 2.100556695663807,
+   "detect": 0.0
+  }
+ ]
+}

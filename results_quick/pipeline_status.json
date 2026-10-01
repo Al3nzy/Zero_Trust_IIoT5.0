@@ -1,0 +1,13 @@
+{
+ "detector": "ok [163s]",
+ "novel": "ok [5s]",
+ "trust": "ok [6s]",
+ "theory": "ok [12s]",
+ "ledger": "ok [5s]",
+ "dp": "ok [127s]",
+ "shap": "ok [71s]",
+ "latency": "FAILED (exit 1) [0s]",
+ "extra": "skipped (no dataset paths given)",
+ "tables": "ok [2s]",
+ "figures": "ok [7s]"
+}

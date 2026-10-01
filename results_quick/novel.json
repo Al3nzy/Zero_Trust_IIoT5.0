@@ -1,0 +1,690 @@
+{
+ "n_test": 21833,
+ "n_attack_test": 12251,
+ "n_attack_novel": 3695,
+ "novel_subtypes": [
+  "apache2",
+  "httptunnel",
+  "mailbomb",
+  "mscan",
+  "named",
+  "processtable",
+  "ps",
+  "saint",
+  "sendmail",
+  "snmpgetattack",
+  "snmpguess",
+  "sqlattack",
+  "udpstorm",
+  "worm",
+  "xlock",
+  "xsnoop",
+  "xterm"
+ ],
+ "models": {
+  "proposed CNN-BiLSTM": {
+   "seen": {
+    "n": 8556,
+    "exact_recall": 0.2373772791023843,
+    "detection": 0.8563581112669472
+   },
+   "novel": {
+    "n": 3695,
+    "exact_recall": 0.21596752368064953,
+    "detection": 0.8238159675236807
+   },
+   "per_subtype": [
+    {
+     "sub": "apache2",
+     "cls": "DoS",
+     "n": 737,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.994572591587517
+    },
+    {
+     "sub": "back",
+     "cls": "DoS",
+     "n": 344,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 0.15406976744186046
+    },
+    {
+     "sub": "buffer_overflow",
+     "cls": "U2R",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.9,
+     "detection": 1.0
+    },
+    {
+     "sub": "guess_passwd",
+     "cls": "R2L",
+     "n": 1231,
+     "seen_in_training": true,
+     "exact_recall": 0.07717303005686434,
+     "detection": 0.4370430544272949
+    },
+    {
+     "sub": "httptunnel",
+     "cls": "R2L",
+     "n": 133,
+     "seen_in_training": false,
+     "exact_recall": 0.7744360902255639,
+     "detection": 1.0
+    },
+    {
+     "sub": "ipsweep",
+     "cls": "Probe",
+     "n": 44,
+     "seen_in_training": true,
+     "exact_recall": 0.9318181818181818,
+     "detection": 1.0
+    },
+    {
+     "sub": "mailbomb",
+     "cls": "DoS",
+     "n": 293,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.20477815699658702
+    },
+    {
+     "sub": "mscan",
+     "cls": "Probe",
+     "n": 996,
+     "seen_in_training": false,
+     "exact_recall": 0.45180722891566266,
+     "detection": 0.9979919678714859
+    },
+    {
+     "sub": "neptune",
+     "cls": "DoS",
+     "n": 4502,
+     "seen_in_training": true,
+     "exact_recall": 0.17036872501110617,
+     "detection": 0.9948911594846734
+    },
+    {
+     "sub": "nmap",
+     "cls": "Probe",
+     "n": 73,
+     "seen_in_training": true,
+     "exact_recall": 1.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "pod",
+     "cls": "DoS",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "portsweep",
+     "cls": "Probe",
+     "n": 139,
+     "seen_in_training": true,
+     "exact_recall": 0.920863309352518,
+     "detection": 1.0
+    },
+    {
+     "sub": "processtable",
+     "cls": "DoS",
+     "n": 685,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "saint",
+     "cls": "Probe",
+     "n": 312,
+     "seen_in_training": false,
+     "exact_recall": 0.6442307692307693,
+     "detection": 1.0
+    },
+    {
+     "sub": "satan",
+     "cls": "Probe",
+     "n": 724,
+     "seen_in_training": true,
+     "exact_recall": 0.9157458563535912,
+     "detection": 1.0
+    },
+    {
+     "sub": "smurf",
+     "cls": "DoS",
+     "n": 462,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "snmpgetattack",
+     "cls": "R2L",
+     "n": 130,
+     "seen_in_training": false,
+     "exact_recall": 0.11538461538461539,
+     "detection": 0.3076923076923077
+    },
+    {
+     "sub": "snmpguess",
+     "cls": "R2L",
+     "n": 331,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.03323262839879154
+    },
+    {
+     "sub": "warezmaster",
+     "cls": "R2L",
+     "n": 943,
+     "seen_in_training": true,
+     "exact_recall": 0.2417815482502651,
+     "detection": 0.7698833510074231
+    }
+   ]
+  },
+  "LightGBM (class-aware MI)": {
+   "seen": {
+    "n": 8556,
+    "exact_recall": 0.7980364656381487,
+    "detection": 0.8380084151472651
+   },
+   "novel": {
+    "n": 3695,
+    "exact_recall": 0.3225981055480379,
+    "detection": 0.41190798376184035
+   },
+   "per_subtype": [
+    {
+     "sub": "apache2",
+     "cls": "DoS",
+     "n": 737,
+     "seen_in_training": false,
+     "exact_recall": 0.9769335142469471,
+     "detection": 0.9769335142469471
+    },
+    {
+     "sub": "back",
+     "cls": "DoS",
+     "n": 344,
+     "seen_in_training": true,
+     "exact_recall": 0.9622093023255814,
+     "detection": 0.9825581395348837
+    },
+    {
+     "sub": "buffer_overflow",
+     "cls": "U2R",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.8,
+     "detection": 0.8
+    },
+    {
+     "sub": "guess_passwd",
+     "cls": "R2L",
+     "n": 1231,
+     "seen_in_training": true,
+     "exact_recall": 0.006498781478472786,
+     "detection": 0.00974817221770918
+    },
+    {
+     "sub": "httptunnel",
+     "cls": "R2L",
+     "n": 133,
+     "seen_in_training": false,
+     "exact_recall": 0.007518796992481203,
+     "detection": 0.06015037593984962
+    },
+    {
+     "sub": "ipsweep",
+     "cls": "Probe",
+     "n": 44,
+     "seen_in_training": true,
+     "exact_recall": 0.9772727272727273,
+     "detection": 0.9772727272727273
+    },
+    {
+     "sub": "mailbomb",
+     "cls": "DoS",
+     "n": 293,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.0
+    },
+    {
+     "sub": "mscan",
+     "cls": "Probe",
+     "n": 996,
+     "seen_in_training": false,
+     "exact_recall": 0.13052208835341367,
+     "detection": 0.13453815261044177
+    },
+    {
+     "sub": "neptune",
+     "cls": "DoS",
+     "n": 4502,
+     "seen_in_training": true,
+     "exact_recall": 0.9797867614393603,
+     "detection": 0.9997778764993336
+    },
+    {
+     "sub": "nmap",
+     "cls": "Probe",
+     "n": 73,
+     "seen_in_training": true,
+     "exact_recall": 1.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "pod",
+     "cls": "DoS",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.1,
+     "detection": 0.3
+    },
+    {
+     "sub": "portsweep",
+     "cls": "Probe",
+     "n": 139,
+     "seen_in_training": true,
+     "exact_recall": 0.9640287769784173,
+     "detection": 1.0
+    },
+    {
+     "sub": "processtable",
+     "cls": "DoS",
+     "n": 685,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.43503649635036495
+    },
+    {
+     "sub": "saint",
+     "cls": "Probe",
+     "n": 312,
+     "seen_in_training": false,
+     "exact_recall": 0.9807692307692307,
+     "detection": 0.9807692307692307
+    },
+    {
+     "sub": "satan",
+     "cls": "Probe",
+     "n": 724,
+     "seen_in_training": true,
+     "exact_recall": 0.9958563535911602,
+     "detection": 1.0
+    },
+    {
+     "sub": "smurf",
+     "cls": "DoS",
+     "n": 462,
+     "seen_in_training": true,
+     "exact_recall": 0.9891774891774892,
+     "detection": 0.9891774891774892
+    },
+    {
+     "sub": "snmpgetattack",
+     "cls": "R2L",
+     "n": 130,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.0
+    },
+    {
+     "sub": "snmpguess",
+     "cls": "R2L",
+     "n": 331,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.0
+    },
+    {
+     "sub": "warezmaster",
+     "cls": "R2L",
+     "n": 943,
+     "seen_in_training": true,
+     "exact_recall": 0.6532343584305408,
+     "detection": 0.8791092258748674
+    }
+   ]
+  },
+  "LightGBM (global MI)": {
+   "seen": {
+    "n": 8556,
+    "exact_recall": 0.751986909770921,
+    "detection": 0.7897381954184198
+   },
+   "novel": {
+    "n": 3695,
+    "exact_recall": 0.32990527740189446,
+    "detection": 0.4362652232746955
+   },
+   "per_subtype": [
+    {
+     "sub": "apache2",
+     "cls": "DoS",
+     "n": 737,
+     "seen_in_training": false,
+     "exact_recall": 0.9850746268656716,
+     "detection": 0.9850746268656716
+    },
+    {
+     "sub": "back",
+     "cls": "DoS",
+     "n": 344,
+     "seen_in_training": true,
+     "exact_recall": 0.9767441860465116,
+     "detection": 0.9854651162790697
+    },
+    {
+     "sub": "buffer_overflow",
+     "cls": "U2R",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.6,
+     "detection": 0.75
+    },
+    {
+     "sub": "guess_passwd",
+     "cls": "R2L",
+     "n": 1231,
+     "seen_in_training": true,
+     "exact_recall": 0.01949634443541836,
+     "detection": 0.030056864337936636
+    },
+    {
+     "sub": "httptunnel",
+     "cls": "R2L",
+     "n": 133,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.09774436090225563
+    },
+    {
+     "sub": "ipsweep",
+     "cls": "Probe",
+     "n": 44,
+     "seen_in_training": true,
+     "exact_recall": 0.9318181818181818,
+     "detection": 1.0
+    },
+    {
+     "sub": "mailbomb",
+     "cls": "DoS",
+     "n": 293,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.0
+    },
+    {
+     "sub": "mscan",
+     "cls": "Probe",
+     "n": 996,
+     "seen_in_training": false,
+     "exact_recall": 0.1676706827309237,
+     "detection": 0.19979919678714858
+    },
+    {
+     "sub": "neptune",
+     "cls": "DoS",
+     "n": 4502,
+     "seen_in_training": true,
+     "exact_recall": 0.9875610839626833,
+     "detection": 1.0
+    },
+    {
+     "sub": "nmap",
+     "cls": "Probe",
+     "n": 73,
+     "seen_in_training": true,
+     "exact_recall": 1.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "pod",
+     "cls": "DoS",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 0.25
+    },
+    {
+     "sub": "portsweep",
+     "cls": "Probe",
+     "n": 139,
+     "seen_in_training": true,
+     "exact_recall": 0.9784172661870504,
+     "detection": 1.0
+    },
+    {
+     "sub": "processtable",
+     "cls": "DoS",
+     "n": 685,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.4321167883211679
+    },
+    {
+     "sub": "saint",
+     "cls": "Probe",
+     "n": 312,
+     "seen_in_training": false,
+     "exact_recall": 0.9807692307692307,
+     "detection": 0.9871794871794872
+    },
+    {
+     "sub": "satan",
+     "cls": "Probe",
+     "n": 724,
+     "seen_in_training": true,
+     "exact_recall": 0.9958563535911602,
+     "detection": 0.9986187845303868
+    },
+    {
+     "sub": "smurf",
+     "cls": "DoS",
+     "n": 462,
+     "seen_in_training": true,
+     "exact_recall": 0.9545454545454546,
+     "detection": 0.9545454545454546
+    },
+    {
+     "sub": "snmpgetattack",
+     "cls": "R2L",
+     "n": 130,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.1
+    },
+    {
+     "sub": "snmpguess",
+     "cls": "R2L",
+     "n": 331,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.012084592145015106
+    },
+    {
+     "sub": "warezmaster",
+     "cls": "R2L",
+     "n": 943,
+     "seen_in_training": true,
+     "exact_recall": 0.2014846235418876,
+     "detection": 0.42948038176033937
+    }
+   ]
+  },
+  "CNN-BiLSTM + attention": {
+   "seen": {
+    "n": 8556,
+    "exact_recall": 0.2535063113604488,
+    "detection": 0.4587424029920524
+   },
+   "novel": {
+    "n": 3695,
+    "exact_recall": 0.12232746955345061,
+    "detection": 0.5152909336941813
+   },
+   "per_subtype": [
+    {
+     "sub": "apache2",
+     "cls": "DoS",
+     "n": 737,
+     "seen_in_training": false,
+     "exact_recall": 0.054274084124830396,
+     "detection": 0.07055630936227951
+    },
+    {
+     "sub": "back",
+     "cls": "DoS",
+     "n": 344,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 0.0
+    },
+    {
+     "sub": "buffer_overflow",
+     "cls": "U2R",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.9,
+     "detection": 1.0
+    },
+    {
+     "sub": "guess_passwd",
+     "cls": "R2L",
+     "n": 1231,
+     "seen_in_training": true,
+     "exact_recall": 0.026807473598700244,
+     "detection": 0.3428107229894395
+    },
+    {
+     "sub": "httptunnel",
+     "cls": "R2L",
+     "n": 133,
+     "seen_in_training": false,
+     "exact_recall": 0.09774436090225563,
+     "detection": 0.10526315789473684
+    },
+    {
+     "sub": "ipsweep",
+     "cls": "Probe",
+     "n": 44,
+     "seen_in_training": true,
+     "exact_recall": 0.9318181818181818,
+     "detection": 1.0
+    },
+    {
+     "sub": "mailbomb",
+     "cls": "DoS",
+     "n": 293,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 0.0
+    },
+    {
+     "sub": "mscan",
+     "cls": "Probe",
+     "n": 996,
+     "seen_in_training": false,
+     "exact_recall": 0.055220883534136546,
+     "detection": 0.7730923694779116
+    },
+    {
+     "sub": "neptune",
+     "cls": "DoS",
+     "n": 4502,
+     "seen_in_training": true,
+     "exact_recall": 0.22723234118169702,
+     "detection": 0.33984895601954684
+    },
+    {
+     "sub": "nmap",
+     "cls": "Probe",
+     "n": 73,
+     "seen_in_training": true,
+     "exact_recall": 1.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "pod",
+     "cls": "DoS",
+     "n": 20,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "portsweep",
+     "cls": "Probe",
+     "n": 139,
+     "seen_in_training": true,
+     "exact_recall": 0.8201438848920863,
+     "detection": 0.841726618705036
+    },
+    {
+     "sub": "processtable",
+     "cls": "DoS",
+     "n": 685,
+     "seen_in_training": false,
+     "exact_recall": 0.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "saint",
+     "cls": "Probe",
+     "n": 312,
+     "seen_in_training": false,
+     "exact_recall": 0.9615384615384616,
+     "detection": 0.9839743589743589
+    },
+    {
+     "sub": "satan",
+     "cls": "Probe",
+     "n": 724,
+     "seen_in_training": true,
+     "exact_recall": 0.9903314917127072,
+     "detection": 1.0
+    },
+    {
+     "sub": "smurf",
+     "cls": "DoS",
+     "n": 462,
+     "seen_in_training": true,
+     "exact_recall": 0.0,
+     "detection": 1.0
+    },
+    {
+     "sub": "snmpgetattack",
+     "cls": "R2L",
+     "n": 130,
+     "seen_in_training": false,
+     "exact_recall": 0.1076923076923077,
+     "detection": 0.12307692307692308
+    },
+    {
+     "sub": "snmpguess",
+     "cls": "R2L",
+     "n": 331,
+     "seen_in_training": false,
+     "exact_recall": 0.0030211480362537764,
+     "detection": 0.012084592145015106
+    },
+    {
+     "sub": "warezmaster",
+     "cls": "R2L",
+     "n": 943,
+     "seen_in_training": true,
+     "exact_recall": 0.14952279957582185,
+     "detection": 0.5206786850477201
+    }
+   ]
+  }
+ }
+}

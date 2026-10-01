@@ -1,0 +1,425 @@
+{
+ "setup": {
+  "m": 20,
+  "rounds": 60,
+  "warmup": 10,
+  "onset": 15,
+  "end": 30,
+  "k": 0.05,
+  "alpha": 0.01,
+  "h": 0.5756462732485115,
+  "n_devices": 40,
+  "device_groups": [
+   "http",
+   "domain_u",
+   "private",
+   "other"
+  ],
+  "severity": [
+   0.0,
+   0.6,
+   0.4,
+   0.8,
+   1.0
+  ],
+  "note": "replay simulation of real posteriors; flows within a round are sampled i.i.d."
+ },
+ "homog": {
+  "mu_b_mean": 0.5545534959084044,
+  "mu_b_sd_across_devices": 0.0005554058376142798,
+  "mu_att": {
+   "DoS": 0.5788912848672346,
+   "Probe": 0.5915969334021731,
+   "R2L": 0.5750317807449882,
+   "U2R": 0.7080679315462042
+  },
+  "confidence (original Eq.4)": {
+   "benign": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0
+   },
+   "compromised": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "recovery": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "was_quarantined": 1.0,
+    "released_by_end": 0.0,
+    "median_release_delay": null,
+    "final_healthy": 0.0
+   },
+   "intermittent": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "stealth": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   }
+  },
+  "beta reputation": {
+   "benign": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0
+   },
+   "compromised": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "recovery": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "was_quarantined": 1.0,
+    "released_by_end": 0.0,
+    "median_release_delay": null,
+    "final_healthy": 0.0
+   },
+   "intermittent": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "stealth": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   }
+  },
+  "CUSUM fleet-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.325,
+    "healthy_frac_after_warmup": 0.7140000000000001,
+    "detect": 0.325,
+    "median_delay": 6.0,
+    "mean_delay": 6.0,
+    "final_healthy": 0.675,
+    "frac_time_q": 0.2888888888888889
+   },
+   "recovery": {
+    "ever_quarantined": 0.325,
+    "healthy_frac_after_warmup": 0.7805,
+    "was_quarantined": 0.325,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.1,
+    "healthy_frac_after_warmup": 0.9,
+    "detect": 0.1,
+    "median_delay": 21.0,
+    "mean_delay": 23.0,
+    "final_healthy": 0.9,
+    "frac_time_q": 0.043333333333333335
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.9940000000000001,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.975,
+    "frac_time_q": 0.0
+   }
+  },
+  "CUSUM device-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.325,
+    "healthy_frac_after_warmup": 0.7140000000000001,
+    "detect": 0.325,
+    "median_delay": 6.0,
+    "mean_delay": 5.923076923076923,
+    "final_healthy": 0.675,
+    "frac_time_q": 0.2894444444444445
+   },
+   "recovery": {
+    "ever_quarantined": 0.325,
+    "healthy_frac_after_warmup": 0.782,
+    "was_quarantined": 0.325,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.1,
+    "healthy_frac_after_warmup": 0.8995000000000001,
+    "detect": 0.1,
+    "median_delay": 21.0,
+    "mean_delay": 23.0,
+    "final_healthy": 0.9,
+    "frac_time_q": 0.043333333333333335
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.994,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.975,
+    "frac_time_q": 0.0
+   }
+  }
+ },
+ "hetero": {
+  "mu_b_mean": 0.5607439558909088,
+  "mu_b_sd_across_devices": 0.00844153491503631,
+  "mu_att": {
+   "DoS": 0.5788912848672346,
+   "Probe": 0.5915969334021731,
+   "R2L": 0.5750317807449882,
+   "U2R": 0.7080679315462042
+  },
+  "confidence (original Eq.4)": {
+   "benign": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0
+   },
+   "compromised": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "recovery": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "was_quarantined": 1.0,
+    "released_by_end": 0.0,
+    "median_release_delay": null,
+    "final_healthy": 0.0
+   },
+   "intermittent": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "stealth": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   }
+  },
+  "beta reputation": {
+   "benign": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0
+   },
+   "compromised": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "recovery": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "was_quarantined": 1.0,
+    "released_by_end": 0.0,
+    "median_release_delay": null,
+    "final_healthy": 0.0
+   },
+   "intermittent": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   },
+   "stealth": {
+    "ever_quarantined": 1.0,
+    "healthy_frac_after_warmup": 0.0,
+    "detect": 1.0,
+    "median_delay": 1.0,
+    "mean_delay": 1.0,
+    "final_healthy": 0.0,
+    "frac_time_q": 1.0
+   }
+  },
+  "CUSUM fleet-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.125,
+    "healthy_frac_after_warmup": 0.8895,
+    "detect": 0.125,
+    "median_delay": 6.0,
+    "mean_delay": 6.0,
+    "final_healthy": 0.875,
+    "frac_time_q": 0.11111111111111112
+   },
+   "recovery": {
+    "ever_quarantined": 0.225,
+    "healthy_frac_after_warmup": 0.8230000000000001,
+    "was_quarantined": 0.225,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 0.9
+   },
+   "intermittent": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.8975000000000002,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.875,
+    "frac_time_q": 0.0
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.9275,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.9,
+    "frac_time_q": 0.0
+   }
+  },
+  "CUSUM device-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.125,
+    "healthy_frac_after_warmup": 0.8895,
+    "detect": 0.125,
+    "median_delay": 6.0,
+    "mean_delay": 6.2,
+    "final_healthy": 0.875,
+    "frac_time_q": 0.11055555555555556
+   },
+   "recovery": {
+    "ever_quarantined": 0.225,
+    "healthy_frac_after_warmup": 0.8465,
+    "was_quarantined": 0.225,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.075,
+    "healthy_frac_after_warmup": 0.9110000000000001,
+    "detect": 0.075,
+    "median_delay": 26.0,
+    "mean_delay": 27.0,
+    "final_healthy": 0.925,
+    "frac_time_q": 0.028333333333333332
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   }
+  }
+ },
+ "contamination": {
+  "0.0_fleet": {
+   "frac": 0.0,
+   "mode": "fleet",
+   "detect_contaminated": null,
+   "false_quarantine_benign": 0.0
+  },
+  "0.0_device": {
+   "frac": 0.0,
+   "mode": "device",
+   "detect_contaminated": null,
+   "false_quarantine_benign": 0.0
+  },
+  "0.1_fleet": {
+   "frac": 0.1,
+   "mode": "fleet",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  },
+  "0.1_device": {
+   "frac": 0.1,
+   "mode": "device",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  },
+  "0.3_fleet": {
+   "frac": 0.3,
+   "mode": "fleet",
+   "detect_contaminated": 0.16666666666666666,
+   "false_quarantine_benign": 0.0
+  },
+  "0.3_device": {
+   "frac": 0.3,
+   "mode": "device",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  },
+  "0.45_fleet": {
+   "frac": 0.45,
+   "mode": "fleet",
+   "detect_contaminated": 0.1111111111111111,
+   "false_quarantine_benign": 0.0
+  },
+  "0.45_device": {
+   "frac": 0.45,
+   "mode": "device",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  }
+ }
+}
