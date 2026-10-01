@@ -1,0 +1,13 @@
+{
+ "detector": "FAILED (exit 1) [1s]",
+ "novel": "FAILED (exit 1) [1s]",
+ "trust": "FAILED (exit 1) [1s]",
+ "theory": "FAILED (exit 1) [1s]",
+ "ledger": "FAILED (exit 1) [0s]",
+ "dp": "FAILED (exit 1) [0s]",
+ "shap": "FAILED (exit 1) [31s]",
+ "latency": "FAILED (exit 1) [0s]",
+ "extra": "skipped (no dataset paths given)",
+ "tables": "FAILED (exit 1) [1s]",
+ "figures": "FAILED (exit 1) [2s]"
+}
