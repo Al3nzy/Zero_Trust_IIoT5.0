@@ -1,13 +1,13 @@
 {
- "detector": "FAILED (exit 1) [1s]",
- "novel": "FAILED (exit 1) [1s]",
- "trust": "FAILED (exit 1) [1s]",
- "theory": "FAILED (exit 1) [1s]",
- "ledger": "FAILED (exit 1) [0s]",
- "dp": "FAILED (exit 1) [0s]",
- "shap": "FAILED (exit 1) [31s]",
+ "detector": "ok [6813s]",
+ "novel": "ok [4s]",
+ "trust": "ok [15s]",
+ "theory": "ok [134s]",
+ "ledger": "ok [160s]",
+ "dp": "ok [1290s]",
+ "shap": "ok [275s]",
  "latency": "FAILED (exit 1) [0s]",
  "extra": "skipped (no dataset paths given)",
- "tables": "FAILED (exit 1) [1s]",
- "figures": "FAILED (exit 1) [2s]"
+ "tables": "ok [3s]",
+ "figures": "ok [6s]"
 }

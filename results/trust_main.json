@@ -1,0 +1,425 @@
+{
+ "setup": {
+  "m": 20,
+  "rounds": 60,
+  "warmup": 10,
+  "onset": 15,
+  "end": 30,
+  "k": 0.05,
+  "alpha": 0.01,
+  "h": 0.5756462732485115,
+  "n_devices": 200,
+  "device_groups": [
+   "http",
+   "domain_u",
+   "private",
+   "other"
+  ],
+  "severity": [
+   0.0,
+   0.6,
+   0.4,
+   0.8,
+   1.0
+  ],
+  "note": "replay simulation of real posteriors; flows within a round are sampled i.i.d."
+ },
+ "homog": {
+  "mu_b_mean": 0.024604687691566488,
+  "mu_b_sd_across_devices": 0.0006279454490332186,
+  "mu_att": {
+   "DoS": 0.05200133029185066,
+   "Probe": 0.048706758834661384,
+   "R2L": 0.034464258673871345,
+   "U2R": 0.26120599636268527
+  },
+  "confidence (original Eq.4)": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   },
+   "recovery": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "was_quarantined": 0.0,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   }
+  },
+  "beta reputation": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.7605000000000001,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.72,
+    "frac_time_q": 0.0
+   },
+   "recovery": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.8684999999999999,
+    "was_quarantined": 0.0,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.9387000000000001,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.915,
+    "frac_time_q": 0.0
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.9497,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.895,
+    "frac_time_q": 0.0
+   }
+  },
+  "CUSUM fleet-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.28,
+    "healthy_frac_after_warmup": 0.7493000000000001,
+    "detect": 0.28,
+    "median_delay": 4.0,
+    "mean_delay": 3.625,
+    "final_healthy": 0.72,
+    "frac_time_q": 0.26366666666666666
+   },
+   "recovery": {
+    "ever_quarantined": 0.3,
+    "healthy_frac_after_warmup": 0.7931,
+    "was_quarantined": 0.3,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.205,
+    "healthy_frac_after_warmup": 0.8412999999999999,
+    "detect": 0.205,
+    "median_delay": 16.0,
+    "mean_delay": 19.073170731707318,
+    "final_healthy": 0.795,
+    "frac_time_q": 0.1192222222222222
+   },
+   "stealth": {
+    "ever_quarantined": 0.27,
+    "healthy_frac_after_warmup": 0.7878999999999999,
+    "detect": 0.27,
+    "median_delay": 27.5,
+    "mean_delay": 27.64814814814815,
+    "final_healthy": 0.72,
+    "frac_time_q": 0.1101111111111111
+   }
+  },
+  "CUSUM device-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.28,
+    "healthy_frac_after_warmup": 0.7493000000000001,
+    "detect": 0.28,
+    "median_delay": 4.0,
+    "mean_delay": 3.642857142857143,
+    "final_healthy": 0.72,
+    "frac_time_q": 0.26355555555555554
+   },
+   "recovery": {
+    "ever_quarantined": 0.3,
+    "healthy_frac_after_warmup": 0.7938,
+    "was_quarantined": 0.3,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.2,
+    "healthy_frac_after_warmup": 0.8420000000000001,
+    "detect": 0.2,
+    "median_delay": 16.0,
+    "mean_delay": 19.125,
+    "final_healthy": 0.795,
+    "frac_time_q": 0.11811111111111111
+   },
+   "stealth": {
+    "ever_quarantined": 0.275,
+    "healthy_frac_after_warmup": 0.7886,
+    "detect": 0.275,
+    "median_delay": 28.0,
+    "mean_delay": 28.581818181818182,
+    "final_healthy": 0.72,
+    "frac_time_q": 0.10644444444444445
+   }
+  }
+ },
+ "hetero": {
+  "mu_b_mean": 0.028865732377290468,
+  "mu_b_sd_across_devices": 0.006466141192692893,
+  "mu_att": {
+   "DoS": 0.05200133029185066,
+   "Probe": 0.048706758834661384,
+   "R2L": 0.034464258673871345,
+   "U2R": 0.26120599636268527
+  },
+  "confidence (original Eq.4)": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   },
+   "recovery": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "was_quarantined": 0.0,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 1.0,
+    "frac_time_q": 0.0
+   }
+  },
+  "beta reputation": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.7940999999999999,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.76,
+    "frac_time_q": 0.0
+   },
+   "recovery": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.8939,
+    "was_quarantined": 0.0,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.914,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.88,
+    "frac_time_q": 0.0
+   },
+   "stealth": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 0.9178000000000001,
+    "detect": 0.0,
+    "median_delay": null,
+    "mean_delay": null,
+    "final_healthy": 0.85,
+    "frac_time_q": 0.0
+   }
+  },
+  "CUSUM fleet-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.24,
+    "healthy_frac_after_warmup": 0.7848999999999998,
+    "detect": 0.24,
+    "median_delay": 4.0,
+    "mean_delay": 3.5833333333333335,
+    "final_healthy": 0.76,
+    "frac_time_q": 0.2262222222222222
+   },
+   "recovery": {
+    "ever_quarantined": 0.235,
+    "healthy_frac_after_warmup": 0.8406999999999999,
+    "was_quarantined": 0.235,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.225,
+    "healthy_frac_after_warmup": 0.8295,
+    "detect": 0.225,
+    "median_delay": 20.0,
+    "mean_delay": 19.31111111111111,
+    "final_healthy": 0.78,
+    "frac_time_q": 0.12322222222222223
+   },
+   "stealth": {
+    "ever_quarantined": 0.19,
+    "healthy_frac_after_warmup": 0.8251999999999999,
+    "detect": 0.19,
+    "median_delay": 26.0,
+    "mean_delay": 26.92105263157895,
+    "final_healthy": 0.765,
+    "frac_time_q": 0.08055555555555557
+   }
+  },
+  "CUSUM device-baseline": {
+   "benign": {
+    "ever_quarantined": 0.0,
+    "healthy_frac_after_warmup": 1.0
+   },
+   "compromised": {
+    "ever_quarantined": 0.24,
+    "healthy_frac_after_warmup": 0.7852,
+    "detect": 0.24,
+    "median_delay": 4.0,
+    "mean_delay": 3.625,
+    "final_healthy": 0.76,
+    "frac_time_q": 0.22599999999999998
+   },
+   "recovery": {
+    "ever_quarantined": 0.235,
+    "healthy_frac_after_warmup": 0.8372999999999999,
+    "was_quarantined": 0.235,
+    "released_by_end": 1.0,
+    "median_release_delay": 1.0,
+    "final_healthy": 1.0
+   },
+   "intermittent": {
+    "ever_quarantined": 0.225,
+    "healthy_frac_after_warmup": 0.8267,
+    "detect": 0.225,
+    "median_delay": 19.0,
+    "mean_delay": 18.288888888888888,
+    "final_healthy": 0.775,
+    "frac_time_q": 0.12844444444444444
+   },
+   "stealth": {
+    "ever_quarantined": 0.225,
+    "healthy_frac_after_warmup": 0.8169999999999998,
+    "detect": 0.225,
+    "median_delay": 27.0,
+    "mean_delay": 27.08888888888889,
+    "final_healthy": 0.765,
+    "frac_time_q": 0.09455555555555556
+   }
+  }
+ },
+ "contamination": {
+  "0.0_fleet": {
+   "frac": 0.0,
+   "mode": "fleet",
+   "detect_contaminated": null,
+   "false_quarantine_benign": 0.0
+  },
+  "0.0_device": {
+   "frac": 0.0,
+   "mode": "device",
+   "detect_contaminated": null,
+   "false_quarantine_benign": 0.0
+  },
+  "0.1_fleet": {
+   "frac": 0.1,
+   "mode": "fleet",
+   "detect_contaminated": 0.15,
+   "false_quarantine_benign": 0.0
+  },
+  "0.1_device": {
+   "frac": 0.1,
+   "mode": "device",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  },
+  "0.3_fleet": {
+   "frac": 0.3,
+   "mode": "fleet",
+   "detect_contaminated": 0.16666666666666666,
+   "false_quarantine_benign": 0.0
+  },
+  "0.3_device": {
+   "frac": 0.3,
+   "mode": "device",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  },
+  "0.45_fleet": {
+   "frac": 0.45,
+   "mode": "fleet",
+   "detect_contaminated": 0.16666666666666666,
+   "false_quarantine_benign": 0.0
+  },
+  "0.45_device": {
+   "frac": 0.45,
+   "mode": "device",
+   "detect_contaminated": 0.0,
+   "false_quarantine_benign": 0.0
+  }
+ }
+}
