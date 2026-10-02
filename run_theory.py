@@ -4,14 +4,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, pandas as pd, warnings; warnings.filterwarnings("ignore")
 from ztids import config as C
 from ztids.trust import SEVERITY, gen_evidence, run_rule, design
-from ztids.data import CLASSES, make_split
-SRC = os.path.join(C.RES, C.PROPOSED)
-if not os.path.exists(SRC + "_probs.npz"): sys.exit("proposed-model posteriors missing; run the detector stage first")
-z = np.load(SRC + "_probs.npz"); pt, yt = z["pt"], z["yt"]
-_, _, te, _ = make_split("official", 0); svc = te["service"].values
+from ztids.data import CLASSES
+from ztids import evidence as EV_
+E_ = EV_.load(); pt, yt, svc, EV = E_["pt"], E_["yt"], E_["svc"], E_["EVf"]       # classifier + novelty evidence (classifier-only if no novelty file)
 GROUP = "http"                                           # homogeneous device class (largest benign service in the official test set)
-Pn = pt[(yt == 0) & (svc == GROUP)]; Pa = {k: pt[yt == k] for k in (1, 2, 3, 4)}
-harm = pt @ SEVERITY; mu_b = float(harm[(yt == 0) & (svc == GROUP)].mean())
+Pn = EV[(yt == 0) & (svc == GROUP)]; Pa = {k: EV[yt == k] for k in (1, 2, 3, 4)}
+harm = EV[:, 0]; mu_b = float(harm[(yt == 0) & (svc == GROUP)].mean())
 M, WARM, K = 20, 10, 0.05
 N, HOR = (60, 80) if C.QUICK else (600, 300); ND = 60 if C.QUICK else 400
 out = {"group": GROUP, "mu_b": mu_b, "k": K, "m": M, "n_devices": N, "horizon": HOR}
@@ -27,7 +25,7 @@ for rep in (1, 2, 4):                                      # rep > 1: correlated
 out["false_quarantine"] = rows
 rng = np.random.RandomState(1); dl = []
 for c in (1, 2, 3, 4):
-    mu_a = float((pt[yt == c] @ SEVERITY).mean()); taus = []
+    mu_a = float(harm[yt == c].mean()); taus = []
     for _ in range(ND):
         E, _ = gen_evidence(Pn, Pa, "compromised", rng, 120, M, onset=15, attack_cls=c); mu0 = E[:WARM, 0].mean(); h = design(mu_b, mu0, K, M, 0.01)
         S = run_rule(E, "cusum", mu0=mu0, k=K, h=h, warm=WARM)[1]; q = np.where(S[15:] == "Quarantined")[0]; taus.append(q[0] + 1 if len(q) else np.nan)
@@ -38,7 +36,7 @@ for c in (1, 2, 3, 4):
 out["delay"] = dl
 rng = np.random.RandomState(2); fs = []
 for c in (1, 3):
-    mu_att = float((pt[yt == c] @ SEVERITY).mean()); fstar = K / (mu_att - mu_b) if mu_att > mu_b else None
+    mu_att = float(harm[yt == c].mean()); fstar = K / (mu_att - mu_b) if mu_att > mu_b else None
     for f in (0.05, 0.1, 0.15, 0.2, 0.3, 0.5):
         det = 0
         for _ in range(ND):

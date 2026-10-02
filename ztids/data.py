@@ -119,8 +119,9 @@ def make_split(protocol: str, seed: int, data_dir=None, val_frac=0.15, test_frac
 class Preprocessor:
     """One-hot + z-score + MI top-k, all fitted on the fit partition only."""
 
-    def __init__(self, k=25, seed=0, mi_max_rows=40000, feature_order="canonical", sel_mode="global"):
+    def __init__(self, k=25, seed=0, mi_max_rows=40000, feature_order="canonical", sel_mode="global", clip=None):
         self.k, self.seed, self.mi_max_rows, self.feature_order, self.sel_mode = k, seed, mi_max_rows, feature_order, sel_mode
+        self.clip = _C.CLIP if clip is None else clip          # |z| clipping bound (0 = off); rare-event features reach |z|>100
 
     def _expand(self, df):
         num = df[[c for c in FEATURES if c not in CATEGORICAL]].astype(float)
@@ -142,6 +143,7 @@ class Preprocessor:
         y = df_fit["cls"].map(CLASS_ID).values
         self.scaler_ = StandardScaler().fit(X.values)
         Xs = self.scaler_.transform(X.values)
+        if self.clip: Xs = np.clip(Xs, -self.clip, self.clip)
         rng = np.random.RandomState(self.seed)
         sub = rng.choice(len(Xs), min(len(Xs), self.mi_max_rows), replace=False)
         self.mi_ = mutual_info_classif(Xs[sub], y[sub], random_state=self.seed)
@@ -168,8 +170,9 @@ class Preprocessor:
         return self
 
     def transform(self, df):
-        X = self._expand(df)
-        return self.scaler_.transform(X.values)[:, self.sel_].astype(np.float32)
+        Z = self.scaler_.transform(self._expand(df).values)
+        if self.clip: Z = np.clip(Z, -self.clip, self.clip)
+        return Z[:, self.sel_].astype(np.float32)
 
 
 def balance_train(X, y, n_per_class, seed):
@@ -186,9 +189,9 @@ def balance_train(X, y, n_per_class, seed):
     return X.astype(np.float32), y
 
 
-def prepare(protocol, seed, n_per_class=6000, k=25, feature_order="canonical", data_dir=None, sel_mode="global"):
+def prepare(protocol, seed, n_per_class=6000, k=25, feature_order="canonical", data_dir=None, sel_mode="global", clip=None):
     fit, val, test, audit = make_split(protocol, seed, data_dir)
-    pp = Preprocessor(k=k, seed=seed, feature_order=feature_order, sel_mode=sel_mode).fit(fit)
+    pp = Preprocessor(k=k, seed=seed, feature_order=feature_order, sel_mode=sel_mode, clip=clip).fit(fit)
     Xf, yf = pp.transform(fit), fit["cls"].map(CLASS_ID).values
     Xv, yv = pp.transform(val), val["cls"].map(CLASS_ID).values
     Xt, yt = pp.transform(test), test["cls"].map(CLASS_ID).values

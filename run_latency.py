@@ -1,6 +1,10 @@
 """Stage 8: end-to-end latency/footprint on the SAME hardware for the plain and the dual-attention model.
 Forced to 1 thread for comparability. Run on an otherwise idle machine; do not run other stages concurrently."""
-import sys, os, json, time, platform, resource
+import sys, os, json, time, platform
+try:
+    import resource                    # Unix only
+except ImportError:
+    resource = None
 os.environ["ZTIDS_THREADS"] = "1"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import warnings; warnings.filterwarnings("ignore")
@@ -46,6 +50,9 @@ if "plain" in MODELS:
     import shap
     m = load(MODELS["plain"]); bg = d["Xtr"][rng.choice(len(d["Xtr"]), 100, replace=False)][..., None]
     ex = shap.GradientExplainer(m, bg); s = time.perf_counter(); ex.shap_values(X1[..., None], nsamples=50); out["shap_1flow_s"] = time.perf_counter() - s
-out["peak_rss_mb"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024      # Linux: KiB -> MiB (macOS reports bytes)
+try:
+    import psutil; out["peak_rss_mb"] = psutil.Process().memory_info().rss / 1e6          # current RSS (portable, needs psutil)
+except ImportError:
+    out["peak_rss_mb"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 if resource else None   # Linux KiB -> MiB
 json.dump(out, open(os.path.join(C.RES, "latency.json"), "w"), indent=1)
 print("latency stage complete", flush=True)

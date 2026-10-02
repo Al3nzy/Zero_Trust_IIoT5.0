@@ -9,13 +9,13 @@ MASTER SCRIPT. Run this file; it executes every experiment stage in order, never
     python run_everything.py --unsw-train UNSW_NB15_training-set.csv --unsw-test UNSW_NB15_testing-set.csv \
                              --edge ML-EdgeIIoT-dataset.csv                 # also run the additional-dataset stage
 
-Stages (in order): detector novel trust theory ledger dp shap latency extra tables figures
-Finished jobs are cached in results/ (or results_quick/), so an interrupted run resumes where it stopped.
+Stages (in order): detector novelty novel trust theory ledger dp shap latency extra tables figures
+Finished jobs are cached in results_v2/ (or results_v2_quick/), so an interrupted run resumes where it stopped.
 """
 import argparse, json, os, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__))
-STAGES = ["detector", "novel", "trust", "theory", "ledger", "dp", "shap", "latency", "extra", "tables", "figures"]
-SCRIPT = dict(detector="run_detector.py", novel="run_novel.py", trust="run_trust.py", theory="run_theory.py", ledger="run_ledger.py", dp="run_dp.py",
+STAGES = ["detector", "novelty", "novel", "trust", "theory", "ledger", "dp", "shap", "latency", "extra", "tables", "figures"]
+SCRIPT = dict(detector="run_detector.py", novelty="run_novelty.py", novel="run_novel.py", trust="run_trust.py", theory="run_theory.py", ledger="run_ledger.py", dp="run_dp.py",
               shap="run_shap.py", latency="run_latency.py", tables="make_tables.py", figures="make_figs.py")
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 ap.add_argument("--quick", action="store_true"); ap.add_argument("--only", nargs="*", choices=STAGES); ap.add_argument("--skip", nargs="*", default=[], choices=STAGES)
@@ -28,7 +28,7 @@ if a.seeds: env["ZTIDS_SEEDS"] = ",".join(map(str, a.seeds))
 if a.npc: env["ZTIDS_NPC"] = str(a.npc)
 if a.epochs: env["ZTIDS_EPOCHS"] = str(a.epochs)
 if a.threads is not None: env["ZTIDS_THREADS"] = str(a.threads)
-res = os.path.join(HERE, "results_quick" if a.quick else "results"); os.makedirs(res, exist_ok=True)
+res = os.path.join(HERE, "results_v2_quick" if a.quick else "results_v2"); os.makedirs(res, exist_ok=True)
 todo = [s for s in (a.only or STAGES) if s not in a.skip]
 status = {}; t_all = time.time()
 for st in todo:

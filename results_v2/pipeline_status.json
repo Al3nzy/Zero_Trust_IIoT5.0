@@ -1,0 +1,14 @@
+{
+ "detector": "ok [11141s]",
+ "novelty": "ok [105s]",
+ "novel": "ok [6s]",
+ "trust": "ok [25s]",
+ "theory": "ok [102s]",
+ "ledger": "ok [184s]",
+ "dp": "ok [1408s]",
+ "shap": "ok [392s]",
+ "latency": "ok [55s]",
+ "extra": "skipped (no dataset paths given)",
+ "tables": "ok [3s]",
+ "figures": "ok [8s]"
+}

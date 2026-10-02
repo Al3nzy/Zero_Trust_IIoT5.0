@@ -20,7 +20,8 @@ MET = [("Acc.", lambda r: r["test"]["acc"]), ("Macro-F1", lambda r: r["test"]["m
        ("Normal FPR", lambda r: r["test"]["normal_fpr"]), ("R2L rec.", lambda r: r["test"]["per_class"]["R2L"]["r"]), ("U2R rec.", lambda r: r["test"]["per_class"]["U2R"]["r"])]
 def metric_row(label, names):
     rs = [J(n) for n in names]; rs = [r for r in rs if r]
-    return [esc(label)] + [ms([f(r) for r in rs]) for _, f in MET] + [str(len(rs))]
+    deg = sum(1 for r in rs if r["test"]["attack_detection_rate"] < 0.05 or r["test"]["normal_fpr"] > 0.5)      # collapsed runs are counted, never dropped
+    return [esc(label)] + [ms([f(r) for r in rs]) for _, f in MET] + [str(len(rs)) + (f" ({deg} degenerate)" if deg else "")]
 def jobs(model, **kw): return [jid(dict(proto=O, model=model, seed=s, **kw)) for s in S]
 def trees(model, feats, proto=O, **kw): return [tree_id(dict(proto=proto, model=model, seed=s, feats=feats, **kw)) for s in S]
 def tab(header, rows, spec=None):
@@ -67,6 +68,20 @@ if nv:
     rows = [[esc(k), str(v["seen"]["n"]), fp(v["seen"]["exact_recall"], 1, True), fp(v["seen"]["detection"], 1, True), str(v["novel"]["n"]), fp(v["novel"]["exact_recall"], 1, True), fp(v["novel"]["detection"], 1, True)] for k, v in nv["models"].items()]
     emit("tab:novel", "Attack recall (\\%) on sub-types seen in training versus test-only sub-types", ["Model", "n seen", "Exact", "Detected", "n novel", "Exact", "Detected"], rows,
          note="Exact = correct 5-class label; Detected = any non-Normal label. Novel sub-types: " + ", ".join(nv["novel_subtypes"]))
+# ---------- novelty-aware fusion
+nvl = J("novelty")
+if nvl:
+    for fpr, Rf in nvl["fprs"].items():
+        rows = []
+        for model, per in Rf.items():
+            if model == "novelty only":
+                v = list(per.values()); rows.append(["Normal-profile detector alone", "--", ms([x["fpr"] for x in v]), ms([x["det_seen"] for x in v]), ms([x["det_novel"] for x in v]), "--", "--"])
+            else:
+                for mode in ("alone", "fused"):
+                    v = [per[s][mode] for s in per]
+                    rows.append([esc(model) + (" + novelty" if mode == "fused" else ""), ms([x["macro_f1"] for x in v]), ms([x["fpr"] for x in v]), ms([x["det_seen"] for x in v]), ms([x["det_novel"] for x in v]), ms([x["r2l"] for x in v]), ms([x["u2r"] for x in v])])
+        emit(f"tab:novelty_fpr{fpr}", f"Seen vs novel attack detection, novelty threshold at {float(fpr) * 100:.0f}% validation FPR", ["Detector", "Macro-F1", "Benign FPR", "Det. seen", "Det. novel", "R2L rec.", "U2R rec."], rows,
+             note=f"{nvl['n_attack_novel']} of {nvl['n_attack_test']} test attacks belong to sub-types absent from training. Threshold set on validation Normal flows only.")
 # ---------- trust
 tr = J("trust_main")
 if tr:
@@ -74,9 +89,10 @@ if tr:
     for fl in ("homog", "hetero"):
         for name, v in tr[fl].items():
             if not isinstance(v, dict) or "benign" not in v: continue
-            b, c, r, s = v["benign"], v["compromised"], v["recovery"], v["stealth"]
-            rows.append([fl, esc(name), fp(b["ever_quarantined"], 1, True), fp(c["detect"], 0, True), "--" if c["median_delay"] is None else f"{c['median_delay']:.0f}", fp(c["final_healthy"], 0, True), fp(r["released_by_end"], 0, True), fp(s["detect"], 0, True)])
-    emit("tab:trust", "Trust-update rules on replayed real posteriors", ["Fleet", "Rule", "False quar. (\\%)", "Detect (\\%)", "Delay (rounds)", "Final Healthy (\\%)", "Released (\\%)", "Stealth 30\\% (\\%)"], rows, spec="llcccccc",
+            b, c, r, s = v["benign"], v["compromised"], v["recovery"], v["stealth"]; sn, nv = v.get("seen_attack"), v.get("novel_attack")
+            rows.append([fl, esc(name), fp(b["ever_quarantined"], 1, True), fp(c["detect"], 0, True), "--" if c["median_delay"] is None else f"{c['median_delay']:.0f}", fp(r["released_by_end"], 0, True), fp(s["detect"], 0, True),
+                         "--" if sn is None else fp(sn["detect"], 0, True), "--" if nv is None else fp(nv["detect"], 0, True)])
+    emit("tab:trust", "Trust-update rules on replayed real posteriors", ["Fleet", "Rule", "False quar. (\\%)", "Detect (\\%)", "Delay (rounds)", "Released (\\%)", "Stealth 30\\% (\\%)", "Seen sub-type (\\%)", "Novel sub-type (\\%)"], rows, spec="llccccccc",
          note=f"h={tr['setup']['h']:.3f}, k={tr['setup']['k']}, m={tr['setup']['m']} flows/round, {tr['setup']['n_devices']} devices per cell. Replay simulation, not a deployment.")
     rows = [[f"{v['frac']:.2f}", v["mode"], fp(v["detect_contaminated"], 0, True), fp(v["false_quarantine_benign"], 1, True)] for v in tr["contamination"].values()]
     emit("tab:contam", "Compromise during baseline commissioning", ["Contaminated fraction", "Baseline", "Detected (\\%)", "False quar. (\\%)"], rows)
@@ -105,7 +121,7 @@ if lt:
     rows = [[k, f"{v['params']:,}", fp(v["size_mb"], 1), fp(v["infer_1flow"]["mean_ms"], 2), fp(v["infer_20flows"]["mean_ms"], 2), fp(v["infer_20flows"]["p99_ms"], 2), fp(v["throughput_flows_per_s"], 0), fp(v["round_total_ms"], 2)] for k, v in lt["models"].items()]
     emit("tab:latency", "Per-round latency on identical hardware (1 thread)", ["Model", "Params", "MB", "1 flow (ms)", "20 flows (ms)", "p99 (ms)", "flows/s", "Round total (ms)"], rows,
          note=f"Stages (mean ms): preprocess(20)={lt['preprocess_20flows']['mean_ms']:.2f}, trust update={lt['trust_update_round']['mean_ms']:.3f}, signed ledger append={lt['ledger_append_signed']['mean_ms']:.3f}; "
-              f"SHAP per flow={lt.get('shap_1flow_s', float('nan')):.2f} s; peak RSS={lt['peak_rss_mb']:.0f} MB; hardware: {lt['hw']['platform']}, {lt['hw']['cpu_count']} cores.")
+              f"SHAP per flow={lt.get('shap_1flow_s', float('nan')):.2f} s; peak RSS={'n/a' if lt['peak_rss_mb'] is None else format(lt['peak_rss_mb'], '.0f')} MB; hardware: {lt['hw']['platform']}, {lt['hw']['cpu_count']} cores.")
 # ---------- extra datasets
 ex = sorted(glob.glob(os.path.join(C.ROOT, "results_extra", "*_seed*.json")))
 if ex:

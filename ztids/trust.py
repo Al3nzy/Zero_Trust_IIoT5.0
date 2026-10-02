@@ -22,14 +22,16 @@ SEVERITY = np.array([0.0, 0.6, 0.4, 0.8, 1.0])      # Normal, DoS, Probe, R2L, U
 H, D, Q = "Healthy", "Degraded", "Quarantined"
 
 
-def round_stats(P_rows):
-    return dict(h=float((P_rows @ SEVERITY).mean()), g=float(P_rows[:, 0].mean()), c=float(P_rows.max(1).mean()))
+def to_evidence(P, flag=None, w_u=0.5):
+    """Per-flow evidence rows [harm, p_normal, confidence] from posteriors (and an optional novelty flag, see ztids.novelty)."""
+    from .novelty import evidence_rows
+    return evidence_rows(P, flag, w_u)
 
 
 def gen_evidence(Pn, Pa, scenario, rng, rounds=60, m=20, onset=15, end=30, attack_cls=None, p_burst=0.3, frac=0.1, rep=1):
     """Replay real classifier posteriors as a device stream. Returns per-round [h, g, c] and the attacked-flow fraction.
-    Pn: posteriors of benign flows; Pa: dict class -> posteriors of that attack class; rep>1 duplicates flows (correlated)."""
-    cls = attack_cls if attack_cls is not None else int(rng.choice([1, 2, 3, 4]))
+    Pn: evidence rows [harm, p_normal, conf] of benign flows; Pa: dict key -> evidence rows of that attack pool; rep>1 duplicates flows (correlated)."""
+    cls = attack_cls if attack_cls is not None else int(rng.choice([k for k in Pa if isinstance(k, (int, np.integer))]))
     out = np.zeros((rounds, 3)); fr = np.zeros(rounds)
     for t in range(rounds):
         if scenario == "benign": a = 0.0
@@ -41,7 +43,7 @@ def gen_evidence(Pn, Pa, scenario, rng, rounds=60, m=20, onset=15, end=30, attac
         na = rng.binomial(m, a); fr[t] = na / m
         rows = [np.repeat(Pn[rng.randint(0, len(Pn), -(-(m - na) // rep))], rep, axis=0)[: m - na]]
         if na: rows.append(np.repeat(Pa[cls][rng.randint(0, len(Pa[cls]), -(-na // rep))], rep, axis=0)[:na])
-        s = round_stats(np.vstack(rows)); out[t] = (s["h"], s["g"], s["c"])
+        out[t] = np.vstack(rows).mean(0)
     return out, fr
 
 

@@ -1,4 +1,5 @@
-"""Model zoo. The proposed detector keeps the architecture of the original manuscript (CNN-BiLSTM, 463,493 parameters)."""
+"""Model zoo. The proposed detector keeps the architecture of the original manuscript (CNN-BiLSTM); the normalisation layers are LayerNorm by
+default (BatchNorm collapsed on outlier-heavy rare-event features; set ZTIDS_NORM=bn to reproduce the original)."""
 import os
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
 os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
@@ -43,7 +44,8 @@ def _norm(kind):
     return L.BatchNormalization() if kind == "bn" else L.LayerNormalization()
 
 
-def cnn_bilstm(n_feat=25, n_cls=5, norm="bn", attention=False, width=1.0):
+def cnn_bilstm(n_feat=25, n_cls=5, norm=None, attention=False, width=1.0):
+    norm = norm or C.NORM
     f1, f2, u = int(256 * width), int(128 * width), int(128 * width)
     inp = keras.Input((n_feat, 1))
     x = L.Conv1D(f1, 3, activation="relu")(inp); x = _norm(norm)(x); x = L.Dropout(0.25)(x)
@@ -66,8 +68,8 @@ def mlp(n_feat=25, n_cls=5):
 
 def cnn_only(n_feat=25, n_cls=5):
     inp = keras.Input((n_feat, 1))
-    x = L.Conv1D(256, 3, activation="relu")(inp); x = L.BatchNormalization()(x); x = L.Dropout(.25)(x)
-    x = L.Conv1D(128, 3, activation="relu")(x);  x = L.BatchNormalization()(x); x = L.Dropout(.3)(x)
+    x = L.Conv1D(256, 3, activation="relu")(inp); x = _norm(C.NORM)(x); x = L.Dropout(.25)(x)
+    x = L.Conv1D(128, 3, activation="relu")(x);  x = _norm(C.NORM)(x); x = L.Dropout(.3)(x)
     x = L.GlobalAveragePooling1D()(x)
     x = L.Dense(256, activation="relu")(x); x = L.Dropout(.3)(x)
     x = L.Dense(128, activation="relu")(x); x = L.Dropout(.25)(x)
@@ -92,11 +94,16 @@ def compile_model(m, lr=5e-4):
     return m
 
 
-def fit_model(m, Xtr, ytr, Xval, yval, epochs=14, batch=256, patience=3, verbose=0, seed=0):
+def fit_model(m, Xtr, ytr, Xval, yval, epochs=14, batch=256, patience=3, verbose=0, seed=0, val_weighting=None):
+    val_weighting = val_weighting or C.VAL_WEIGHTING
     tf.keras.utils.set_random_seed(seed)
+    vd = (Xval[..., None], yval)
+    if val_weighting != "none":                      # class-aware validation loss so that rare classes influence early stopping
+        cnt = np.bincount(yval, minlength=int(max(yval.max(), ytr.max())) + 1).astype(float); pw = {"sqrt": 0.5, "balanced": 1.0}[val_weighting]
+        w = np.where(cnt > 0, 1.0 / np.maximum(cnt, 1) ** pw, 0.0)[yval]; vd = (vd[0], vd[1], (w / w.mean()).astype("float32"))
     cb = [keras.callbacks.EarlyStopping(monitor="val_loss", patience=patience, restore_best_weights=True),
           keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=2, min_lr=1e-5)]
-    return m.fit(Xtr[..., None], ytr, validation_data=(Xval[..., None], yval), epochs=epochs,
+    return m.fit(Xtr[..., None], ytr, validation_data=vd, epochs=epochs,
                  batch_size=batch, callbacks=cb, verbose=verbose)
 
 

@@ -56,6 +56,8 @@ def run(j):
                test=metrics(d["yte"], pt), val=metrics(d["yval"], pv),
                audit={k: v for k, v in d["audit"].items() if k != "selected_features"}, features=d["audit"]["selected_features"])
     np.savez_compressed(os.path.join(C.RES, name + "_probs.npz"), pt=pt.astype(np.float32), yt=d["yte"], pv=pv.astype(np.float32), yv=d["yval"])
+    res["degenerate"] = bool(res["test"]["attack_detection_rate"] < 0.05 or res["test"]["normal_fpr"] > 0.5)   # collapsed to one class
+    if res["degenerate"]: print(f"[WARNING] degenerate run (collapsed predictions): {name}", flush=True)
     if j.get("save_model"): m.save(os.path.join(C.RES, name + ".keras"))
     json.dump(res, open(path, "w"))
     print(f"[done] {name} acc={res['test']['acc']:.4f} mF1={res['test']['macro_f1']:.4f} ep={res['epochs_run']} {res['train_s']}s", flush=True)

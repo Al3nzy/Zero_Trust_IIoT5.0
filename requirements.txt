@@ -11,3 +11,4 @@ shap
 matplotlib
 cryptography
 dp-accounting         # only used by the optional accountant cross-check (check_accountant.py)
+psutil

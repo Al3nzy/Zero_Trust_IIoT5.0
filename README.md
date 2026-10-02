@@ -15,21 +15,21 @@ The NSL-KDD files are already in `data/`.
 ```bash
 python run_everything.py --quick
 ```
-Uses a few hundred samples per class and 2 epochs, writes to `results_quick/`, `tables_quick/`, `figures_quick/`.
+Uses a few hundred samples per class and 2 epochs, writes to `results_v2_quick/`, `tables_quick/`, `figures_quick/`.
 The numbers from this run are meaningless; it only proves every stage executes. It ends with a summary showing `ok` or `FAILED` per stage.
 
 ## 3. Full run
 ```bash
 python run_everything.py
 ```
-Results go to `results/`, tables to `tables/tables.tex` + `tables/summary.md`, figures to `figures/`.
+Results go to `results_v2/` (a NEW folder, so results cached by an older version of this code are never reused), tables to `tables/tables.tex` + `tables/summary.md`, figures to `figures/`.
 Measured on a single CPU core: one CNN-BiLSTM job takes about 12 minutes, and the full run trains roughly 35 neural models
 (plus DP-SGD), i.e. many hours on a 1-core machine. A multi-core CPU or a GPU shortens this a lot. DP-SGD is the slowest stage: use
 `--skip dp` first, then run it alone later (`python run_everything.py --only dp`, optionally with `ZTIDS_DP_N=30000` to subsample).
 
 Useful options
 ```bash
-python run_everything.py --only trust theory ledger tables figures   # re-run only some stages (all stages: detector novel trust theory ledger dp shap latency extra tables figures)
+python run_everything.py --only trust theory ledger tables figures   # re-run only some stages (all stages: detector novelty novel trust theory ledger dp shap latency extra tables figures)
 python run_everything.py --skip dp latency                          # skip slow stages
 python run_everything.py --seeds 0 1 2 3 4                          # more seeds (seed 0 is always included)
 python run_everything.py --threads 8                                # TensorFlow threads (default: automatic)
@@ -53,7 +53,8 @@ with the same structure, not on the real files, so inspect the first run.
 | stage | script | output | answers |
 |---|---|---|---|
 | detector | run_detector.py | results/*.json | train/test leakage, MI-before-split, accuracy inconsistencies, baselines (MLP/CNN/LSTM/LightGBM/RF), attention ablation, order ablation, poisoning, multi-seed statistics |
-| novel | run_novel.py | novel.json | generalisation to attack sub-types never seen in training |
+| novelty | run_novelty.py | novelty.json, novelty_s*_f*.npz | Normal-profile (isolation-forest) novelty detector fused with each classifier; detection of attack sub-types never seen in training |
+| novel | run_novel.py | novel.json | per-sub-type recall of the classifiers alone, seen vs test-only sub-types |
 | trust | run_trust.py | trust_main.json | adaptive zero-trust validation: benign/compromised/recovery/intermittent/stealth, heterogeneous fleets, contaminated commissioning |
 | theory | run_theory.py | trust_theory.json | empirical check of the proved false-quarantine bound, delay bound, minimum detectable attack fraction |
 | ledger | run_ledger.py | ledger.json | tamper-detection of hash chain vs signatures vs anchors (blockchain claims) |
@@ -68,7 +69,15 @@ with the same structure, not on the real files, so inspect the first run.
 - the validation set is carved from original training records before any resampling;
 - category vocabulary, scaler, MI feature selection and SMOTE/undersampling are fitted on the training partition only; resampling happens after the split;
 - the `difficulty` column is never a feature; all 17 test-only attack types are kept;
+- standardised features are clipped to |z| <= 5 (training-fitted scaler): the class-aware selection picks rare-event features (num_file_creations, hot, root_shell) whose z-scores reach 200, which made BatchNorm models collapse to a single class in about 40% of runs; runs that still collapse are flagged `degenerate` and counted in the tables;
 - feature selection is class-aware (per-class one-vs-rest MI), and the selected features keep canonical NSL-KDD order.
+
+## Version 2 changes (after the first full run)
+1. **Training collapse fixed**: z-score clipping (`ZTIDS_CLIP`, default 5) and a normalisation switch (`ZTIDS_NORM=bn|ln`, see the run summary for the default); degenerate runs are flagged.
+2. **Novelty detector added** (`ztids/novelty.py`, stage `novelty`): isolation forest on Normal training flows, threshold set on validation Normal flows. Trust evidence uses
+   harm = max(severity-weighted posterior, w_u x flag); `w_u = 0.5` is a policy choice (`ztids/evidence.py`).
+3. **Latency stage no longer fails on Windows** (the Unix-only `resource` module is now optional; `psutil` is used for memory).
+4. Trust and theory stages now also test devices compromised by attack sub-types that were never seen in training.
 
 ## Things you must state in the paper (limits of this code)
 1. **Trust results are a replay simulation**: real test-set posteriors are sampled into simulated device streams (flows i.i.d. within a round). It is not a deployment.

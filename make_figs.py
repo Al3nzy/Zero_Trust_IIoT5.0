@@ -15,8 +15,8 @@ def guard(f):
     except Exception as e: print("skipped", f.__name__, "->", repr(e)[:120], flush=True)
 
 def fig_trust_traj():
-    z = np.load(os.path.join(C.RES, C.PROPOSED + "_probs.npz")); pt, yt = z["pt"], z["yt"]; _, _, te, _ = make_split("official", 0); svc = te["service"].values
-    Pn = pt[(yt == 0) & (svc == "http")]; Pa = {k: pt[yt == k] for k in (1, 2, 3, 4)}; M, W, k, h = 20, 10, 0.05, 0.6
+    from ztids import evidence as EV_
+    E_ = EV_.load(); yt, svc, EV = E_["yt"], E_["svc"], E_["EVf"]; Pn = EV[(yt == 0) & (svc == "http")]; Pa = {k: EV[yt == k] for k in (1, 2, 3, 4)}; M, W, k, h = 20, 10, 0.05, 0.6
     rules = [("Confidence-only rule (original)", "confidence", "#7f7f7f", ":"), ("Beta reputation", "beta", "#1f77b4", "--"), ("Proposed CUSUM trust", "cusum", "#d62728", "-")]
     scn = [("(a) Benign", "benign"), ("(b) Compromised at t=15", "compromised"), ("(c) Compromised t=15-30, then repaired", "recovery"), ("(d) Intermittent bursts (p=0.3)", "intermittent")]
     fig, ax = plt.subplots(2, 2, figsize=(7.16, 3.9), sharex=True, sharey=True)
