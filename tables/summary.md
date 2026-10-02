@@ -163,7 +163,7 @@ h=0.576, k=0.05, m=20 flows/round, 200 devices per cell. Replay simulation, not 
 | rewrite\_own\_key | 0.0 | 100.0 | 100.0 |
 | untampered chain accepted | yes | yes | yes |
 
-append (us): append_us_hash_only=13.2, append_us_signed=59.3 | verify (s): verify_s_1000=0.16, verify_s_10000=1.25, verify_s_50000=5.66
+append (us): append_us_hash_only=10.2, append_us_signed=51.7 | verify (s): verify_s_1000=0.10, verify_s_10000=1.11, verify_s_50000=5.42
 
 ### tab:dp: DP-SGD (RDP accountant) privacy-utility trade-off
 
@@ -180,7 +180,7 @@ N=107063 records, delta=1/N, 3 epochs, batch 256, clip 1.0. MIA AUC = loss-thres
 
 | Model | Params | MB | 1 flow (ms) | 20 flows (ms) | p99 (ms) | flows/s | Round total (ms) |
 |---|---|---|---|---|---|---|---|
-| plain | 462,725 | 5.6 | 2.17 | 6.86 | 7.89 | 1239 | 9.33 |
-| attention | 471,205 | 5.7 | 2.51 | 7.72 | 15.01 | 2307 | 10.20 |
+| plain | 462,725 | 5.6 | 2.14 | 6.97 | 10.04 | 2167 | 9.39 |
+| attention | 471,205 | 5.7 | 2.23 | 6.91 | 7.67 | 2269 | 9.33 |
 
-Stages (mean ms): preprocess(20)=2.43, trust update=0.005, signed ledger append=0.046; SHAP per flow=3.34 s; peak RSS=628 MB; hardware: Windows-11-10.0.26220-SP0, 8 cores.
+Stages (mean ms): preprocess(20)=2.37, trust update=0.004, signed ledger append=0.046; SHAP per flow=3.50 s; peak RSS=630 MB; hardware: Windows-11-10.0.26220-SP0, 8 cores.

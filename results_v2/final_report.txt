@@ -1,0 +1,148 @@
+
+====================================================================================================
+FINAL RESULTS OVERVIEW
+====================================================================================================
+Setup: NSL-KDD official split (overlap-free test, 21833 flows) | seeds=[0, 1, 2] | balanced train 4000/class | epochs<=14 | hardware: Windows-11-10.0.26220-SP0, 8 cores
+Degenerate (collapsed) runs among the models below: 0 of 27
+
+====================================================================================================
+1. DETECTION ACCURACY (mean +/- std over seeds; * = best in column)
+====================================================================================================
+Model                           n             Acc         MacroF1             MCC       NormalFPR         R2L-rec         U2R-rec
+CNN-BiLSTM (proposed)           3  0.745+/-0.010   0.554+/-0.018   0.620+/-0.018   0.081+/-0.029   0.183+/-0.041   0.527+/-0.031 
+CNN-BiLSTM + dual attention     3  0.739+/-0.021   0.542+/-0.027   0.610+/-0.035   0.075+/-0.026   0.131+/-0.061   0.537+/-0.117 
+CNN-BiLSTM, global MI           3  0.728+/-0.006   0.514+/-0.002   0.597+/-0.009   0.104+/-0.001   0.165+/-0.007   0.418+/-0.039 
+LightGBM (class-aware MI)       3  0.776+/-0.019*  0.634+/-0.024*  0.675+/-0.026*  0.029+/-0.002   0.191+/-0.004*  0.408+/-0.075 
+LightGBM (global MI)            3  0.775+/-0.011   0.562+/-0.009   0.672+/-0.017   0.030+/-0.001   0.076+/-0.012   0.264+/-0.023 
+Random forest (class-aware)     3  0.752+/-0.002   0.566+/-0.018   0.639+/-0.003   0.029+/-0.001*  0.077+/-0.007   0.294+/-0.075 
+MLP                             3  0.752+/-0.014   0.560+/-0.028   0.633+/-0.023   0.077+/-0.028   0.148+/-0.052   0.537+/-0.026 
+CNN only                        3  0.735+/-0.016   0.549+/-0.041   0.604+/-0.025   0.102+/-0.003   0.174+/-0.099   0.642+/-0.015*
+LSTM only                       3  0.731+/-0.018   0.522+/-0.055   0.601+/-0.022   0.091+/-0.024   0.099+/-0.074   0.582+/-0.113 
+
+  Best Acc       : LightGBM (class-aware MI)      0.776+/-0.019
+  Best MacroF1   : LightGBM (class-aware MI)      0.634+/-0.024
+  Best MCC       : LightGBM (class-aware MI)      0.675+/-0.026
+  Best NormalFPR : Random forest (class-aware)    0.029+/-0.001
+  Best R2L-rec   : LightGBM (class-aware MI)      0.191+/-0.004
+  Best U2R-rec   : CNN only                       0.642+/-0.015
+  Ranking by Macro-F1 : LightGBM (class-aware MI) (0.634) > Random forest (class-aware) (0.566) > LightGBM (global MI) (0.562) > MLP (0.560) > CNN-BiLSTM (proposed) (0.554) > CNN only (0.549) > CNN-BiLSTM + dual attention (0.542) > LSTM only (0.522) > CNN-BiLSTM, global MI (0.514)
+  Verdict: best classical model (LightGBM (class-aware MI)) vs best deep model (MLP): Macro-F1 0.634 vs 0.560 (diff +0.074, within 2 pooled std; few seeds, indicative only).
+           Deep models lead only on rare-class recall: best U2R recall = CNN only (0.642).
+
+====================================================================================================
+2. ABLATIONS
+====================================================================================================
+  Feature selection (CNN-BiLSTM): class-aware MI 0.554+/-0.018 vs global MI 0.514+/-0.002 Macro-F1 (delta +0.040)
+  Feature selection (LightGBM)  : class-aware MI 0.634+/-0.024 vs global MI 0.562+/-0.009 Macro-F1 (delta +0.072); R2L recall 0.191+/-0.004 vs 0.076+/-0.012
+  Dual attention: Macro-F1 0.554+/-0.018 (without) vs 0.542+/-0.027 (with), delta -0.013; round latency 9.39 vs 9.33 ms
+  Feature order: canonical 0.554+/-0.018, random 0.557+/-0.036, mi 0.561+/-0.029  -> order does not matter (differences within std)
+  Poisoning (targeted, 50% of R2L/U2R relabelled Normal): R2L recall 0.183+/-0.041 -> 0.054+/-0.047, U2R recall 0.527+/-0.031 -> 0.204+/-0.202
+  Poisoning (random 30% label noise)                    : Macro-F1 0.554+/-0.018 -> 0.555+/-0.037  (robust to random noise, vulnerable to targeted poisoning)
+  Distribution shift: LightGBM accuracy 0.988+/-0.001 on a deduplicated random split vs 0.776+/-0.019 on the official split (novel attack types)
+
+====================================================================================================
+3. UNSEEN ATTACK TYPES (Normal-profile novelty detector fused with each classifier, threshold = 2% FPR on validation)
+====================================================================================================
+Model                             novel det: alone -> fused  seen det (fused)   benign FPR: alone -> fused    MacroF1: alone -> fused
+proposed CNN-BiLSTM              0.41+/-0.11 -> 0.60+/-0.02       0.85+/-0.01 0.081+/-0.029 -> 0.084+/-0.029 0.554+/-0.018 -> 0.576+/-0.022
+LightGBM (class-aware MI)        0.30+/-0.13 -> 0.58+/-0.06       0.82+/-0.01 0.029+/-0.002 -> 0.032+/-0.002 0.634+/-0.024 -> 0.667+/-0.029
+LightGBM (global MI)             0.41+/-0.09 -> 0.65+/-0.02       0.79+/-0.01 0.030+/-0.001 -> 0.033+/-0.001 0.562+/-0.009 -> 0.590+/-0.002
+MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.077+/-0.028 -> 0.079+/-0.028 0.560+/-0.028 -> 0.576+/-0.028
+  Trade-off: class-aware MI raises R2L/U2R recall and Macro-F1 but lowers unseen-type detection of the classifier alone (0.30+/-0.13 vs 0.41+/-0.09 with global MI); the novelty fusion recovers it (0.58+/-0.06).
+  Novelty detector alone: detects 0.52+/-0.02 of unseen-type attacks and 0.65+/-0.01 of seen-type attacks at 0.019+/-0.001 benign flag rate.
+  3695 of 12251 test attacks belong to sub-types absent from training. Best unseen-type detection: LightGBM (global MI) + novelty (0.65).
+
+====================================================================================================
+4. ZERO-TRUST LAYER (replay of real classifier outputs through simulated devices)
+====================================================================================================
+
+-- homogeneous fleet
+  Rule                                   false quar.  detect  delay seen type novel type stealth30%  released
+  confidence (original Eq.4)                    0.0%      0%     --        0%         0%         0%      100%
+  beta reputation                               0.0%     72%      8      100%         0%         0%      100%
+  CUSUM fleet-baseline (classifier)             0.0%    100%      2      100%       100%        97%      100%
+  CUSUM fleet-baseline (+novelty)               0.0%    100%      2      100%       100%        97%      100%
+  CUSUM device-baseline (+novelty)              0.0%    100%      2      100%       100%        96%      100%
+
+-- heterogeneous fleet (devices on different services)
+  Rule                                   false quar.  detect  delay seen type novel type stealth30%  released
+  confidence (original Eq.4)                    0.0%      0%     --        0%         0%         0%      100%
+  beta reputation                               0.0%     76%      8      100%         0%         0%      100%
+  CUSUM fleet-baseline (classifier)            18.5%    100%      2      100%       100%        82%       74%
+  CUSUM fleet-baseline (+novelty)               4.5%    100%      2      100%       100%        88%       68%
+  CUSUM device-baseline (+novelty)              0.0%    100%      2      100%       100%        88%       96%
+  Contaminated commissioning (up to 45% of fleet already compromised): fleet-median baseline still detects 100%, per-device baseline only 2%.
+  Proved bounds hold empirically: false-quarantine <= certified alpha in 12/12 settings (incl. correlated flows): True; measured delay <= proved delay bound for all attack classes: True.
+  Delay (measured vs bound, rounds): DoS 2.0 vs 3.5, Probe 2.0 vs 3.7, R2L 3.4 vs 7.8, U2R 1.3 vs 2.5
+
+====================================================================================================
+5. AUDIT LEDGER (tamper detection rate)
+====================================================================================================
+  hash chain only            mean detection  16.7% | not fully detected: edit_rehash_no_key (0%), edit_rehash_with_key (0%), delete_relink_no_key (0%), truncate_with_key (0%), rewrite_own_key (0%)
+  + signatures               mean detection  66.7% | not fully detected: edit_rehash_with_key (0%), truncate_with_key (0%)
+  + signatures + anchors     mean detection  90.6% | not fully detected: edit_rehash_with_key (94%), truncate_with_key (50%)
+  Cost: append 10.2 us (hash only) vs 51.7 us (signed); verification of 10k blocks 1.11 s
+  Verdict: a plain hash chain detects only in-place edits without re-hashing; signatures + external anchors are needed for real tamper evidence. It is an audit log, not a blockchain.
+
+====================================================================================================
+6. PRIVACY (DP-SGD with RDP accountant)
+====================================================================================================
+       epsilon  sigma    Acc  MacroF1  U2R-rec  MIA-AUC
+   non-private     --  0.775    0.624    0.343    0.492
+          8.00   0.49  0.734    0.453    0.000    0.494
+          4.00   0.59  0.724    0.449    0.000    0.496
+          1.00   0.96  0.718    0.448    0.000    0.496
+  Cost of privacy: Macro-F1 0.624 -> 0.453 (eps=8); U2R recall 0.34 -> 0.00. Membership-inference AUC is ~0.5 even without DP, so it gives no empirical evidence of leakage either way; the claim rests on the formal accountant (delta=1/N, single seed).
+
+====================================================================================================
+7. EXPLAINABILITY (SHAP)
+====================================================================================================
+  n=867 flows (GradientExplainer). Deletion test, mask top-5 features: probability drop NN-SHAP 0.517 vs TreeSHAP order 0.487 vs random 0.172 -> SHAP ranking is faithful to the model.
+  Agreement between CNN-BiLSTM and LightGBM attributions: Spearman rho=0.23 (p=0.26) -> models rely on different features; explanations are model-specific.
+  Top NN features: dst_host_same_src_port_rate, dst_host_srv_count, flag=SF, hot, dst_host_same_srv_rate, dst_host_diff_srv_rate
+
+====================================================================================================
+8. LATENCY / FOOTPRINT (single thread, same hardware)
+====================================================================================================
+  plain      params 462,725 | 5.6 MB | 1 flow 2.14 ms | 20-flow round 6.97 ms (p99 10.04) | end-to-end round 9.39 ms | 2167 flows/s
+  attention  params 471,205 | 5.7 MB | 1 flow 2.23 ms | 20-flow round 6.91 ms (p99 7.67) | end-to-end round 9.33 ms | 2269 flows/s
+  Pipeline parts (mean ms): preprocess(20 flows) 2.37, trust update 0.004, signed ledger append 0.046; SHAP 3.50 s per flow (offline only).
+  Note: per-round ms is the reliable figure; the batch throughput comes from one timed 500-flow batch and is order/warm-up sensitive.
+
+====================================================================================================
+9. RUN TIME
+====================================================================================================
+  Algorithm                    runs  median s/run  total min   (wall time incl. data preparation for the first job of a configuration)
+  CNN-BiLSTM (proposed)           3         402.6       19.6
+  CNN-BiLSTM + attention          3         346.8       15.7
+  CNN-BiLSTM, global MI           3         348.1       17.9
+  CNN only                        3         169.7        7.7
+  LSTM only                       3          67.3        3.4
+  MLP                             3           5.8        0.3
+  LightGBM (class-aware)          3           1.9        0.1
+  Random forest                   3           1.2        0.1
+  DP-SGD (all eps)                4         318.2       22.6
+
+-- pipeline stages
+  detector         3 s  (   0.1 min)
+  novelty         79 s  (   1.3 min)
+  novel            6 s  (   0.1 min)
+  trust           26 s  (   0.4 min)
+  theory          98 s  (   1.6 min)
+  ledger         177 s  (   3.0 min)
+  dp              55 s  (   0.9 min)
+  shap           378 s  (   6.3 min)
+  latency         56 s  (   0.9 min)
+  tables           2 s  (   0.0 min)
+  figures          7 s  (   0.1 min)
+  TOTAL          887 s  (  14.8 min = 0.25 h)
+
+====================================================================================================
+10. BOTTOM LINE
+====================================================================================================
+  * Best overall detector: LightGBM (class-aware MI) (Macro-F1 0.634+/-0.024, accuracy 0.776+/-0.019); best rare-class (U2R) recall: CNN only (0.642+/-0.015).
+  * Unseen attack types are the main weakness of supervised models; the novelty fusion raises unseen-type detection to 0.65 (LightGBM (global MI)) at +0.3 points of benign false alarms and +0.4 points of seen-type detection.
+  * Trust: the original confidence-only rule detects 0% of compromised devices; the class-aware CUSUM rule detects 100% (median 2 rounds), with 0.0% false quarantines on a heterogeneous fleet using per-device baselines; the proved bounds held empirically: True.
+  * Ledger: mean tamper detection hash chain only 17%, + signatures 67%, + signatures + anchors 91% (signatures + external anchors needed; it is an audit log, not a blockchain).
+  * Privacy: formal DP-SGD (eps 1-8) lowers Macro-F1 from 0.62 to about 0.45 and U2R recall from 0.34 to 0.00: report it as a privacy-utility trade-off.
+  * NOT YET ESTABLISHED: generalisation beyond NSL-KDD (no additional dataset has been run: use --unsw-train/--unsw-test/--edge); trust results are a replay simulation, not a deployment.

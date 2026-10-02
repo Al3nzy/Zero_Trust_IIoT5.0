@@ -42,7 +42,10 @@ for name, path in MODELS.items():
     m = load(path); f1 = tf.function(lambda x: m(x, training=False)); r = dict(params=int(m.count_params()), size_mb=os.path.getsize(path) / 1e6)
     r["infer_1flow"] = timeit(lambda: f1(tf.constant(X1[..., None])), nrep); r["infer_20flows"] = timeit(lambda: f1(tf.constant(X20[..., None])), nrep)
     m.predict(X500[..., None], batch_size=500, verbose=0)
-    s = time.perf_counter(); m.predict(X500[..., None], batch_size=500, verbose=0); r["infer_500_batch_warm_s"] = time.perf_counter() - s
+    ts = []
+    for _ in range(7):                                      # median of 7 timed batches (a single timing was order/warm-up sensitive)
+        s = time.perf_counter(); m.predict(X500[..., None], batch_size=500, verbose=0); ts.append(time.perf_counter() - s)
+    r["infer_500_batch_warm_s"] = float(np.median(ts))
     r["throughput_flows_per_s"] = 500 / r["infer_500_batch_warm_s"]
     r["round_total_ms"] = (out["preprocess_20flows"]["mean_ms"] + r["infer_20flows"]["mean_ms"] + out["trust_update_round"]["mean_ms"] + out["ledger_append_signed"]["mean_ms"])
     out["models"][name] = r; print(name, {k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items() if not isinstance(v, dict)}, flush=True)
