@@ -27,8 +27,12 @@ if te is not None: te.columns = [c.strip() for c in te.columns]
 drop = [c.strip() for c in drop if c.strip() in tr.columns]
 for s in a.seeds:
     path = f"{a.out}/{a.preset}_seed{s}.json"
-    if os.path.exists(path): continue
-    t0 = time.time(); d = prepare_generic(tr, te, label, drop, s, a.npc, 25, a.sel, a.max_rows); C = d["classes"]; res = dict(preset=a.preset, seed=s, audit=d["audit"], models={})
+    if os.path.exists(path):
+        try:
+            if json.load(open(path, encoding="utf-8")).get("version") == 2: continue          # up-to-date result: skip
+            print(f"[{a.preset} seed {s}] existing result is from an older version of this script: recomputing", flush=True)
+        except Exception: print(f"[{a.preset} seed {s}] existing result unreadable: recomputing", flush=True)
+    t0 = time.time(); d = prepare_generic(tr, te, label, drop, s, a.npc, 25, a.sel, a.max_rows); C = d["classes"]; res = dict(version=2, preset=a.preset, seed=s, audit=d["audit"], models={})
     print(f"[{a.preset} seed {s}] fit={len(d['yfit'])} test={len(d['yte'])} classes={len(C)} overlap_after_split={d['audit']['test_overlap_after_split']}", flush=True)
     for name in a.models:
         t1 = time.time()
@@ -41,19 +45,24 @@ for s in a.seeds:
         else:
             from ztids.models import BUILDERS, compile_model, fit_model, predict
             m = compile_model(BUILDERS[name](n_cls=len(C))); fit_model(m, d["Xtr"], d["ytr"], d["Xval"], d["yval"], epochs=a.epochs, patience=3, seed=s); pt = predict(m, d["Xte"])
-        res["models"][name] = dict(test=metrics_generic(d["yte"], pt, C), train_s=round(time.time() - t1, 1))
+        res["models"][name] = dict(test=metrics_generic(d["yte"], pt, C), train_s=round(time.time() - t1, 1), probs=pt.tolist())
         r = res["models"][name]["test"]; print(f"   {name:11s} acc={r['acc']:.4f} macroF1={r['macro_f1']:.4f} mcc={r['mcc']:.4f} ({res['models'][name]['train_s']}s)", flush=True)
-    if not a.no_loo:                                      # leave-one-attack-class-out test of the novelty fusion (external confirmation)
+    nl = [i for i, c in enumerate(C) if str(c).lower() == a.normal_label.lower() or str(c).lower() in ("normal", "benign")]
+    if nl:                                                 # site-calibrated Normal decision for every model (all alphas reported, none selected)
+        from ztids.calibrate import eval_site_decision
+        for name_, v_ in res["models"].items():
+            if "probs" in v_: v_["site_decision"] = eval_site_decision(np.array(v_.pop("probs")), d["yte"], nl[0], s)
+    if not a.no_loo:                                      # leave-one-attack-class-out test of the novelty fusion at matched false-alarm rates (external confirmation)
         try:
             from ztids.loo import run_loo
-            nl = [i for i, c in enumerate(C) if str(c).lower() == a.normal_label.lower() or str(c).lower() in ("normal", "benign")]
             if not nl: raise RuntimeError(f"no Normal/Benign class found among {C}; pass --normal-label")
             d_all = prepare_generic(tr, te, label, drop, s, a.npc, 500, "global", a.max_rows)
             res["loo"] = run_loo(d, d_all, C, nl[0], s, a.npc)
             for cname, r in res["loo"].items():
-                print(f"   LOO {cname:18s} n={r['n_test']:6d} detected: alone {r['alone']['det_heldout']:.3f} | +iforest {r['strict']['iforest']['det_heldout']:.3f} | +mahalanobis {r['strict']['mahalanobis']['det_heldout']:.3f} "
-                      f"(site-calibrated {r['site']['mahalanobis']['det_heldout']:.3f}) | benign FPR alone {r['alone']['fpr']:.3f} -> {r['strict']['mahalanobis']['fpr']:.3f}", flush=True)
+                st = r["site"]["mahalanobis"]; al = st["alpha"]["0.05"]
+                print(f"   LOO {cname:16s} n={r['n_test']:6d} AUROC clf {st['auroc']['clf']:.3f} det {st['auroc']['det']:.3f} fused {st['auroc']['fused']:.3f} | at ~5% benign FPR: detected clf {al['clf']['det_heldout']:.3f} "
+                      f"(FPR {al['clf']['fpr']:.3f}), fused {al['fused']['det_heldout']:.3f} (FPR {al['fused']['fpr']:.3f})", flush=True)
         except Exception as e:
-            print("   LOO stage failed:", repr(e)[:200], flush=True); res["loo_error"] = repr(e)
-    json.dump(res, open(path, "w"), indent=1, default=str)
+            import traceback; traceback.print_exc(); print("   LOO stage failed:", repr(e)[:200], flush=True); res["loo_error"] = repr(e)
+    json.dump(res, open(path + ".tmp", "w"), indent=1, default=str); os.replace(path + ".tmp", path)      # atomic: an interrupted run never leaves a corrupt result file
 print("done ->", a.out)

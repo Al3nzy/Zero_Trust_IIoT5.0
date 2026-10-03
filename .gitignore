@@ -4,3 +4,7 @@ __pycache__/
 # large generated artefacts (keep the small .json results and tables/figures)
 results*/*.npz
 results*/*.keras
+# external datasets (hundreds of MB: GitHub rejects files over 100 MB)
+data/external/
+data/*.csv
+*.csv

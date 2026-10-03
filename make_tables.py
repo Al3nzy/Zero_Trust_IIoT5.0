@@ -9,7 +9,9 @@ from ztids.ensemble import HYBRID, metrics_over_seeds
 
 O, S = "official", C.SEEDS
 def J(name):
-    p = os.path.join(C.RES, name + ".json"); return json.load(open(p)) if os.path.exists(p) else None
+    p = os.path.join(C.RES, name + ".json")
+    try: return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else None
+    except Exception as e: print("WARNING: unreadable result file", p, repr(e)[:80]); return None
 def esc(s): return str(s).replace("_", "\\_").replace("%", "\\%").replace("&", "\\&")
 def ms(vals, d=3, pct=False):
     v = [x for x in vals if x is not None and np.isfinite(x)]
@@ -110,6 +112,15 @@ if nvl and nvl.get("detectors"):
     emit("tab:detectors", "Normal-profile detectors (threshold at 2% validation FPR)", ["Detector", "AUROC all", "AUROC unseen types", "Benign flag rate", "Det. seen", "Det. unseen"], rows,
          note="AUROC is threshold-free. Exploratory (seed 0, not part of the pipeline): kNN-distance had the best validation AUROC (0.993) but the worst test AUROC (0.932; 0.890 for unseen types) and flagged 8.2% of test benign flows at a 2% validation threshold, so it was rejected. "
               "The detector ranking was inspected on NSL-KDD test data and must be confirmed on UNSW-NB15 / Edge-IIoTset.")
+# ---------- site-calibrated classifier decision (NSL-KDD)
+if nvl and nvl.get("site_decision"):
+    rows = []
+    for model, per in nvl["site_decision"].items():
+        for key in ("argmax", "0.02", "0.05", "0.1"):
+            v = [per[s][key] for s in per if key in per[s]]
+            if v: rows.append([esc(model), "argmax" if key == "argmax" else f"site alpha={key}", ms([x["macro_f1"] for x in v]), ms([x["acc"] for x in v]), ms([x["mcc"] for x in v]), ms([x["fpr"] for x in v]), ms([x["attack_det"] for x in v])])
+    emit("tab:site_decision", "Classifier decision: argmax vs site-calibrated Normal threshold (all targets shown)", ["Model", "Decision", "Macro-F1", "Acc.", "MCC", "Benign FPR", "Attack det."], rows,
+         note="Threshold on P(attack) from a clean commissioning window (10% of test-domain Normal flows, excluded from evaluation); mean of 20 windows. No target is selected: choose from the application's false-alarm budget.")
 # ---------- trust
 tr = J("trust_main")
 if tr:
@@ -156,26 +167,37 @@ if lt:
     emit("tab:latency", "Per-round latency on identical hardware (1 thread)", ["Model", "Params", "MB", "1 flow (ms)", "20 flows (ms)", "p99 (ms)", "flows/s", "Round total (ms)", "Budget margin"], rows,
          note=f"Stages (mean ms): preprocess(20)={lt['preprocess_20flows']['mean_ms']:.2f}, trust update={lt['trust_update_round']['mean_ms']:.3f}, signed ledger append={lt['ledger_append_signed']['mean_ms']:.3f}; "
               f"SHAP per flow={lt.get('shap_1flow_s', float('nan')):.2f} s; peak RSS={'n/a' if lt['peak_rss_mb'] is None else format(lt['peak_rss_mb'], '.0f')} MB; hardware: {lt['hw']['platform']}, {lt['hw']['cpu_count']} cores.")
-# ---------- extra datasets
-ex = sorted(glob.glob(os.path.join(C.ROOT, "results_extra", "*_seed*.json")))
-if ex:
-    bykey = {}
+# ---------- extra datasets (fail-safe: an error here never prevents the other tables from being written)
+try:
+    ex = sorted(glob.glob(os.path.join(C.ROOT, "results_extra", "*_seed*.json"))); exr = []
     for p in ex:
-        r = json.load(open(p))
-        for m, v in r["models"].items(): bykey.setdefault((r["preset"], m), []).append(v["test"])
-    rows = [[k[0], k[1], ms([t["acc"] for t in v]), ms([t["macro_f1"] for t in v]), ms([t["mcc"] for t in v]), str(len(v))] for k, v in sorted(bykey.items())]
-    emit("tab:extra", "Additional corpora under the identical leakage-free protocol", ["Dataset", "Model", "Acc.", "Macro-F1", "MCC", "Seeds"], rows)
-    lrows = []
-    for preset in sorted({json.load(open(p))["preset"] for p in ex}):
-        per_class = {}
-        for p in ex:
-            r = json.load(open(p))
-            if r["preset"] == preset:
-                for cname, v in r.get("loo", {}).items(): per_class.setdefault(cname, []).append(v)
-        for cname, vs in per_class.items():
-            g = lambda f: ms([f(v) for v in vs])
-            lrows.append([preset, esc(cname), str(vs[0]["n_test"]), g(lambda v: v["alone"]["det_heldout"]), g(lambda v: v["strict"]["iforest"]["det_heldout"]), g(lambda v: v["strict"]["mahalanobis"]["det_heldout"]),
-                          g(lambda v: v["site"]["mahalanobis"]["det_heldout"]), g(lambda v: v["alone"]["fpr"]), g(lambda v: v["strict"]["mahalanobis"]["fpr"])])
-    if lrows: emit("tab:extra_loo", "Leave-one-attack-class-out detection (the held-out class is never seen by the classifier)", ["Dataset", "Held-out class", "n test", "Classifier alone", "+ IF", "+ Maha", "+ Maha (site)", "FPR alone", "FPR + Maha"], lrows, spec="llccccccc")
-open(os.path.join(C.TAB, "tables.tex"), "w").write("\n".join(tex)); open(os.path.join(C.TAB, "summary.md"), "w").write("\n".join(md))
+        try: exr.append(json.load(open(p, encoding="utf-8")))
+        except Exception as e: print("WARNING: unreadable result file", p, repr(e)[:80])
+    if exr:
+        bykey = {}
+        for r in exr:
+            for m, v in r["models"].items(): bykey.setdefault((r["preset"], m), []).append(v)
+        rows = [[k[0], k[1], ms([x["test"]["acc"] for x in v]), ms([x["test"]["macro_f1"] for x in v]), ms([x["test"]["mcc"] for x in v]), str(len(v))] for k, v in sorted(bykey.items())]
+        emit("tab:extra", "Additional corpora under the identical leakage-free protocol", ["Dataset", "Model", "Acc.", "Macro-F1", "MCC", "Seeds"], rows)
+        rows = []
+        for (preset, m), v in sorted(bykey.items()):
+            for key in ("argmax", "0.02", "0.05", "0.1"):
+                w = [x["site_decision"][key] for x in v if "site_decision" in x and key in x["site_decision"]]
+                if w: rows.append([preset, m, "argmax" if key == "argmax" else f"site alpha={key}", ms([q["macro_f1"] for q in w]), ms([q["acc"] for q in w]), ms([q["fpr"] for q in w]), ms([q["attack_det"] for q in w])])
+        if rows: emit("tab:extra_site", "Additional corpora: argmax vs site-calibrated Normal threshold", ["Dataset", "Model", "Decision", "Macro-F1", "Acc.", "Benign FPR", "Attack det."], rows)
+        lrows = []
+        for preset in sorted({r["preset"] for r in exr}):
+            per_class = {}
+            for r in exr:
+                if r["preset"] == preset:
+                    for cname, v in r.get("loo", {}).items():
+                        if "auroc" in v.get("site", {}).get("mahalanobis", {}): per_class.setdefault(cname, []).append(v)
+            for cname, vs in per_class.items():
+                g = lambda f: ms([f(v) for v in vs]); st = lambda v: v["site"]["mahalanobis"]
+                lrows.append([preset, esc(cname), str(vs[0]["n_test"]), g(lambda v: st(v)["auroc"]["clf"]), g(lambda v: st(v)["auroc"]["det"]), g(lambda v: st(v)["auroc"]["fused"]),
+                              g(lambda v: st(v)["alpha"]["0.05"]["clf"]["det_heldout"]), g(lambda v: st(v)["alpha"]["0.05"]["det"]["det_heldout"]), g(lambda v: st(v)["alpha"]["0.05"]["fused"]["det_heldout"]), g(lambda v: st(v)["alpha"]["0.05"]["fused"]["fpr"])])
+        if lrows: emit("tab:extra_loo", "Leave-one-attack-class-out at matched ~5% benign FPR (site-calibrated, Mahalanobis detector)", ["Dataset", "Held-out", "n", "AUROC clf", "AUROC det", "AUROC fused", "Det. clf", "Det. detector", "Det. fused", "FPR fused"], lrows, spec="llcccccccc")
+except Exception:
+    import traceback; traceback.print_exc(); print("WARNING: additional-dataset tables skipped because of the error above")
+open(os.path.join(C.TAB, "tables.tex"), "w", encoding="utf-8").write("\n".join(tex)); open(os.path.join(C.TAB, "summary.md"), "w", encoding="utf-8").write("\n".join(md))
 print(f"wrote {len(tex)} tables -> {C.TAB}/tables.tex and summary.md")

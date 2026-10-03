@@ -86,6 +86,14 @@ if nvj and nvj["models"]:
         P(f"  Why: '{dg['sub']}' IS in the training data ({dg['n_train']} flows) yet {dg['missed']} of its {dg['n_test']} test flows are missed. Training: services {dg['train_service']}, flags {dg['train_flag']}, logged_in {dg['train_logged_in']:.2f}.")
         P(f"       Test: services {dg['test_service']}, flags {dg['test_flag']}, logged_in {dg['test_logged_in']:.2f}  -> the test examples behave differently from every training example (within-sub-type distribution shift); no supervised model can learn this from the training split.")
 
+sdn = (J("novelty") or {}).get("site_decision", {}).get("LightGBM (class-aware MI)")
+if sdn:
+    sub("1c. site-calibrated Normal decision for the classifier (LightGBM class-aware; threshold on P(attack) from a clean commissioning window)")
+    for key in ("argmax", "0.02", "0.05", "0.1"):
+        w = [sdn[s_][key] for s_ in sdn if key in sdn[s_]]
+        if w: P(f"  {'argmax' if key == 'argmax' else 'site alpha=' + key:16s} Macro-F1 {pm([x['macro_f1'] for x in w])} | Acc {pm([x['acc'] for x in w])} | benign FPR {pm([x['fpr'] for x in w])} | attack detection {pm([x['attack_det'] for x in w])}")
+    P("  All targets are shown, none is selected: pick alpha from the site's false-alarm budget. Too strict a target (2%) hurts because the classifier's P(attack) is inflated on shifted benign traffic.")
+
 # ------------------------------------------------------------------ 2. ablations
 hdr("2. ABLATIONS")
 def mf(names): return [r["test"]["macro_f1"] for r in load(names)]
@@ -229,21 +237,37 @@ if sec:
 
 # ------------------------------------------------------------------ 10. bottom line
 exj = sorted(glob.glob(os.path.join(C.ROOT, "results_extra", "*_seed*.json")))
+ext_verdicts = {}
 if exj:
     hdr("EXTERNAL CONFIRMATION (additional datasets, identical protocol)")
     by = {}
     for p_ in exj:
-        r_ = json.load(open(p_)); by.setdefault(r_["preset"], []).append(r_)
+        try: r_ = json.load(open(p_, encoding="utf-8")); by.setdefault(r_["preset"], []).append(r_)
+        except Exception: P(f"  WARNING: unreadable result file {p_}")
     for preset, rs in by.items():
         sub(f"{preset}: {len(rs)} seed(s)")
         for m_ in sorted({m for r in rs for m in r["models"]}):
             P(f"  {m_:12s} Acc {pm([r['models'][m_]['test']['acc'] for r in rs if m_ in r['models']])}  Macro-F1 {pm([r['models'][m_]['test']['macro_f1'] for r in rs if m_ in r['models']])}  MCC {pm([r['models'][m_]['test']['mcc'] for r in rs if m_ in r['models']])}")
-        vals = [(v["alone"]["det_heldout"], v["strict"]["iforest"]["det_heldout"], v["strict"]["mahalanobis"]["det_heldout"], v["site"]["mahalanobis"]["det_heldout"], v["alone"]["fpr"], v["strict"]["mahalanobis"]["fpr"])
-                for r in rs for v in r.get("loo", {}).values() if None not in (v["alone"]["det_heldout"],)]
-        if vals:
-            A_ = np.array(vals, float).mean(0)
-            P(f"  Leave-one-attack-class-out (mean over held-out classes and seeds): detection alone {A_[0]:.2f} -> +IsolationForest {A_[1]:.2f}, +Mahalanobis {A_[2]:.2f}, +Mahalanobis site-calibrated {A_[3]:.2f}; benign FPR {A_[4]:.3f} -> {A_[5]:.3f}")
-            P("  Verdict: " + ("novelty fusion CONFIRMED on this dataset (held-out-class detection rises by more than 5 points)." if A_[2] - A_[0] > 0.05 else "novelty fusion NOT confirmed on this dataset: do not claim it generalises."))
+        if "lgbm" in rs[0]["models"] and "site_decision" in rs[0]["models"]["lgbm"]:
+            P("  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):")
+            for key in ("argmax", "0.02", "0.05", "0.1"):
+                w = [r["models"]["lgbm"]["site_decision"][key] for r in rs if "site_decision" in r["models"].get("lgbm", {})]
+                if w: P(f"    {'argmax' if key == 'argmax' else 'site alpha=' + key:16s} Macro-F1 {pm([x['macro_f1'] for x in w])} | Acc {pm([x['acc'] for x in w])} | benign FPR {pm([x['fpr'] for x in w])} | attack detection {pm([x['attack_det'] for x in w])}")
+        cls = [v for r in rs for v in r.get("loo", {}).values() if "auroc" in v.get("site", {}).get("mahalanobis", {})]      # ignore old-format entries
+        if cls:
+            nseed = len([r for r in rs if r.get("loo")]); ncls = len(rs[0].get("loo", {}))
+            P(f"  Leave-one-attack-class-out ({ncls} held-out classes x {nseed} seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):")
+            for kind in ("iforest", "mahalanobis"):
+                st = lambda v, k_=kind: v["site"][k_]
+                av = lambda f: float(np.mean([f(v) for v in cls]))
+                au = {n: av(lambda v, n=n: st(v)["auroc"][n]) for n in ("clf", "det", "fused")}
+                dd = {n: av(lambda v, n=n: st(v)["alpha"]["0.05"][n]["det_heldout"]) for n in ("clf", "det", "fused")}; ff = {n: av(lambda v, n=n: st(v)["alpha"]["0.05"][n]["fpr"]) for n in ("clf", "det", "fused")}
+                P(f"    {kind:12s} AUROC clf {au['clf']:.3f} | detector {au['det']:.3f} | fused {au['fused']:.3f}   ||  detection at ~5% benign FPR: clf {dd['clf']:.3f} (FPR {ff['clf']:.3f}), detector {dd['det']:.3f} (FPR {ff['det']:.3f}), fused {dd['fused']:.3f} (FPR {ff['fused']:.3f})")
+                ext_verdicts[(preset, kind)] = (dd["fused"] - dd["clf"] > 0.05 and au["fused"] > au["clf"], dd["fused"] - dd["clf"], au["fused"] - au["clf"])
+            for kind in ("iforest", "mahalanobis"):
+                ok_, dd_, da_ = ext_verdicts[(preset, kind)]
+                P(f"    Verdict ({kind}): " + (f"novelty fusion CONFIRMED (detection +{dd_:.2f} and AUROC {da_:+.3f} vs the classifier at matched FPR)." if ok_ else f"novelty fusion NOT confirmed (detection {dd_:+.2f}, AUROC {da_:+.3f} vs the classifier at matched FPR): do not claim it generalises."))
+        elif any("loo_error" in r for r in rs): P("  Leave-one-attack-class-out FAILED: " + next(r["loo_error"] for r in rs if "loo_error" in r)[:160])
 hdr("10. BOTTOM LINE")
 if rows:
     bm = max(rows, key=lambda r: mean(r[2][1])); br = max(rows, key=lambda r: mean(r[2][5]))
@@ -277,7 +301,7 @@ if nv and "0.02" in nv["fprs"]:
         if hh: P(f"    The a-priori hybrid ensemble reached Macro-F1 {pm([hh[s_]['fused']['macro_f1'] for s_ in hh])} with iforest fusion, i.e. it did not beat the best single model; report it as a negative result.")
 
 extra = glob.glob(os.path.join(C.ROOT, "results_extra", "*_seed*.json"))
-P("  * " + ("External datasets were run (see the EXTERNAL CONFIRMATION section): the novelty-fusion claim stands only where its verdict says CONFIRMED." if extra else "NOT YET ESTABLISHED: generalisation beyond NSL-KDD (no additional dataset has been run: use --unsw-train/--unsw-test/--edge)") + " Trust results are a replay simulation, not a deployment.")
+P("  * " + ("External datasets were run (see the EXTERNAL CONFIRMATION section): the novelty-fusion claim stands only where its verdict says CONFIRMED (" + (", ".join(f"{k[0]}/{k[1]}: {'confirmed' if v[0] else 'not confirmed'}" for k, v in ext_verdicts.items()) or "no leave-one-class-out result found yet") + ")." if extra else "NOT YET ESTABLISHED: generalisation beyond NSL-KDD (no additional dataset has been run: use --unsw-train/--unsw-test/--edge)") + " Trust results are a replay simulation, not a deployment.")
 txt = "\n".join(OUT); print(txt)
 open(os.path.join(C.RES, "final_report.txt"), "w", encoding="utf-8").write(txt + "\n")
 print(f"\n[final report saved to {os.path.join(C.RES, 'final_report.txt')}]")

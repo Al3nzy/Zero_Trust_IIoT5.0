@@ -184,6 +184,34 @@ iforest+mahalanobis & 0.956$\pm$0.001 & 0.953$\pm$0.001 & 0.059$\pm$0.005 & 0.69
 \bottomrule
 \end{tabular}
 
+% ---- tab:site_decision: Classifier decision: argmax vs site-calibrated Normal threshold (all targets shown)
+\begin{tabular}{lcccccc}
+\toprule
+Model & Decision & Macro-F1 & Acc. & MCC & Benign FPR & Attack det. \\
+\midrule
+proposed CNN-BiLSTM & argmax & 0.553$\pm$0.017 & 0.737$\pm$0.009 & 0.617$\pm$0.017 & 0.081$\pm$0.029 & 0.705$\pm$0.041 \\
+proposed CNN-BiLSTM & site alpha=0.02 & 0.516$\pm$0.034 & 0.703$\pm$0.017 & 0.579$\pm$0.024 & 0.021$\pm$0.001 & 0.549$\pm$0.014 \\
+proposed CNN-BiLSTM & site alpha=0.05 & 0.541$\pm$0.034 & 0.730$\pm$0.020 & 0.611$\pm$0.029 & 0.051$\pm$0.002 & 0.659$\pm$0.024 \\
+proposed CNN-BiLSTM & site alpha=0.1 & 0.561$\pm$0.033 & 0.744$\pm$0.024 & 0.628$\pm$0.037 & 0.101$\pm$0.003 & 0.764$\pm$0.051 \\
+LightGBM (class-aware MI) & argmax & 0.632$\pm$0.025 & 0.767$\pm$0.020 & 0.670$\pm$0.026 & 0.029$\pm$0.002 & 0.658$\pm$0.047 \\
+LightGBM (class-aware MI) & site alpha=0.02 & 0.483$\pm$0.034 & 0.694$\pm$0.016 & 0.566$\pm$0.030 & 0.021$\pm$0.002 & 0.504$\pm$0.030 \\
+LightGBM (class-aware MI) & site alpha=0.05 & 0.659$\pm$0.022 & 0.814$\pm$0.005 & 0.732$\pm$0.006 & 0.052$\pm$0.002 & 0.794$\pm$0.025 \\
+LightGBM (class-aware MI) & site alpha=0.1 & 0.651$\pm$0.022 & 0.819$\pm$0.003 & 0.740$\pm$0.004 & 0.102$\pm$0.001 & 0.892$\pm$0.021 \\
+LightGBM (global MI) & argmax & 0.560$\pm$0.009 & 0.766$\pm$0.012 & 0.668$\pm$0.017 & 0.030$\pm$0.001 & 0.670$\pm$0.031 \\
+LightGBM (global MI) & site alpha=0.02 & 0.448$\pm$0.020 & 0.681$\pm$0.022 & 0.553$\pm$0.030 & 0.022$\pm$0.001 & 0.488$\pm$0.046 \\
+LightGBM (global MI) & site alpha=0.05 & 0.579$\pm$0.015 & 0.786$\pm$0.015 & 0.694$\pm$0.021 & 0.047$\pm$0.006 & 0.759$\pm$0.064 \\
+LightGBM (global MI) & site alpha=0.1 & 0.581$\pm$0.005 & 0.784$\pm$0.002 & 0.694$\pm$0.003 & 0.101$\pm$0.002 & 0.851$\pm$0.011 \\
+MLP & argmax & 0.559$\pm$0.028 & 0.744$\pm$0.013 & 0.630$\pm$0.023 & 0.077$\pm$0.028 & 0.691$\pm$0.018 \\
+MLP & site alpha=0.02 & 0.515$\pm$0.035 & 0.701$\pm$0.014 & 0.579$\pm$0.020 & 0.021$\pm$0.001 & 0.545$\pm$0.012 \\
+MLP & site alpha=0.05 & 0.535$\pm$0.052 & 0.721$\pm$0.034 & 0.600$\pm$0.049 & 0.050$\pm$0.003 & 0.618$\pm$0.055 \\
+MLP & site alpha=0.1 & 0.568$\pm$0.038 & 0.752$\pm$0.023 & 0.640$\pm$0.033 & 0.101$\pm$0.003 & 0.744$\pm$0.037 \\
+Hybrid (LightGBM + CNN-BiLSTM) & argmax & 0.634$\pm$0.007 & 0.763$\pm$0.013 & 0.663$\pm$0.017 & 0.030$\pm$0.001 & 0.657$\pm$0.036 \\
+Hybrid (LightGBM + CNN-BiLSTM) & site alpha=0.02 & 0.568$\pm$0.015 & 0.725$\pm$0.005 & 0.612$\pm$0.008 & 0.021$\pm$0.001 & 0.575$\pm$0.007 \\
+Hybrid (LightGBM + CNN-BiLSTM) & site alpha=0.05 & 0.598$\pm$0.012 & 0.774$\pm$0.018 & 0.675$\pm$0.025 & 0.051$\pm$0.002 & 0.726$\pm$0.048 \\
+Hybrid (LightGBM + CNN-BiLSTM) & site alpha=0.1 & 0.597$\pm$0.017 & 0.771$\pm$0.014 & 0.667$\pm$0.022 & 0.101$\pm$0.003 & 0.789$\pm$0.038 \\
+\bottomrule
+\end{tabular}
+
 % ---- tab:trust: Trust-update rules on replayed real posteriors
 \begin{tabular}{llccccccc}
 \toprule
@@ -323,5 +351,69 @@ Model & Params & MB & 1 flow (ms) & 20 flows (ms) & p99 (ms) & flows/s & Round t
 \midrule
 plain & 462,725 & 5.6 & 4.20 & 11.19 & 18.18 & 1631 & 14.99 & 7x \\
 attention & 471,205 & 5.7 & 3.57 & 9.88 & 11.33 & 1785 & 13.68 & 7x \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:extra: Additional corpora under the identical leakage-free protocol
+\begin{tabular}{lccccc}
+\toprule
+Dataset & Model & Acc. & Macro-F1 & MCC & Seeds \\
+\midrule
+edge & lgbm & 0.942$\pm$0.001 & 0.913$\pm$0.001 & 0.937$\pm$0.001 & 3 \\
+edge & mlp & 0.799$\pm$0.001 & 0.760$\pm$0.003 & 0.784$\pm$0.001 & 3 \\
+edge & rf & 0.931$\pm$0.002 & 0.903$\pm$0.002 & 0.925$\pm$0.002 & 3 \\
+unsw & lgbm & 0.673$\pm$0.002 & 0.521$\pm$0.006 & 0.577$\pm$0.002 & 3 \\
+unsw & mlp & 0.602$\pm$0.007 & 0.386$\pm$0.010 & 0.488$\pm$0.010 & 3 \\
+unsw & rf & 0.670$\pm$0.003 & 0.504$\pm$0.002 & 0.575$\pm$0.003 & 3 \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:extra_site: Additional corpora: argmax vs site-calibrated Normal threshold
+\begin{tabular}{lcccccc}
+\toprule
+Dataset & Model & Decision & Macro-F1 & Acc. & Benign FPR & Attack det. \\
+\midrule
+edge & lgbm & argmax & 0.913$\pm$0.001 & 0.941$\pm$0.001 & 0.000$\pm$0.000 & 1.000$\pm$0.000 \\
+edge & lgbm & site alpha=0.02 & 0.910$\pm$0.000 & 0.938$\pm$0.000 & 0.022$\pm$0.000 & 1.000$\pm$0.000 \\
+edge & lgbm & site alpha=0.05 & 0.904$\pm$0.000 & 0.934$\pm$0.000 & 0.054$\pm$0.003 & 1.000$\pm$0.000 \\
+edge & lgbm & site alpha=0.1 & 0.897$\pm$0.000 & 0.926$\pm$0.000 & 0.104$\pm$0.004 & 1.000$\pm$0.000 \\
+edge & mlp & argmax & 0.760$\pm$0.003 & 0.796$\pm$0.001 & 0.000$\pm$0.000 & 1.000$\pm$0.000 \\
+edge & mlp & site alpha=0.02 & 0.760$\pm$0.003 & 0.795$\pm$0.001 & 0.000$\pm$0.001 & 1.000$\pm$0.000 \\
+edge & mlp & site alpha=0.05 & 0.760$\pm$0.003 & 0.795$\pm$0.001 & 0.000$\pm$0.001 & 1.000$\pm$0.000 \\
+edge & mlp & site alpha=0.1 & 0.760$\pm$0.003 & 0.795$\pm$0.001 & 0.000$\pm$0.001 & 1.000$\pm$0.000 \\
+edge & rf & argmax & 0.903$\pm$0.002 & 0.930$\pm$0.002 & 0.000$\pm$0.000 & 1.000$\pm$0.000 \\
+edge & rf & site alpha=0.02 & 0.902$\pm$0.001 & 0.930$\pm$0.002 & 0.002$\pm$0.000 & 1.000$\pm$0.000 \\
+edge & rf & site alpha=0.05 & 0.902$\pm$0.001 & 0.930$\pm$0.002 & 0.002$\pm$0.000 & 1.000$\pm$0.000 \\
+edge & rf & site alpha=0.1 & 0.902$\pm$0.001 & 0.930$\pm$0.002 & 0.002$\pm$0.000 & 1.000$\pm$0.000 \\
+unsw & lgbm & argmax & 0.526$\pm$0.006 & 0.677$\pm$0.002 & 0.386$\pm$0.005 & 0.989$\pm$0.004 \\
+unsw & lgbm & site alpha=0.02 & 0.543$\pm$0.004 & 0.817$\pm$0.002 & 0.020$\pm$0.001 & 0.677$\pm$0.011 \\
+unsw & lgbm & site alpha=0.05 & 0.549$\pm$0.002 & 0.818$\pm$0.003 & 0.050$\pm$0.000 & 0.756$\pm$0.013 \\
+unsw & lgbm & site alpha=0.1 & 0.550$\pm$0.004 & 0.807$\pm$0.003 & 0.101$\pm$0.000 & 0.836$\pm$0.012 \\
+unsw & mlp & argmax & 0.390$\pm$0.010 & 0.603$\pm$0.008 & 0.414$\pm$0.002 & 0.998$\pm$0.001 \\
+unsw & mlp & site alpha=0.02 & 0.383$\pm$0.035 & 0.752$\pm$0.016 & 0.020$\pm$0.000 & 0.553$\pm$0.046 \\
+unsw & mlp & site alpha=0.05 & 0.381$\pm$0.024 & 0.747$\pm$0.013 & 0.050$\pm$0.001 & 0.632$\pm$0.032 \\
+unsw & mlp & site alpha=0.1 & 0.376$\pm$0.016 & 0.730$\pm$0.009 & 0.101$\pm$0.000 & 0.736$\pm$0.014 \\
+unsw & rf & argmax & 0.509$\pm$0.002 & 0.674$\pm$0.003 & 0.389$\pm$0.005 & 0.993$\pm$0.003 \\
+unsw & rf & site alpha=0.02 & 0.505$\pm$0.004 & 0.793$\pm$0.005 & 0.017$\pm$0.000 & 0.595$\pm$0.019 \\
+unsw & rf & site alpha=0.05 & 0.528$\pm$0.006 & 0.813$\pm$0.001 & 0.048$\pm$0.001 & 0.736$\pm$0.007 \\
+unsw & rf & site alpha=0.1 & 0.528$\pm$0.001 & 0.803$\pm$0.001 & 0.098$\pm$0.001 & 0.829$\pm$0.004 \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:extra_loo: Leave-one-attack-class-out at matched ~5% benign FPR (site-calibrated, Mahalanobis detector)
+\begin{tabular}{llcccccccc}
+\toprule
+Dataset & Held-out & n & AUROC clf & AUROC det & AUROC fused & Det. clf & Det. detector & Det. fused & FPR fused \\
+\midrule
+edge & DDoS\_UDP & 2288 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.998$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.051$\pm$0.003 \\
+edge & DDoS\_ICMP & 2067 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.998$\pm$0.001 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.054$\pm$0.007 \\
+edge & DDoS\_HTTP & 1656 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.998$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.053$\pm$0.004 \\
+edge & SQL\_injection & 1619 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.998$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.053$\pm$0.000 \\
+edge & DDoS\_TCP & 1617 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.998$\pm$0.001 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 1.000$\pm$0.000 & 0.054$\pm$0.004 \\
+unsw & Exploits & 7085 & 0.969$\pm$0.006 & 0.809$\pm$0.001 & 0.955$\pm$0.008 & 0.833$\pm$0.035 & 0.156$\pm$0.002 & 0.772$\pm$0.054 & 0.049$\pm$0.001 \\
+unsw & Fuzzers & 4335 & 0.828$\pm$0.006 & 0.577$\pm$0.001 & 0.774$\pm$0.004 & 0.125$\pm$0.029 & 0.077$\pm$0.002 & 0.097$\pm$0.017 & 0.049$\pm$0.001 \\
+unsw & Generic & 3381 & 0.896$\pm$0.036 & 0.923$\pm$0.002 & 0.932$\pm$0.005 & 0.273$\pm$0.112 & 0.511$\pm$0.037 & 0.520$\pm$0.003 & 0.049$\pm$0.000 \\
+unsw & Reconnaissance & 2224 & 0.944$\pm$0.009 & 0.533$\pm$0.001 & 0.902$\pm$0.015 & 0.596$\pm$0.078 & 0.018$\pm$0.000 & 0.384$\pm$0.067 & 0.050$\pm$0.000 \\
+unsw & DoS & 1186 & 0.967$\pm$0.007 & 0.786$\pm$0.000 & 0.954$\pm$0.008 & 0.816$\pm$0.045 & 0.166$\pm$0.001 & 0.759$\pm$0.041 & 0.050$\pm$0.001 \\
 \bottomrule
 \end{tabular}

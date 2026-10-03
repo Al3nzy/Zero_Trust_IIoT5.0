@@ -97,6 +97,14 @@ with the same structure, not on the real files, so inspect the first run.
    class; detection of that class is compared alone vs fused with each detector. The final report prints a CONFIRMED / NOT confirmed verdict per dataset: only claim generalisation where it says CONFIRMED.
 4. Findings that are NOT fixed by any code here: the NSL-KDD test R2L flows (guess_passwd on pop_3/ftp) differ from the training R2L flows; DP-SGD at eps <= 8 removes U2R recall.
 
+## Version 2.4 changes
+1. **Leave-one-class-out test redesigned.** The first version compared "detected = predicted non-Normal", which is meaningless when the classifier already flags a large share of benign flows
+   (UNSW-NB15: 34-38% benign false alarms, so every held-out class looked 99% "detected" and the result said nothing about novelty). It now compares the classifier score, the detector score and
+   the fused score at the SAME benign false-alarm rate (site-calibrated, 5%) and by AUROC.
+2. **Site-calibrated classifier decision** (`ztids/calibrate.py`): Normal/attack threshold on P(attack) from the commissioning window, reported for alpha 2/5/10% (none selected). On NSL-KDD it
+   raises LightGBM from Macro-F1 0.634 / Acc 0.776 to 0.659 / 0.814 at alpha=5% (worse at 2%).
+3. `make_tables.py` / `make_report.py` no longer abort on one bad block or file; `run_dataset.py` writes results atomically and recomputes results from older versions.
+
 ## Ideas evaluated on NSL-KDD and rejected (do not re-try without new evidence)
 * Equal-weight ensembles of the trained models: no gain (LightGBM + BiLSTM 0.636 vs LightGBM 0.634 Macro-F1).
 * Sub-type-weighted training: worse (Macro-F1 about 0.57), and `guess_passwd` stays at 0% recall.

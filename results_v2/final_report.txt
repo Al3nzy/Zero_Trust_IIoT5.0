@@ -42,6 +42,13 @@ Hybrid (LightGBM + CNN-BiLSTM)  3  0.772+/-0.012   0.636+/-0.007*  0.668+/-0.017
   Why: 'guess_passwd' IS in the training data (53 flows) yet 1231 of its 1231 test flows are missed. Training: services {'telnet': 1.0}, flags {'RSTO': 0.85, 'RSTR': 0.08, 'SF': 0.04}, logged_in 0.02.
        Test: services {'pop_3': 0.61, 'telnet': 0.31, 'ftp': 0.08}, flags {'SF': 0.97, 'RSTO': 0.02, 'S3': 0.0}, logged_in 0.62  -> the test examples behave differently from every training example (within-sub-type distribution shift); no supervised model can learn this from the training split.
 
+-- 1c. site-calibrated Normal decision for the classifier (LightGBM class-aware; threshold on P(attack) from a clean commissioning window)
+  argmax           Macro-F1 0.632+/-0.025 | Acc 0.767+/-0.020 | benign FPR 0.029+/-0.002 | attack detection 0.658+/-0.047
+  site alpha=0.02  Macro-F1 0.483+/-0.034 | Acc 0.694+/-0.016 | benign FPR 0.021+/-0.002 | attack detection 0.504+/-0.030
+  site alpha=0.05  Macro-F1 0.659+/-0.022 | Acc 0.814+/-0.005 | benign FPR 0.052+/-0.002 | attack detection 0.794+/-0.025
+  site alpha=0.1   Macro-F1 0.651+/-0.022 | Acc 0.819+/-0.003 | benign FPR 0.102+/-0.001 | attack detection 0.892+/-0.021
+  All targets are shown, none is selected: pick alpha from the site's false-alarm budget. Too strict a target (2%) hurts because the classifier's P(attack) is inflated on shifted benign traffic.
+
 ====================================================================================================
 2. ABLATIONS
 ====================================================================================================
@@ -151,7 +158,7 @@ Hybrid (LightGBM + CNN-BiLSTM)   0.28+/-0.10 -> 0.56+/-0.03       0.82+/-0.01 0.
 
 -- pipeline stages
   detector         3 s  (   0.1 min)
-  novelty        188 s  (   3.1 min)
+  novelty        173 s  (   2.9 min)
   novel            6 s  (   0.1 min)
   trust           26 s  (   0.4 min)
   theory         105 s  (   1.8 min)
@@ -159,10 +166,44 @@ Hybrid (LightGBM + CNN-BiLSTM)   0.28+/-0.10 -> 0.56+/-0.03       0.82+/-0.01 0.
   dp              53 s  (   0.9 min)
   shap           378 s  (   6.3 min)
   latency         75 s  (   1.2 min)
-  tables           4 s  (   0.1 min)
+  tables           5 s  (   0.1 min)
   figures          9 s  (   0.1 min)
   sensitivity      39 s  (   0.7 min)
-  TOTAL         1063 s  (  17.7 min = 0.30 h)
+  TOTAL         1049 s  (  17.5 min = 0.29 h)
+
+====================================================================================================
+EXTERNAL CONFIRMATION (additional datasets, identical protocol)
+====================================================================================================
+
+-- edge: 3 seed(s)
+  lgbm         Acc 0.942+/-0.001  Macro-F1 0.913+/-0.001  MCC 0.937+/-0.001
+  mlp          Acc 0.799+/-0.001  Macro-F1 0.760+/-0.003  MCC 0.784+/-0.001
+  rf           Acc 0.931+/-0.002  Macro-F1 0.903+/-0.002  MCC 0.925+/-0.002
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.913+/-0.001 | Acc 0.941+/-0.001 | benign FPR 0.000+/-0.000 | attack detection 1.000+/-0.000
+    site alpha=0.02  Macro-F1 0.910+/-0.000 | Acc 0.938+/-0.000 | benign FPR 0.022+/-0.000 | attack detection 1.000+/-0.000
+    site alpha=0.05  Macro-F1 0.904+/-0.000 | Acc 0.934+/-0.000 | benign FPR 0.054+/-0.003 | attack detection 1.000+/-0.000
+    site alpha=0.1   Macro-F1 0.897+/-0.000 | Acc 0.926+/-0.000 | benign FPR 0.104+/-0.004 | attack detection 1.000+/-0.000
+  Leave-one-attack-class-out (5 held-out classes x 3 seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):
+    iforest      AUROC clf 1.000 | detector 0.829 | fused 0.998   ||  detection at ~5% benign FPR: clf 1.000 (FPR 0.051), detector 0.078 (FPR 0.048), fused 1.000 (FPR 0.050)
+    mahalanobis  AUROC clf 1.000 | detector 1.000 | fused 0.998   ||  detection at ~5% benign FPR: clf 1.000 (FPR 0.051), detector 1.000 (FPR 0.055), fused 1.000 (FPR 0.053)
+    Verdict (iforest): novelty fusion NOT confirmed (detection +0.00, AUROC -0.002 vs the classifier at matched FPR): do not claim it generalises.
+    Verdict (mahalanobis): novelty fusion NOT confirmed (detection +0.00, AUROC -0.002 vs the classifier at matched FPR): do not claim it generalises.
+
+-- unsw: 3 seed(s)
+  lgbm         Acc 0.673+/-0.002  Macro-F1 0.521+/-0.006  MCC 0.577+/-0.002
+  mlp          Acc 0.602+/-0.007  Macro-F1 0.386+/-0.010  MCC 0.488+/-0.010
+  rf           Acc 0.670+/-0.003  Macro-F1 0.504+/-0.002  MCC 0.575+/-0.003
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.526+/-0.006 | Acc 0.677+/-0.002 | benign FPR 0.386+/-0.005 | attack detection 0.989+/-0.004
+    site alpha=0.02  Macro-F1 0.543+/-0.004 | Acc 0.817+/-0.002 | benign FPR 0.020+/-0.001 | attack detection 0.677+/-0.011
+    site alpha=0.05  Macro-F1 0.549+/-0.002 | Acc 0.818+/-0.003 | benign FPR 0.050+/-0.000 | attack detection 0.756+/-0.013
+    site alpha=0.1   Macro-F1 0.550+/-0.004 | Acc 0.807+/-0.003 | benign FPR 0.101+/-0.000 | attack detection 0.836+/-0.012
+  Leave-one-attack-class-out (5 held-out classes x 3 seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):
+    iforest      AUROC clf 0.921 | detector 0.679 | fused 0.903   ||  detection at ~5% benign FPR: clf 0.529 (FPR 0.049), detector 0.156 (FPR 0.050), fused 0.501 (FPR 0.050)
+    mahalanobis  AUROC clf 0.921 | detector 0.726 | fused 0.903   ||  detection at ~5% benign FPR: clf 0.529 (FPR 0.049), detector 0.185 (FPR 0.051), fused 0.506 (FPR 0.049)
+    Verdict (iforest): novelty fusion NOT confirmed (detection -0.03, AUROC -0.018 vs the classifier at matched FPR): do not claim it generalises.
+    Verdict (mahalanobis): novelty fusion NOT confirmed (detection -0.02, AUROC -0.018 vs the classifier at matched FPR): do not claim it generalises.
 
 ====================================================================================================
 10. BOTTOM LINE
@@ -174,4 +215,4 @@ Hybrid (LightGBM + CNN-BiLSTM)   0.28+/-0.10 -> 0.56+/-0.03       0.82+/-0.01 0.
   * Best system: LightGBM (class-aware MI) [mahalanobis, site-calibrated threshold] + CUSUM trust: Macro-F1 0.708+/-0.006 (classifier alone 0.632+/-0.025), benign FPR 0.039+/-0.001 (+1.0 points vs alone), unseen-type detection 0.64+/-0.01 (alone 0.30+/-0.13), seen-type detection 0.95+/-0.00.
     Best strict configuration (no test-domain data used for any threshold): LightGBM (class-aware MI) [mahalanobis, validation threshold], Macro-F1 0.704+/-0.022, seen 0.89+/-0.03, unseen 0.59+/-0.02, benign FPR 0.035+/-0.002. The site-calibrated and detector choices were made after inspecting NSL-KDD results: confirm on UNSW-NB15 / Edge-IIoTset.
     The a-priori hybrid ensemble reached Macro-F1 0.645+/-0.013 with iforest fusion, i.e. it did not beat the best single model; report it as a negative result.
-  * NOT YET ESTABLISHED: generalisation beyond NSL-KDD (no additional dataset has been run: use --unsw-train/--unsw-test/--edge) Trust results are a replay simulation, not a deployment.
+  * External datasets were run (see the EXTERNAL CONFIRMATION section): the novelty-fusion claim stands only where its verdict says CONFIRMED (edge/iforest: not confirmed, edge/mahalanobis: not confirmed, unsw/iforest: not confirmed, unsw/mahalanobis: not confirmed). Trust results are a replay simulation, not a deployment.

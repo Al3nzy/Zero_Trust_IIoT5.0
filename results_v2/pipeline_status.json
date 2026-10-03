@@ -1,6 +1,6 @@
 {
  "detector": "ok [3s]",
- "novelty": "ok [188s]",
+ "novelty": "ok [173s]",
  "novel": "ok [6s]",
  "trust": "ok [26s]",
  "theory": "ok [105s]",
@@ -9,7 +9,7 @@
  "shap": "ok [378s]",
  "latency": "ok [75s]",
  "extra": "skipped (no dataset paths given)",
- "tables": "FAILED (exit 1) [3s]",
+ "tables": "ok [5s]",
  "figures": "ok [9s]",
  "sensitivity": "ok [39s]"
 }

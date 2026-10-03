@@ -10,6 +10,7 @@ from ztids.data import prepare, make_split, CLASSES
 from ztids.novelty import NormalProfile, fuse_labels, KINDS
 from ztids.ensemble import HYBRID, probs as ens_probs
 from ztids.evalutil import metrics
+from ztids.calibrate import eval_site_decision
 MODELS = {"proposed CNN-BiLSTM": "official_cnn_bilstm_{s}_-_-_-_selovr", "LightGBM (class-aware MI)": "official_lgbm_{s}_sel_selovr",
           "LightGBM (global MI)": "official_lgbm_{s}_sel", "MLP": "official_mlp_{s}_-_-_-_selovr", HYBRID["label"]: None}
 FPRS = {"iforest": (0.02, 0.05), "mahalanobis": (0.02,), "iforest+mahalanobis": (0.02,)}
@@ -35,7 +36,7 @@ def comm_eval(P, sc, yt, att, novel, fpr, s, frac=0.10, draws=20):
     return dict(alone=avg(A), fused=avg(F), novelty_only=avg(N))
 
 
-out = {"detectors": {k: {} for k in KINDS}, "auc": {k: {} for k in KINDS}, "commissioning": {k: {} for k in KINDS}, "seeds": C.SEEDS}
+out = {"site_decision": {}, "detectors": {k: {} for k in KINDS}, "auc": {k: {} for k in KINDS}, "commissioning": {k: {} for k in KINDS}, "seeds": C.SEEDS}
 for s in C.SEEDS:
     fit, val, test, _ = make_split("official", s); seen = set(fit["sub"]); novel = ~test["sub"].isin(seen).values
     yt = test["cls"].map({c: i for i, c in enumerate(CLASSES)}).values; att = yt != 0
@@ -56,6 +57,7 @@ for s in C.SEEDS:
                 if P is None: continue
                 assert (y2 == yt).all(), "test order mismatch"
                 R.setdefault(label, {})[str(s)] = dict(alone=summ(P.argmax(1), yt, att, novel), fused=summ(fuse_labels(P, flag), yt, att, novel))
+                if kind == "iforest" and fpr == 0.02: out["site_decision"].setdefault(label, {})[str(s)] = eval_site_decision(P, yt, 0, s)
                 if fpr == 0.02:
                     ce = comm_eval(P, sc, yt, att, novel, fpr, s); out["commissioning"][kind].setdefault(label, {})[str(s)] = dict(alone=ce["alone"], fused=ce["fused"])
                     out["commissioning"][kind].setdefault("novelty only", {})[str(s)] = ce["novelty_only"]
