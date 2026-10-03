@@ -29,7 +29,7 @@ Measured on a single CPU core: one CNN-BiLSTM job takes about 12 minutes, and th
 
 Useful options
 ```bash
-python run_everything.py --only trust theory ledger tables figures   # re-run only some stages (all stages: detector novelty novel trust theory ledger dp shap latency extra tables figures)
+python run_everything.py --only trust theory ledger tables figures   # re-run only some stages (all stages: detector novelty novel trust theory sensitivity ledger dp shap latency extra tables figures report)
 python run_everything.py --skip dp latency                          # skip slow stages
 python run_everything.py --seeds 0 1 2 3 4                          # more seeds (seed 0 is always included)
 python run_everything.py --threads 8                                # TensorFlow threads (default: automatic)
@@ -56,6 +56,7 @@ with the same structure, not on the real files, so inspect the first run.
 | novelty | run_novelty.py | novelty.json, novelty_s*_f*.npz | Normal-profile (isolation-forest) novelty detector fused with each classifier; detection of attack sub-types never seen in training |
 | novel | run_novel.py | novel.json | per-sub-type recall of the classifiers alone, seen vs test-only sub-types |
 | trust | run_trust.py | trust_main.json | adaptive zero-trust validation: benign/compromised/recovery/intermittent/stealth, heterogeneous fleets, contaminated commissioning |
+| sensitivity | run_sensitivity.py | trust_sensitivity.json | sensitivity of the trust engine to k, certified alpha, flows per round, commissioning window (Reviewer 6) |
 | theory | run_theory.py | trust_theory.json | empirical check of the proved false-quarantine bound, delay bound, minimum detectable attack fraction |
 | ledger | run_ledger.py | ledger.json | tamper-detection of hash chain vs signatures vs anchors (blockchain claims) |
 | dp | run_dp.py | dp_*.json | formal DP-SGD with RDP accounting + membership-inference check (DP claims) |
@@ -78,6 +79,31 @@ with the same structure, not on the real files, so inspect the first run.
    harm = max(severity-weighted posterior, w_u x flag); `w_u = 0.5` is a policy choice (`ztids/evidence.py`).
 3. **Latency stage no longer fails on Windows** (the Unix-only `resource` module is now optional; `psutil` is used for memory).
 4. Trust and theory stages now also test devices compromised by attack sub-types that were never seen in training.
+
+## Version 2.2 changes
+1. **Novelty detectors are selectable** (`ztids/novelty.py`: iforest default, mahalanobis, iforest+mahalanobis) and compared with a threshold-free AUROC. kNN-distance was evaluated and rejected
+   (best validation AUROC, worst test AUROC under distribution shift). The detector ranking was inspected on NSL-KDD test data: confirm it on UNSW-NB15 / Edge-IIoTset.
+2. **Hybrid ensemble (LightGBM + CNN-BiLSTM)** is evaluated as a fixed a-priori choice; it gives no gain over LightGBM and is reported as a negative result.
+3. **Failure diagnostic** (`run_novel.py`): the worst-missed *seen* attack sub-type is compared between training and test (`guess_passwd`: telnet/RSTO in training, pop_3/SF with successful logins in test).
+4. **DP-SGD** now also runs eps = 50 (the old claim) and eps = 25 (the ZT-DT value), besides 8, 4, 1.
+5. **Real-time budget**: `run_latency.py` reports the margin against an ASSUMED per-round budget (`ZTIDS_DEADLINE_MS`, default 100): set it from your plant requirement; it is not a standard.
+6. New stage `sensitivity`, new tables (`tab:detectors`, `tab:sensitivity`), final report sections 1b and the sensitivity line.
+
+## Version 2.3 changes
+1. **Site-calibrated novelty threshold** (`run_novelty.py`): besides the strict threshold (training-domain validation flows), the anomaly threshold is also calibrated on a commissioning window,
+   a random 10% of clean test-domain Normal flows that are excluded from the evaluation (mean of 20 windows). It assumes a clean benign period at the site, like the per-device trust baseline.
+2. **Mahalanobis detector** (Gaussian Normal profile) is reported next to IsolationForest. On NSL-KDD it is better, but that was observed on test data: treat it as a hypothesis to confirm.
+3. **External confirmation** (`ztids/loo.py`, run by `run_dataset.py` unless `--no-loo`): leave-one-attack-class-out test on UNSW-NB15 / Edge-IIoTset. The classifier is trained without one attack
+   class; detection of that class is compared alone vs fused with each detector. The final report prints a CONFIRMED / NOT confirmed verdict per dataset: only claim generalisation where it says CONFIRMED.
+4. Findings that are NOT fixed by any code here: the NSL-KDD test R2L flows (guess_passwd on pop_3/ftp) differ from the training R2L flows; DP-SGD at eps <= 8 removes U2R recall.
+
+## Ideas evaluated on NSL-KDD and rejected (do not re-try without new evidence)
+* Equal-weight ensembles of the trained models: no gain (LightGBM + BiLSTM 0.636 vs LightGBM 0.634 Macro-F1).
+* Sub-type-weighted training: worse (Macro-F1 about 0.57), and `guess_passwd` stays at 0% recall.
+* kNN-distance anomaly detector: best validation AUROC, worst test AUROC under shift.
+* Rank-averaged IsolationForest + Mahalanobis: same or lower Macro-F1 than Mahalanobis alone (0.664 vs 0.708 site-calibrated); poor threshold transfer with a validation threshold (6.8% benign flags).
+* Site feature alignment (mapping the commissioning window's benign mean/std onto the training Normal statistics): false alarms rise from 3.6% to 17-28%, Macro-F1 falls from 0.705 to about 0.50.
+Further tuning on the NSL-KDD test set would overfit it; the external datasets are the next test.
 
 ## Things you must state in the paper (limits of this code)
 1. **Trust results are a replay simulation**: real test-set posteriors are sampled into simulated device streams (flows i.i.d. within a round). It is not a deployment.

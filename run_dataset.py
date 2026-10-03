@@ -18,7 +18,7 @@ PRESETS = {
 ap = argparse.ArgumentParser(); ap.add_argument("preset", choices=list(PRESETS)); ap.add_argument("--train", required=True); ap.add_argument("--test")
 ap.add_argument("--label"); ap.add_argument("--drop", nargs="*"); ap.add_argument("--seeds", nargs="*", type=int, default=[0, 1, 2])
 ap.add_argument("--npc", type=int, default=4000); ap.add_argument("--max-rows", type=int); ap.add_argument("--epochs", type=int, default=14)
-ap.add_argument("--models", nargs="*", default=["cnn_bilstm", "lgbm", "rf", "mlp"]); ap.add_argument("--sel", default="ovr"); ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "results_extra"))
+ap.add_argument("--models", nargs="*", default=["cnn_bilstm", "lgbm", "rf", "mlp"]); ap.add_argument("--sel", default="ovr"); ap.add_argument("--no-loo", action="store_true"); ap.add_argument("--normal-label", default="Normal"); ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "results_extra"))
 a = ap.parse_args(); P = PRESETS[a.preset]; label = a.label or P["label"]; drop = a.drop if a.drop is not None else P["drop"]
 os.makedirs(a.out, exist_ok=True)
 tr = pd.read_csv(a.train, low_memory=False); tr.columns = [c.strip() for c in tr.columns]
@@ -43,5 +43,17 @@ for s in a.seeds:
             m = compile_model(BUILDERS[name](n_cls=len(C))); fit_model(m, d["Xtr"], d["ytr"], d["Xval"], d["yval"], epochs=a.epochs, patience=3, seed=s); pt = predict(m, d["Xte"])
         res["models"][name] = dict(test=metrics_generic(d["yte"], pt, C), train_s=round(time.time() - t1, 1))
         r = res["models"][name]["test"]; print(f"   {name:11s} acc={r['acc']:.4f} macroF1={r['macro_f1']:.4f} mcc={r['mcc']:.4f} ({res['models'][name]['train_s']}s)", flush=True)
+    if not a.no_loo:                                      # leave-one-attack-class-out test of the novelty fusion (external confirmation)
+        try:
+            from ztids.loo import run_loo
+            nl = [i for i, c in enumerate(C) if str(c).lower() == a.normal_label.lower() or str(c).lower() in ("normal", "benign")]
+            if not nl: raise RuntimeError(f"no Normal/Benign class found among {C}; pass --normal-label")
+            d_all = prepare_generic(tr, te, label, drop, s, a.npc, 500, "global", a.max_rows)
+            res["loo"] = run_loo(d, d_all, C, nl[0], s, a.npc)
+            for cname, r in res["loo"].items():
+                print(f"   LOO {cname:18s} n={r['n_test']:6d} detected: alone {r['alone']['det_heldout']:.3f} | +iforest {r['strict']['iforest']['det_heldout']:.3f} | +mahalanobis {r['strict']['mahalanobis']['det_heldout']:.3f} "
+                      f"(site-calibrated {r['site']['mahalanobis']['det_heldout']:.3f}) | benign FPR alone {r['alone']['fpr']:.3f} -> {r['strict']['mahalanobis']['fpr']:.3f}", flush=True)
+        except Exception as e:
+            print("   LOO stage failed:", repr(e)[:200], flush=True); res["loo_error"] = repr(e)
     json.dump(res, open(path, "w"), indent=1, default=str)
 print("done ->", a.out)

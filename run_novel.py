@@ -26,4 +26,17 @@ for label, name in cands.items():
     r["per_subtype"] = per; out["models"][label] = r
     print(label, {k: r[k] for k in ("seen", "novel")}, flush=True)
 if not out["models"]: sys.exit("no model outputs found; run the detector stage first")
+from ztids.data import load_nsl
+tr_raw, te_raw = load_nsl(); diag = {}
+for label, r in out["models"].items():
+    cand = [x for x in r["per_subtype"] if x["seen_in_training"]]
+    if not cand: continue
+    w = max(cand, key=lambda x: x["n"] * (1 - x["exact_recall"]))
+    if w["n"] * (1 - w["exact_recall"]) < 100: continue
+    a, b = tr_raw[tr_raw["sub"] == w["sub"]], te_raw[te_raw["sub"] == w["sub"]]
+    top = lambda df, c: {str(k): round(float(v), 2) for k, v in df[c].value_counts(normalize=True).head(3).items()}
+    diag[label] = dict(sub=w["sub"], cls=w["cls"], missed=int(round(w["n"] * (1 - w["exact_recall"]))), exact_recall=w["exact_recall"], n_train=int(len(a)), n_test=int(len(b)),
+                       train_service=top(a, "service"), test_service=top(b, "service"), train_flag=top(a, "flag"), test_flag=top(b, "flag"),
+                       train_logged_in=float(a["logged_in"].mean()), test_logged_in=float(b["logged_in"].mean()))
+out["shift_diagnostic"] = diag
 json.dump(out, open(os.path.join(C.RES, "novel.json"), "w"), indent=1)

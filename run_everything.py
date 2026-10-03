@@ -9,14 +9,14 @@ MASTER SCRIPT. Run this file; it executes every experiment stage in order, never
     python run_everything.py --unsw-train UNSW_NB15_training-set.csv --unsw-test UNSW_NB15_testing-set.csv \
                              --edge ML-EdgeIIoT-dataset.csv                 # also run the additional-dataset stage
 
-Stages (in order): detector novelty novel trust theory ledger dp shap latency extra tables figures report
+Stages (in order): detector novelty novel trust theory sensitivity ledger dp shap latency extra tables figures report
 (the final 'report' prints the overall results summary and run times at the very end of the log; `--only report` re-prints it from saved results)
 Finished jobs are cached in results_v2/ (or results_v2_quick/), so an interrupted run resumes where it stopped.
 """
 import argparse, json, os, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__))
-STAGES = ["detector", "novelty", "novel", "trust", "theory", "ledger", "dp", "shap", "latency", "extra", "tables", "figures", "report"]
-SCRIPT = dict(detector="run_detector.py", novelty="run_novelty.py", novel="run_novel.py", trust="run_trust.py", theory="run_theory.py", ledger="run_ledger.py", dp="run_dp.py",
+STAGES = ["detector", "novelty", "novel", "trust", "theory", "sensitivity", "ledger", "dp", "shap", "latency", "extra", "tables", "figures", "report"]
+SCRIPT = dict(detector="run_detector.py", novelty="run_novelty.py", novel="run_novel.py", trust="run_trust.py", theory="run_theory.py", sensitivity="run_sensitivity.py", ledger="run_ledger.py", dp="run_dp.py",
               shap="run_shap.py", latency="run_latency.py", tables="make_tables.py", figures="make_figs.py", report="make_report.py")
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 ap.add_argument("--quick", action="store_true"); ap.add_argument("--only", nargs="*", choices=STAGES); ap.add_argument("--skip", nargs="*", default=[], choices=STAGES)
@@ -50,7 +50,7 @@ for st in run_now:
     status[st] = ("ok" if rc == 0 else f"FAILED (exit {rc})") + f" [{time.time() - t0:.0f}s]"
     json.dump(status, open(os.path.join(res, "pipeline_status.json"), "w"), indent=1)
 print(f"\n{'=' * 78}\nPIPELINE SUMMARY  (total {(time.time() - t_all) / 60:.1f} min)\n{'=' * 78}")
-for k in run_now: print(f"  {k:10s} {status.get(k, '-')}")
+for k in run_now: print(f"  {k:12s} {status.get(k, '-')}")
 tab, fig = ("tables_quick", "figures_quick") if a.quick else ("tables", "figures")
 print(f"\nResults: {os.path.relpath(res, HERE)}/   Tables: {tab}/tables.tex + summary.md   Figures: {fig}/")
 ok = all(str(status.get(k, "ok")).startswith(("ok", "skipped")) for k in run_now)

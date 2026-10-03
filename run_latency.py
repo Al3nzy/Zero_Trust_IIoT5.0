@@ -29,8 +29,9 @@ def timeit(f, n=200, warm=20):
     return dict(mean_ms=float(t.mean() * 1e3), p50_ms=float(np.median(t) * 1e3), p95_ms=float(np.percentile(t, 95) * 1e3), p99_ms=float(np.percentile(t, 99) * 1e3))
 
 
+DEADLINE_MS = float(os.environ.get("ZTIDS_DEADLINE_MS", 100))     # ASSUMED per-round decision budget (configurable; set it from your plant requirement)
 nrep = 50 if C.QUICK else 200
-out = dict(hw=dict(machine=platform.machine(), platform=platform.platform(), cpu_count=os.cpu_count(), tf_threads=1, tf=tf.__version__), models={})
+out = dict(deadline_ms=DEADLINE_MS, hw=dict(machine=platform.machine(), platform=platform.platform(), cpu_count=os.cpu_count(), tf_threads=1, tf=tf.__version__), models={})
 one, batch = raw.iloc[[0]], raw.iloc[:20]
 out["preprocess_1flow"] = timeit(lambda: pp.transform(one), nrep); out["preprocess_20flows"] = timeit(lambda: pp.transform(batch), nrep)
 key = Ed25519PrivateKey.generate(); L = Ledger(signer=key, anchor_every=50); L0 = Ledger(signer=None, anchor_every=0)
@@ -48,6 +49,7 @@ for name, path in MODELS.items():
     r["infer_500_batch_warm_s"] = float(np.median(ts))
     r["throughput_flows_per_s"] = 500 / r["infer_500_batch_warm_s"]
     r["round_total_ms"] = (out["preprocess_20flows"]["mean_ms"] + r["infer_20flows"]["mean_ms"] + out["trust_update_round"]["mean_ms"] + out["ledger_append_signed"]["mean_ms"])
+    r["deadline_ms"] = DEADLINE_MS; r["deadline_margin"] = DEADLINE_MS / r["round_total_ms"]
     out["models"][name] = r; print(name, {k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items() if not isinstance(v, dict)}, flush=True)
 if "plain" in MODELS:
     import shap

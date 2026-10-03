@@ -10,7 +10,7 @@ from ztids import config as C
 from ztids.data import prepare
 from ztids.dpsgd import train_dpsgd
 from ztids.evalutil import metrics
-ap = argparse.ArgumentParser(); ap.add_argument("--eps", nargs="*", type=float, default=[8.0, 4.0, 1.0]); a = ap.parse_args()
+ap = argparse.ArgumentParser(); ap.add_argument("--eps", nargs="*", type=float, default=[50.0, 25.0, 8.0, 4.0, 1.0]); a = ap.parse_args()
 d = prepare("official", 0, n_per_class=C.NPC, sel_mode="ovr")
 Xf, yf = d["Xfit"], d["yfit"]                                      # ORIGINAL training records only (no SMOTE / duplication)
 if C.DP_N and C.DP_N < len(Xf):

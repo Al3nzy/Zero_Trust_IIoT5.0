@@ -5,6 +5,7 @@ import numpy as np
 from ztids import config as C
 from ztids.jobs import jid, tree_id
 from ztids.data import CLASSES
+from ztids.ensemble import HYBRID, metrics_over_seeds
 
 O, S = "official", C.SEEDS
 def J(name):
@@ -22,6 +23,8 @@ def metric_row(label, names):
     rs = [J(n) for n in names]; rs = [r for r in rs if r]
     deg = sum(1 for r in rs if r["test"]["attack_detection_rate"] < 0.05 or r["test"]["normal_fpr"] > 0.5)      # collapsed runs are counted, never dropped
     return [esc(label)] + [ms([f(r) for r in rs]) for _, f in MET] + [str(len(rs)) + (f" ({deg} degenerate)" if deg else "")]
+def metric_row_from(label, rs):
+    return [esc(label)] + [ms([f(r) for r in rs]) for _, f in MET] + [str(len(rs))]
 def jobs(model, **kw): return [jid(dict(proto=O, model=model, seed=s, **kw)) for s in S]
 def trees(model, feats, proto=O, **kw): return [tree_id(dict(proto=proto, model=model, seed=s, feats=feats, **kw)) for s in S]
 def tab(header, rows, spec=None):
@@ -49,6 +52,8 @@ rows = [metric_row("CNN-BiLSTM + class-aware MI (proposed)", jobs("cnn_bilstm", 
         metric_row("LightGBM (all features)", [tree_id(dict(proto=O, model="lgbm", seed=0, feats="all"))]),
         metric_row("Random forest (class-aware MI)", trees("rf", "sel", sel="ovr")), metric_row("MLP", jobs("mlp", sel="ovr")),
         metric_row("CNN only", jobs("cnn", sel="ovr")), metric_row("LSTM only", jobs("lstm", sel="ovr"))]
+hy = metrics_over_seeds(HYBRID["members"], S)
+if hy: rows.insert(3, metric_row_from(HYBRID["label"] + ", equal-weight posteriors", hy))
 emit("tab:main", "Official overlap-free test set, mean $\\pm$ std over training seeds", H1, rows, spec="lccccccc")
 # ---------- ablations
 rows = [metric_row("canonical (family-adjacent) order", jobs("cnn_bilstm", sel="ovr")), metric_row("random feature order", jobs("cnn_bilstm", sel="ovr", order="random")),
@@ -82,6 +87,29 @@ if nvl:
                     rows.append([esc(model) + (" + novelty" if mode == "fused" else ""), ms([x["macro_f1"] for x in v]), ms([x["fpr"] for x in v]), ms([x["det_seen"] for x in v]), ms([x["det_novel"] for x in v]), ms([x["r2l"] for x in v]), ms([x["u2r"] for x in v])])
         emit(f"tab:novelty_fpr{fpr}", f"Seen vs novel attack detection, novelty threshold at {float(fpr) * 100:.0f}% validation FPR", ["Detector", "Macro-F1", "Benign FPR", "Det. seen", "Det. novel", "R2L rec.", "U2R rec."], rows,
              note=f"{nvl['n_attack_novel']} of {nvl['n_attack_test']} test attacks belong to sub-types absent from training. Threshold set on validation Normal flows only.")
+# ---------- site-calibrated (commissioning-window) novelty fusion
+if nvl and nvl.get("commissioning"):
+    for kind, Rc in nvl["commissioning"].items():
+        if not Rc: continue
+        rows = []
+        for model, per in Rc.items():
+            if model == "novelty only":
+                v = list(per.values()); rows.append(["Normal-profile detector alone", "--", ms([x["fpr"] for x in v]), ms([x["det_seen"] for x in v]), ms([x["det_novel"] for x in v]), "--", "--"])
+            else:
+                for mode in ("alone", "fused"):
+                    v = [per[s][mode] for s in per]
+                    rows.append([esc(model) + (" + novelty" if mode == "fused" else ""), ms([x["macro_f1"] for x in v]), ms([x["fpr"] for x in v]), ms([x["det_seen"] for x in v]), ms([x["det_novel"] for x in v]), ms([x["r2l"] for x in v]), ms([x["u2r"] for x in v])])
+        emit("tab:novelty_comm_" + kind.replace("+", "_"), f"Site-calibrated novelty fusion ({kind}); threshold from a clean commissioning window", ["Detector", "Macro-F1", "Benign FPR", "Det. seen", "Det. novel", "R2L rec.", "U2R rec."], rows,
+             note="Threshold = 98th percentile of anomaly scores on a random 10% of clean test-domain Normal flows (excluded from evaluation), mean of 20 windows. Requires a clean benign commissioning period at the site.")
+# ---------- novelty detector comparison
+if nvl and nvl.get("detectors"):
+    rows = []
+    for kind, byf in nvl["detectors"].items():
+        Rk = byf.get("0.02", {}).get("novelty only"); au = nvl.get("auc", {}).get(kind, {})
+        if Rk: rows.append([kind, ms([v["all"] for v in au.values()]), ms([v["novel"] for v in au.values()]), ms([v["fpr"] for v in Rk.values()]), ms([v["det_seen"] for v in Rk.values()]), ms([v["det_novel"] for v in Rk.values()])])
+    emit("tab:detectors", "Normal-profile detectors (threshold at 2% validation FPR)", ["Detector", "AUROC all", "AUROC unseen types", "Benign flag rate", "Det. seen", "Det. unseen"], rows,
+         note="AUROC is threshold-free. Exploratory (seed 0, not part of the pipeline): kNN-distance had the best validation AUROC (0.993) but the worst test AUROC (0.932; 0.890 for unseen types) and flagged 8.2% of test benign flows at a 2% validation threshold, so it was rejected. "
+              "The detector ranking was inspected on NSL-KDD test data and must be confirmed on UNSW-NB15 / Edge-IIoTset.")
 # ---------- trust
 tr = J("trust_main")
 if tr:
@@ -102,6 +130,12 @@ if th:
     emit("tab:delay", "Detection-delay bound versus measurement", ["Attack", "$\\mu_a$", "Drift $d$", "Bound $(h+1)/d$", "Measured mean", "Detected (\\%)"], rows)
     rows = [[str(r["rep"]), f"{r['m_eff']:.0f}", fp(r["alpha"], 2), fp(r["empirical"], 3)] for r in th["false_quarantine"]]
     emit("tab:fqbound", "False-quarantine probability versus certified level", ["Flow repetition", "$m_{eff}$", "Certified $\\alpha$", "Empirical rate"], rows)
+# ---------- trust sensitivity
+ss = J("trust_sensitivity")
+if ss:
+    rows = [[f"{r['k']:.2f}", f"{r['alpha']:g}", str(r["m"]), str(r["warm"]), f"{r['h']:.2f}", fp(r["false_quarantine"], 1, True), fp(r["detect"], 0, True), "--" if r["median_delay"] is None else f"{r['median_delay']:.0f}", fp(r["stealth30"], 0, True)] for r in ss["rows"]]
+    emit("tab:sensitivity", "Trust-engine sensitivity (per-device baseline, replayed evidence)", ["$k$", "$\\alpha$", "$m$", "Warm-up", "$h$", "False quar. (\\%)", "Detect (\\%)", "Delay", "Stealth 30\\% (\\%)"], rows, spec="cccccccc c".replace(" ", ""),
+         note=f"{ss['n_devices']} devices per cell; h = ln(1/alpha) / (8 m k).")
 # ---------- ledger
 lg = J("ledger")
 if lg:
@@ -118,8 +152,8 @@ if dp:
 # ---------- latency
 lt = J("latency")
 if lt:
-    rows = [[k, f"{v['params']:,}", fp(v["size_mb"], 1), fp(v["infer_1flow"]["mean_ms"], 2), fp(v["infer_20flows"]["mean_ms"], 2), fp(v["infer_20flows"]["p99_ms"], 2), fp(v["throughput_flows_per_s"], 0), fp(v["round_total_ms"], 2)] for k, v in lt["models"].items()]
-    emit("tab:latency", "Per-round latency on identical hardware (1 thread)", ["Model", "Params", "MB", "1 flow (ms)", "20 flows (ms)", "p99 (ms)", "flows/s", "Round total (ms)"], rows,
+    rows = [[k, f"{v['params']:,}", fp(v["size_mb"], 1), fp(v["infer_1flow"]["mean_ms"], 2), fp(v["infer_20flows"]["mean_ms"], 2), fp(v["infer_20flows"]["p99_ms"], 2), fp(v["throughput_flows_per_s"], 0), fp(v["round_total_ms"], 2), (fp(v["deadline_margin"], 0) + "x") if "deadline_margin" in v else "--"] for k, v in lt["models"].items()]
+    emit("tab:latency", "Per-round latency on identical hardware (1 thread)", ["Model", "Params", "MB", "1 flow (ms)", "20 flows (ms)", "p99 (ms)", "flows/s", "Round total (ms)", "Budget margin"], rows,
          note=f"Stages (mean ms): preprocess(20)={lt['preprocess_20flows']['mean_ms']:.2f}, trust update={lt['trust_update_round']['mean_ms']:.3f}, signed ledger append={lt['ledger_append_signed']['mean_ms']:.3f}; "
               f"SHAP per flow={lt.get('shap_1flow_s', float('nan')):.2f} s; peak RSS={'n/a' if lt['peak_rss_mb'] is None else format(lt['peak_rss_mb'], '.0f')} MB; hardware: {lt['hw']['platform']}, {lt['hw']['cpu_count']} cores.")
 # ---------- extra datasets
@@ -131,5 +165,17 @@ if ex:
         for m, v in r["models"].items(): bykey.setdefault((r["preset"], m), []).append(v["test"])
     rows = [[k[0], k[1], ms([t["acc"] for t in v]), ms([t["macro_f1"] for t in v]), ms([t["mcc"] for t in v]), str(len(v))] for k, v in sorted(bykey.items())]
     emit("tab:extra", "Additional corpora under the identical leakage-free protocol", ["Dataset", "Model", "Acc.", "Macro-F1", "MCC", "Seeds"], rows)
+    lrows = []
+    for preset in sorted({json.load(open(p))["preset"] for p in ex}):
+        per_class = {}
+        for p in ex:
+            r = json.load(open(p))
+            if r["preset"] == preset:
+                for cname, v in r.get("loo", {}).items(): per_class.setdefault(cname, []).append(v)
+        for cname, vs in per_class.items():
+            g = lambda f: ms([f(v) for v in vs])
+            lrows.append([preset, esc(cname), str(vs[0]["n_test"]), g(lambda v: v["alone"]["det_heldout"]), g(lambda v: v["strict"]["iforest"]["det_heldout"]), g(lambda v: v["strict"]["mahalanobis"]["det_heldout"]),
+                          g(lambda v: v["site"]["mahalanobis"]["det_heldout"]), g(lambda v: v["alone"]["fpr"]), g(lambda v: v["strict"]["mahalanobis"]["fpr"])])
+    if lrows: emit("tab:extra_loo", "Leave-one-attack-class-out detection (the held-out class is never seen by the classifier)", ["Dataset", "Held-out class", "n test", "Classifier alone", "+ IF", "+ Maha", "+ Maha (site)", "FPR alone", "FPR + Maha"], lrows, spec="llccccccc")
 open(os.path.join(C.TAB, "tables.tex"), "w").write("\n".join(tex)); open(os.path.join(C.TAB, "summary.md"), "w").write("\n".join(md))
 print(f"wrote {len(tex)} tables -> {C.TAB}/tables.tex and summary.md")
