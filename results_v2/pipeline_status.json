@@ -5,11 +5,11 @@
  "trust": "ok [77s]",
  "theory": "ok [346s]",
  "ledger": "ok [177s]",
- "dp": "ok [55s]",
+ "dp": "ok [1388s]",
  "shap": "ok [378s]",
- "latency": "ok [56s]",
+ "latency": "ok [205s]",
  "extra": "skipped (no dataset paths given)",
- "tables": "ok [2s]",
- "figures": "ok [7s]",
+ "tables": "ok [12s]",
+ "figures": "ok [24s]",
  "sensitivity": "ok [134s]"
 }

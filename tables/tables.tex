@@ -20,6 +20,7 @@ Model & Acc. & Macro-F1 & MCC & Normal FPR & R2L rec. & U2R rec. & Seeds \\
 CNN-BiLSTM + class-aware MI (proposed) & 0.745$\pm$0.010 & 0.554$\pm$0.018 & 0.620$\pm$0.018 & 0.081$\pm$0.029 & 0.183$\pm$0.041 & 0.527$\pm$0.031 & 3 \\
 CNN-BiLSTM + dual attention & 0.739$\pm$0.021 & 0.542$\pm$0.027 & 0.610$\pm$0.035 & 0.075$\pm$0.026 & 0.131$\pm$0.061 & 0.537$\pm$0.117 & 3 \\
 CNN-BiLSTM + global MI (original selection) & 0.728$\pm$0.006 & 0.514$\pm$0.002 & 0.597$\pm$0.009 & 0.104$\pm$0.001 & 0.165$\pm$0.007 & 0.418$\pm$0.039 & 3 \\
+Hybrid (LightGBM + CNN-BiLSTM), equal-weight posteriors & 0.772$\pm$0.012 & 0.636$\pm$0.007 & 0.668$\pm$0.017 & 0.030$\pm$0.001 & 0.200$\pm$0.006 & 0.512$\pm$0.038 & 3 \\
 LightGBM (class-aware MI, 25 feat.) & 0.776$\pm$0.019 & 0.634$\pm$0.024 & 0.675$\pm$0.026 & 0.029$\pm$0.002 & 0.191$\pm$0.004 & 0.408$\pm$0.075 & 3 \\
 LightGBM (global MI, 25 feat.) & 0.775$\pm$0.011 & 0.562$\pm$0.009 & 0.672$\pm$0.017 & 0.030$\pm$0.001 & 0.076$\pm$0.012 & 0.264$\pm$0.023 & 3 \\
 LightGBM (all features) & 0.775 & 0.624 & 0.674 & 0.028 & 0.222 & 0.269 & 1 \\
@@ -91,6 +92,8 @@ LightGBM (global MI) & 0.562$\pm$0.009 & 0.030$\pm$0.001 & 0.781$\pm$0.007 & 0.4
 LightGBM (global MI) + novelty & 0.590$\pm$0.002 & 0.033$\pm$0.001 & 0.785$\pm$0.007 & 0.648$\pm$0.018 & 0.080$\pm$0.012 & 0.299$\pm$0.000 \\
 MLP & 0.560$\pm$0.028 & 0.077$\pm$0.028 & 0.828$\pm$0.009 & 0.374$\pm$0.045 & 0.148$\pm$0.052 & 0.537$\pm$0.026 \\
 MLP + novelty & 0.576$\pm$0.028 & 0.079$\pm$0.028 & 0.829$\pm$0.008 & 0.568$\pm$0.011 & 0.150$\pm$0.053 & 0.537$\pm$0.026 \\
+Hybrid (LightGBM + CNN-BiLSTM) & 0.636$\pm$0.007 & 0.030$\pm$0.001 & 0.821$\pm$0.010 & 0.277$\pm$0.099 & 0.200$\pm$0.006 & 0.512$\pm$0.038 \\
+Hybrid (LightGBM + CNN-BiLSTM) + novelty & 0.645$\pm$0.013 & 0.033$\pm$0.001 & 0.823$\pm$0.010 & 0.557$\pm$0.026 & 0.201$\pm$0.005 & 0.527$\pm$0.048 \\
 \bottomrule
 \end{tabular}
 
@@ -108,6 +111,76 @@ LightGBM (global MI) & 0.562$\pm$0.009 & 0.030$\pm$0.001 & 0.781$\pm$0.007 & 0.4
 LightGBM (global MI) + novelty & 0.586$\pm$0.005 & 0.048$\pm$0.018 & 0.792$\pm$0.011 & 0.692$\pm$0.021 & 0.087$\pm$0.009 & 0.318$\pm$0.009 \\
 MLP & 0.560$\pm$0.028 & 0.077$\pm$0.028 & 0.828$\pm$0.009 & 0.374$\pm$0.045 & 0.148$\pm$0.052 & 0.537$\pm$0.026 \\
 MLP + novelty & 0.580$\pm$0.025 & 0.092$\pm$0.008 & 0.834$\pm$0.007 & 0.653$\pm$0.020 & 0.162$\pm$0.062 & 0.542$\pm$0.031 \\
+Hybrid (LightGBM + CNN-BiLSTM) & 0.636$\pm$0.007 & 0.030$\pm$0.001 & 0.821$\pm$0.010 & 0.277$\pm$0.099 & 0.200$\pm$0.006 & 0.512$\pm$0.038 \\
+Hybrid (LightGBM + CNN-BiLSTM) + novelty & 0.634$\pm$0.009 & 0.048$\pm$0.020 & 0.826$\pm$0.009 & 0.647$\pm$0.018 & 0.204$\pm$0.006 & 0.537$\pm$0.052 \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:novelty_comm_iforest: Site-calibrated novelty fusion (iforest); threshold from a clean commissioning window
+\begin{tabular}{lcccccc}
+\toprule
+Detector & Macro-F1 & Benign FPR & Det. seen & Det. novel & R2L rec. & U2R rec. \\
+\midrule
+proposed CNN-BiLSTM & 0.553$\pm$0.017 & 0.081$\pm$0.029 & 0.831$\pm$0.018 & 0.411$\pm$0.107 & 0.183$\pm$0.041 & 0.527$\pm$0.031 \\
+proposed CNN-BiLSTM + novelty & 0.576$\pm$0.020 & 0.084$\pm$0.028 & 0.845$\pm$0.013 & 0.619$\pm$0.032 & 0.183$\pm$0.041 & 0.532$\pm$0.034 \\
+Normal-profile detector alone & -- & 0.021$\pm$0.001 & 0.660$\pm$0.012 & 0.548$\pm$0.015 & -- & -- \\
+LightGBM (class-aware MI) & 0.632$\pm$0.025 & 0.029$\pm$0.002 & 0.814$\pm$0.015 & 0.297$\pm$0.135 & 0.191$\pm$0.004 & 0.408$\pm$0.075 \\
+LightGBM (class-aware MI) + novelty & 0.662$\pm$0.028 & 0.033$\pm$0.002 & 0.819$\pm$0.012 & 0.598$\pm$0.056 & 0.197$\pm$0.004 & 0.461$\pm$0.102 \\
+LightGBM (global MI) & 0.560$\pm$0.009 & 0.030$\pm$0.001 & 0.781$\pm$0.007 & 0.413$\pm$0.087 & 0.076$\pm$0.012 & 0.264$\pm$0.023 \\
+LightGBM (global MI) + novelty & 0.589$\pm$0.002 & 0.034$\pm$0.001 & 0.788$\pm$0.009 & 0.656$\pm$0.021 & 0.082$\pm$0.012 & 0.308$\pm$0.002 \\
+MLP & 0.559$\pm$0.028 & 0.077$\pm$0.028 & 0.828$\pm$0.009 & 0.374$\pm$0.045 & 0.148$\pm$0.052 & 0.537$\pm$0.026 \\
+MLP + novelty & 0.578$\pm$0.028 & 0.080$\pm$0.027 & 0.831$\pm$0.007 & 0.592$\pm$0.017 & 0.155$\pm$0.057 & 0.540$\pm$0.028 \\
+Hybrid (LightGBM + CNN-BiLSTM) & 0.634$\pm$0.007 & 0.030$\pm$0.001 & 0.821$\pm$0.010 & 0.277$\pm$0.099 & 0.200$\pm$0.006 & 0.512$\pm$0.038 \\
+Hybrid (LightGBM + CNN-BiLSTM) + novelty & 0.641$\pm$0.014 & 0.034$\pm$0.002 & 0.824$\pm$0.010 & 0.578$\pm$0.025 & 0.202$\pm$0.006 & 0.530$\pm$0.049 \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:novelty_comm_mahalanobis: Site-calibrated novelty fusion (mahalanobis); threshold from a clean commissioning window
+\begin{tabular}{lcccccc}
+\toprule
+Detector & Macro-F1 & Benign FPR & Det. seen & Det. novel & R2L rec. & U2R rec. \\
+\midrule
+proposed CNN-BiLSTM & 0.553$\pm$0.017 & 0.081$\pm$0.029 & 0.831$\pm$0.018 & 0.411$\pm$0.107 & 0.183$\pm$0.041 & 0.527$\pm$0.031 \\
+proposed CNN-BiLSTM + novelty & 0.623$\pm$0.002 & 0.086$\pm$0.028 & 0.948$\pm$0.009 & 0.689$\pm$0.022 & 0.391$\pm$0.031 & 0.552$\pm$0.054 \\
+Normal-profile detector alone & -- & 0.020$\pm$0.001 & 0.797$\pm$0.016 & 0.597$\pm$0.015 & -- & -- \\
+LightGBM (class-aware MI) & 0.632$\pm$0.025 & 0.029$\pm$0.002 & 0.814$\pm$0.015 & 0.297$\pm$0.135 & 0.191$\pm$0.004 & 0.408$\pm$0.075 \\
+LightGBM (class-aware MI) + novelty & 0.708$\pm$0.006 & 0.039$\pm$0.001 & 0.950$\pm$0.004 & 0.639$\pm$0.009 & 0.449$\pm$0.075 & 0.562$\pm$0.135 \\
+LightGBM (global MI) & 0.560$\pm$0.009 & 0.030$\pm$0.001 & 0.781$\pm$0.007 & 0.413$\pm$0.087 & 0.076$\pm$0.012 & 0.264$\pm$0.023 \\
+LightGBM (global MI) + novelty & 0.666$\pm$0.024 & 0.040$\pm$0.001 & 0.935$\pm$0.011 & 0.650$\pm$0.003 & 0.409$\pm$0.069 & 0.428$\pm$0.017 \\
+MLP & 0.559$\pm$0.028 & 0.077$\pm$0.028 & 0.828$\pm$0.009 & 0.374$\pm$0.045 & 0.148$\pm$0.052 & 0.537$\pm$0.026 \\
+MLP + novelty & 0.609$\pm$0.021 & 0.084$\pm$0.026 & 0.954$\pm$0.004 & 0.657$\pm$0.007 & 0.258$\pm$0.052 & 0.572$\pm$0.046 \\
+Hybrid (LightGBM + CNN-BiLSTM) & 0.634$\pm$0.007 & 0.030$\pm$0.001 & 0.821$\pm$0.010 & 0.277$\pm$0.099 & 0.200$\pm$0.006 & 0.512$\pm$0.038 \\
+Hybrid (LightGBM + CNN-BiLSTM) + novelty & 0.669$\pm$0.012 & 0.039$\pm$0.002 & 0.954$\pm$0.002 & 0.642$\pm$0.006 & 0.426$\pm$0.053 & 0.567$\pm$0.078 \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:novelty_comm_iforest_mahalanobis: Site-calibrated novelty fusion (iforest+mahalanobis); threshold from a clean commissioning window
+\begin{tabular}{lcccccc}
+\toprule
+Detector & Macro-F1 & Benign FPR & Det. seen & Det. novel & R2L rec. & U2R rec. \\
+\midrule
+proposed CNN-BiLSTM & 0.553$\pm$0.017 & 0.081$\pm$0.029 & 0.831$\pm$0.018 & 0.411$\pm$0.107 & 0.183$\pm$0.041 & 0.527$\pm$0.031 \\
+proposed CNN-BiLSTM + novelty & 0.578$\pm$0.016 & 0.085$\pm$0.027 & 0.843$\pm$0.014 & 0.675$\pm$0.029 & 0.185$\pm$0.040 & 0.535$\pm$0.037 \\
+Normal-profile detector alone & -- & 0.021$\pm$0.001 & 0.672$\pm$0.006 & 0.608$\pm$0.012 & -- & -- \\
+LightGBM (class-aware MI) & 0.632$\pm$0.025 & 0.029$\pm$0.002 & 0.814$\pm$0.015 & 0.297$\pm$0.135 & 0.191$\pm$0.004 & 0.408$\pm$0.075 \\
+LightGBM (class-aware MI) + novelty & 0.664$\pm$0.031 & 0.034$\pm$0.003 & 0.822$\pm$0.011 & 0.652$\pm$0.024 & 0.204$\pm$0.008 & 0.473$\pm$0.101 \\
+LightGBM (global MI) & 0.560$\pm$0.009 & 0.030$\pm$0.001 & 0.781$\pm$0.007 & 0.413$\pm$0.087 & 0.076$\pm$0.012 & 0.264$\pm$0.023 \\
+LightGBM (global MI) + novelty & 0.591$\pm$0.001 & 0.035$\pm$0.002 & 0.793$\pm$0.010 & 0.681$\pm$0.018 & 0.088$\pm$0.008 & 0.324$\pm$0.010 \\
+MLP & 0.559$\pm$0.028 & 0.077$\pm$0.028 & 0.828$\pm$0.009 & 0.374$\pm$0.045 & 0.148$\pm$0.052 & 0.537$\pm$0.026 \\
+MLP + novelty & 0.584$\pm$0.028 & 0.081$\pm$0.026 & 0.835$\pm$0.008 & 0.654$\pm$0.016 & 0.162$\pm$0.060 & 0.545$\pm$0.026 \\
+Hybrid (LightGBM + CNN-BiLSTM) & 0.634$\pm$0.007 & 0.030$\pm$0.001 & 0.821$\pm$0.010 & 0.277$\pm$0.099 & 0.200$\pm$0.006 & 0.512$\pm$0.038 \\
+Hybrid (LightGBM + CNN-BiLSTM) + novelty & 0.640$\pm$0.010 & 0.035$\pm$0.002 & 0.826$\pm$0.009 & 0.647$\pm$0.015 & 0.204$\pm$0.006 & 0.538$\pm$0.051 \\
+\bottomrule
+\end{tabular}
+
+% ---- tab:detectors: Normal-profile detectors (threshold at 2% validation FPR)
+\begin{tabular}{lccccc}
+\toprule
+Detector & AUROC all & AUROC unseen types & Benign flag rate & Det. seen & Det. unseen \\
+\midrule
+iforest & 0.942$\pm$0.003 & 0.948$\pm$0.002 & 0.019$\pm$0.001 & 0.650$\pm$0.015 & 0.519$\pm$0.015 \\
+mahalanobis & 0.966$\pm$0.000 & 0.951$\pm$0.001 & 0.016$\pm$0.000 & 0.674$\pm$0.077 & 0.536$\pm$0.012 \\
+iforest+mahalanobis & 0.956$\pm$0.001 & 0.953$\pm$0.001 & 0.059$\pm$0.005 & 0.694$\pm$0.010 & 0.667$\pm$0.038 \\
 \bottomrule
 \end{tabular}
 
@@ -177,6 +250,43 @@ Flow repetition & $m_{eff}$ & Certified $\alpha$ & Empirical rate \\
 \bottomrule
 \end{tabular}
 
+% ---- tab:sensitivity: Trust-engine sensitivity (per-device baseline, replayed evidence)
+\begin{tabular}{ccccccccc}
+\toprule
+$k$ & $\alpha$ & $m$ & Warm-up & $h$ & False quar. (\%) & Detect (\%) & Delay & Stealth 30\% (\%) \\
+\midrule
+0.02 & 0.1 & 10 & 10 & 1.44 & 0.0 & 100 & 4 & 99 \\
+0.02 & 0.1 & 20 & 10 & 0.72 & 0.0 & 100 & 2 & 100 \\
+0.02 & 0.1 & 50 & 10 & 0.29 & 0.0 & 100 & 1 & 100 \\
+0.02 & 0.01 & 10 & 10 & 2.88 & 0.0 & 100 & 7 & 77 \\
+0.02 & 0.01 & 20 & 10 & 1.44 & 0.0 & 100 & 4 & 100 \\
+0.02 & 0.01 & 50 & 10 & 0.58 & 0.0 & 100 & 2 & 100 \\
+0.02 & 0.001 & 10 & 10 & 4.32 & 0.0 & 100 & 10 & 73 \\
+0.02 & 0.001 & 20 & 10 & 2.16 & 0.0 & 100 & 5 & 96 \\
+0.02 & 0.001 & 50 & 10 & 0.86 & 0.0 & 100 & 2 & 100 \\
+0.05 & 0.1 & 10 & 10 & 0.58 & 0.0 & 100 & 2 & 99 \\
+0.05 & 0.1 & 20 & 10 & 0.29 & 0.0 & 100 & 1 & 100 \\
+0.05 & 0.1 & 50 & 10 & 0.12 & 0.0 & 100 & 1 & 100 \\
+0.05 & 0.01 & 10 & 10 & 1.15 & 0.0 & 100 & 3 & 88 \\
+0.05 & 0.01 & 20 & 10 & 0.58 & 0.0 & 100 & 2 & 99 \\
+0.05 & 0.01 & 50 & 10 & 0.23 & 0.0 & 100 & 1 & 100 \\
+0.05 & 0.001 & 10 & 10 & 1.73 & 0.0 & 100 & 4 & 76 \\
+0.05 & 0.001 & 20 & 10 & 0.86 & 0.0 & 100 & 3 & 97 \\
+0.05 & 0.001 & 50 & 10 & 0.35 & 0.0 & 100 & 1 & 100 \\
+0.10 & 0.1 & 10 & 10 & 0.29 & 0.0 & 100 & 1 & 81 \\
+0.10 & 0.1 & 20 & 10 & 0.14 & 0.0 & 100 & 1 & 82 \\
+0.10 & 0.1 & 50 & 10 & 0.06 & 0.0 & 100 & 1 & 89 \\
+0.10 & 0.01 & 10 & 10 & 0.58 & 0.0 & 100 & 2 & 75 \\
+0.10 & 0.01 & 20 & 10 & 0.29 & 0.0 & 100 & 1 & 71 \\
+0.10 & 0.01 & 50 & 10 & 0.12 & 0.0 & 100 & 1 & 80 \\
+0.10 & 0.001 & 10 & 10 & 0.86 & 0.0 & 100 & 3 & 73 \\
+0.10 & 0.001 & 20 & 10 & 0.43 & 0.0 & 100 & 2 & 70 \\
+0.10 & 0.001 & 50 & 10 & 0.17 & 0.0 & 100 & 1 & 79 \\
+0.05 & 0.01 & 20 & 5 & 0.58 & 0.0 & 100 & 2 & 99 \\
+0.05 & 0.01 & 20 & 20 & 0.58 & 0.0 & 100 & 2 & 96 \\
+\bottomrule
+\end{tabular}
+
 % ---- tab:ledger: Tamper detection rate (\%) of ledger variants
 \begin{tabular}{lccc}
 \toprule
@@ -198,6 +308,8 @@ untampered chain accepted & yes & yes & yes \\
 $\varepsilon$ & $\sigma$ & Acc. & Macro-F1 & MCC & U2R rec. & MIA AUC \\
 \midrule
 non-private & -- & 0.775 & 0.624 & 0.670 & 0.343 & 0.492 \\
+50.00 & 0.34 & 0.744 & 0.475 & 0.620 & 0.000 & 0.497 \\
+25.00 & 0.36 & 0.745 & 0.471 & 0.621 & 0.000 & 0.495 \\
 8.00 & 0.49 & 0.734 & 0.453 & 0.604 & 0.000 & 0.494 \\
 4.00 & 0.59 & 0.724 & 0.449 & 0.590 & 0.000 & 0.496 \\
 1.00 & 0.96 & 0.718 & 0.448 & 0.587 & 0.000 & 0.496 \\
@@ -205,11 +317,11 @@ non-private & -- & 0.775 & 0.624 & 0.670 & 0.343 & 0.492 \\
 \end{tabular}
 
 % ---- tab:latency: Per-round latency on identical hardware (1 thread)
-\begin{tabular}{lccccccc}
+\begin{tabular}{lcccccccc}
 \toprule
-Model & Params & MB & 1 flow (ms) & 20 flows (ms) & p99 (ms) & flows/s & Round total (ms) \\
+Model & Params & MB & 1 flow (ms) & 20 flows (ms) & p99 (ms) & flows/s & Round total (ms) & Budget margin \\
 \midrule
-plain & 462,725 & 5.6 & 2.14 & 6.97 & 10.04 & 2167 & 9.39 \\
-attention & 471,205 & 5.7 & 2.23 & 6.91 & 7.67 & 2269 & 9.33 \\
+plain & 462,725 & 5.6 & 7.68 & 23.71 & 35.76 & 785 & 32.70 & 3x \\
+attention & 471,205 & 5.7 & 9.31 & 24.44 & 35.94 & 897 & 33.43 & 3x \\
 \bottomrule
 \end{tabular}
