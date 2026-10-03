@@ -1,0 +1,451 @@
+(.venv) PS C:\Zero_Trust_IIoT5.0> python run_dataset.py edge --train C:\ztids_complete\ztids_complete\data\external\edge\ML-EdgeIIoT-dataset.csv --seeds 0 --models lgbm --max-rows 120000 --out results_smoke 2>&1 | Tee-Object edge_log.txt
+python : Traceback (most recent call last):
+At line:1 char:1
++ python run_dataset.py edge --train C:\ztids_complete\ztids_complete\d ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Zero_Trust_IIoT5.0\run_dataset.py", line 24, in <module>
+    tr = pd.read_csv(a.train, low_memory=False); tr.columns = [c.strip() for c in tr.columns]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 872, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1643, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1907, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 
+'C:\\ztids_complete\\ztids_complete\\data\\external\\edge\\ML-EdgeIIoT-dataset.csv'
+(.venv) PS C:\Zero_Trust_IIoT5.0> python run_dataset.py edge --train \data\external\edge\ML-EdgeIIoT-dataset.csv --seeds 0 --models lgbm --max-rows 120000 --out results_smoke 2>&1 | Tee-Object edge_log.txt                               
+python : Traceback (most recent call last):                                                                           
+At line:1 char:1                                                                               
++ python run_dataset.py edge --train \data\external\edge\ML-EdgeIIoT-da ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Zero_Trust_IIoT5.0\run_dataset.py", line 24, in <module>
+    tr = pd.read_csv(a.train, low_memory=False); tr.columns = [c.strip() for c in tr.columns]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 872, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1643, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1907, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '\\data\\external\\edge\\ML-EdgeIIoT-dataset.csv'
+(.venv) PS C:\Zero_Trust_IIoT5.0> python run_dataset.py edge --train ..\data\external\edge\ML-EdgeIIoT-dataset.csv --seeds 0 --models lgbm --max-rows 120000 --out results_smoke 2>&1 | Tee-Object edge_log.txt                             
+python : Traceback (most recent call last):
+At line:1 char:1
++ python run_dataset.py edge --train ..\data\external\edge\ML-EdgeIIoT- ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Zero_Trust_IIoT5.0\run_dataset.py", line 24, in <module>
+    tr = pd.read_csv(a.train, low_memory=False); tr.columns = [c.strip() for c in tr.columns]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 872, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1643, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1907, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "C:\Zero_Trust_IIoT5.0\.venv\Lib\site-packages\pandas\io\common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '..\\data\\external\\edge\\ML-EdgeIIoT-dataset.csv'
+(.venv) PS C:\Zero_Trust_IIoT5.0> python run_dataset.py edge --train data\external\edge\ML-EdgeIIoT-dataset.csv --seeds 0 --models lgbm --max-rows 120000 --out results_smoke 2>&1 | Tee-Object edge_log.txt   
+[edge seed 0] fit=81600 test=24000 classes=15 overlap_after_split=0
+   lgbm        acc=0.9422 macroF1=0.9138 mcc=0.9369 (21.9s)
+   LOO DDoS_UDP         n=  2288 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.046), fused 1.000 (FPR 0.054)
+   LOO DDoS_ICMP        n=  2067 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.053), fused 1.000 (FPR 0.059)
+   LOO DDoS_HTTP        n=  1656 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.047), fused 1.000 (FPR 0.057)
+   LOO SQL_injection    n=  1619 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.048), fused 1.000 (FPR 0.053)
+   LOO DDoS_TCP         n=  1617 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.047), fused 1.000 (FPR 0.057)
+done -> results_smoke
+(.venv) PS C:\Zero_Trust_IIoT5.0> python run_dataset.py unsw --train data\external\unsw\UNSW_NB15_training-set.csv --test data\external\unsw\UNSW_NB15_testing-set.csv --seeds 0 1 2 --models lgbm rf mlp 2>&1 | Tee-Object unsw_log.txt
+>> python run_dataset.py edge --train data\external\edge\ML-EdgeIIoT-dataset.csv --seeds 0 1 2 --models lgbm rf mlp --max-rows 120000 2>&1 | Tee-Object edge_log2.txt
+>> python run_everything.py --only tables report
+>> Remove-Item results_smoke -Recurse -Force
+[unsw seed 0] existing result is from an older version of this script: recomputing
+[unsw seed 0] fit=85884 test=52644 classes=10 overlap_after_split=0
+   lgbm        acc=0.6748 macroF1=0.5258 mcc=0.5775 (18.1s)
+   rf          acc=0.6736 macroF1=0.5052 mcc=0.5781 (11.5s)
+python : WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even 
+if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+At line:1 char:1
++ python run_dataset.py unsw --train data\external\unsw\UNSW_NB15_train ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING:tensorf...irectML plugin.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   mlp         acc=0.6018 macroF1=0.3819 mcc=0.4869 (23.6s)
+   LOO Exploits         n=  7085 AUROC clf 0.968 det 0.808 fused 0.952 | at ~5% benign FPR: detected clf 0.819 (FPR 0.050), fused 0.754 (FPR 0.050)
+   LOO Fuzzers          n=  4335 AUROC clf 0.824 det 0.578 fused 0.769 | at ~5% benign FPR: detected clf 0.096 (FPR 0.050), fused 0.077 (FPR 0.050)
+   LOO Generic          n=  3381 AUROC clf 0.923 det 0.923 fused 0.932 | at ~5% benign FPR: detected clf 0.382 (FPR 0.050), fused 0.520 (FPR 0.049)
+   LOO Reconnaissance   n=  2224 AUROC clf 0.935 det 0.533 fused 0.888 | at ~5% benign FPR: detected clf 0.517 (FPR 0.050), fused 0.308 (FPR 0.050)
+   LOO DoS              n=  1186 AUROC clf 0.963 det 0.786 fused 0.948 | at ~5% benign FPR: detected clf 0.784 (FPR 0.050), fused 0.725 (FPR 0.049)
+[unsw seed 1] existing result is from an older version of this script: recomputing
+[unsw seed 1] fit=85884 test=52644 classes=10 overlap_after_split=0
+   lgbm        acc=0.6710 macroF1=0.5226 mcc=0.5790 (17.1s)
+   rf          acc=0.6673 macroF1=0.5050 mcc=0.5746 (11.1s)
+   mlp         acc=0.6088 macroF1=0.3971 mcc=0.4988 (23.0s)
+   LOO Exploits         n=  7085 AUROC clf 0.976 det 0.810 fused 0.964 | at ~5% benign FPR: detected clf 0.874 (FPR 0.048), fused 0.833 (FPR 0.048)
+   LOO Fuzzers          n=  4335 AUROC clf 0.827 det 0.576 fused 0.775 | at ~5% benign FPR: detected clf 0.154 (FPR 0.049), fused 0.108 (FPR 0.048)
+   LOO Generic          n=  3381 AUROC clf 0.910 det 0.924 fused 0.937 | at ~5% benign FPR: detected clf 0.278 (FPR 0.051), fused 0.523 (FPR 0.049)
+   LOO Reconnaissance   n=  2224 AUROC clf 0.953 det 0.532 fused 0.918 | at ~5% benign FPR: detected clf 0.672 (FPR 0.050), fused 0.437 (FPR 0.049)
+   LOO DoS              n=  1186 AUROC clf 0.975 det 0.786 fused 0.963 | at ~5% benign FPR: detected clf 0.868 (FPR 0.051), fused 0.805 (FPR 0.050)
+[unsw seed 2] fit=85884 test=52644 classes=10 overlap_after_split=0
+   lgbm        acc=0.6736 macroF1=0.5147 mcc=0.5749 (14.5s)
+   rf          acc=0.6690 macroF1=0.5025 mcc=0.5718 (10.3s)
+   mlp         acc=0.5944 macroF1=0.3788 mcc=0.4797 (11.1s)
+   LOO Exploits         n=  7085 AUROC clf 0.965 det 0.809 fused 0.949 | at ~5% benign FPR: detected clf 0.808 (FPR 0.048), fused 0.729 (FPR 0.050)
+   LOO Fuzzers          n=  4335 AUROC clf 0.835 det 0.576 fused 0.777 | at ~5% benign FPR: detected clf 0.125 (FPR 0.049), fused 0.104 (FPR 0.050)
+   LOO Generic          n=  3381 AUROC clf 0.855 det 0.921 fused 0.927 | at ~5% benign FPR: detected clf 0.159 (FPR 0.047), fused 0.517 (FPR 0.050)
+   LOO Reconnaissance   n=  2224 AUROC clf 0.944 det 0.534 fused 0.901 | at ~5% benign FPR: detected clf 0.598 (FPR 0.047), fused 0.408 (FPR 0.050)
+   LOO DoS              n=  1186 AUROC clf 0.962 det 0.786 fused 0.952 | at ~5% benign FPR: detected clf 0.796 (FPR 0.048), fused 0.748 (FPR 0.050)
+done -> C:\Zero_Trust_IIoT5.0\results_extra
+[edge seed 0] fit=81600 test=24000 classes=15 overlap_after_split=0
+   lgbm        acc=0.9422 macroF1=0.9138 mcc=0.9369 (19.0s)
+   rf          acc=0.9288 macroF1=0.9013 mcc=0.9224 (7.4s)
+python : WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even 
+if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+At line:2 char:1
++ python run_dataset.py edge --train data\external\edge\ML-EdgeIIoT-dat ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING:tensorf...irectML plugin.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   mlp         acc=0.8000 macroF1=0.7610 mcc=0.7854 (35.3s)
+   LOO DDoS_UDP         n=  2288 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.046), fused 1.000 (FPR 0.054)
+   LOO DDoS_ICMP        n=  2067 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.053), fused 1.000 (FPR 0.059)
+   LOO DDoS_HTTP        n=  1656 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.047), fused 1.000 (FPR 0.057)
+   LOO SQL_injection    n=  1619 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.048), fused 1.000 (FPR 0.053)
+   LOO DDoS_TCP         n=  1617 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.047), fused 1.000 (FPR 0.057)
+[edge seed 1] fit=81600 test=24000 classes=15 overlap_after_split=0
+   lgbm        acc=0.9418 macroF1=0.9127 mcc=0.9366 (17.0s)
+   rf          acc=0.9312 macroF1=0.9022 mcc=0.9249 (7.1s)
+   mlp         acc=0.7975 macroF1=0.7560 mcc=0.7838 (15.9s)
+   LOO DDoS_UDP         n=  2288 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.054), fused 1.000 (FPR 0.048)
+   LOO DDoS_ICMP        n=  2067 AUROC clf 1.000 det 1.000 fused 0.999 | at ~5% benign FPR: detected clf 1.000 (FPR 0.049), fused 1.000 (FPR 0.045)
+   LOO DDoS_HTTP        n=  1656 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.054), fused 1.000 (FPR 0.050)
+   LOO SQL_injection    n=  1619 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.057), fused 1.000 (FPR 0.053)
+   LOO DDoS_TCP         n=  1617 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.046), fused 1.000 (FPR 0.049)
+[edge seed 2] fit=81600 test=24000 classes=15 overlap_after_split=0
+   lgbm        acc=0.9429 macroF1=0.9134 mcc=0.9377 (16.2s)
+   rf          acc=0.9333 macroF1=0.9045 mcc=0.9273 (6.7s)
+   mlp         acc=0.7988 macroF1=0.7617 mcc=0.7831 (16.1s)
+   LOO DDoS_UDP         n=  2288 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.049), fused 1.000 (FPR 0.053)
+   LOO DDoS_ICMP        n=  2067 AUROC clf 1.000 det 1.000 fused 0.997 | at ~5% benign FPR: detected clf 1.000 (FPR 0.056), fused 1.000 (FPR 0.057)
+   LOO DDoS_HTTP        n=  1656 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.057), fused 1.000 (FPR 0.053)
+   LOO SQL_injection    n=  1619 AUROC clf 1.000 det 1.000 fused 0.998 | at ~5% benign FPR: detected clf 1.000 (FPR 0.048), fused 1.000 (FPR 0.053)
+   LOO DDoS_TCP         n=  1617 AUROC clf 1.000 det 1.000 fused 0.997 | at ~5% benign FPR: detected clf 1.000 (FPR 0.050), fused 1.000 (FPR 0.055)
+done -> C:\Zero_Trust_IIoT5.0\results_extra
+
+==============================================================================
+== stage: tables
+==============================================================================
+wrote 24 tables -> C:\Zero_Trust_IIoT5.0\tables/tables.tex and summary.md
+
+==============================================================================
+PIPELINE SUMMARY  (total 0.1 min)
+==============================================================================
+  tables       ok [5s]
+
+Results: results_v2/   Tables: tables/tables.tex + summary.md   Figures: figures/
+
+====================================================================================================
+FINAL RESULTS OVERVIEW
+====================================================================================================
+Setup: NSL-KDD official split (overlap-free test, 21833 flows) | seeds=[0, 1, 2] | balanced train 4000/class | epochs<=14 | hardware: Windows-11-10.0.26220-SP0, 8 cores
+Degenerate (collapsed) runs among the models below: 0 of 27
+
+====================================================================================================
+1. DETECTION ACCURACY (mean +/- std over seeds; * = best in column)
+====================================================================================================
+Model                           n             Acc         MacroF1             MCC       NormalFPR         R2L-rec         U2R-rec
+CNN-BiLSTM (proposed)           3  0.745+/-0.010   0.554+/-0.018   0.620+/-0.018   0.081+/-0.029   0.183+/-0.041   0.527+/-0.031 
+CNN-BiLSTM + dual attention     3  0.739+/-0.021   0.542+/-0.027   0.610+/-0.035   0.075+/-0.026   0.131+/-0.061   0.537+/-0.117 
+CNN-BiLSTM, global MI           3  0.728+/-0.006   0.514+/-0.002   0.597+/-0.009   0.104+/-0.001   0.165+/-0.007   0.418+/-0.039 
+LightGBM (class-aware MI)       3  0.776+/-0.019*  0.634+/-0.024   0.675+/-0.026*  0.029+/-0.002   0.191+/-0.004   0.408+/-0.075 
+LightGBM (global MI)            3  0.775+/-0.011   0.562+/-0.009   0.672+/-0.017   0.030+/-0.001   0.076+/-0.012   0.264+/-0.023 
+Random forest (class-aware)     3  0.752+/-0.002   0.566+/-0.018   0.639+/-0.003   0.029+/-0.001*  0.077+/-0.007   0.294+/-0.075 
+MLP                             3  0.752+/-0.014   0.560+/-0.028   0.633+/-0.023   0.077+/-0.028   0.148+/-0.052   0.537+/-0.026 
+CNN only                        3  0.735+/-0.016   0.549+/-0.041   0.604+/-0.025   0.102+/-0.003   0.174+/-0.099   0.642+/-0.015*
+LSTM only                       3  0.731+/-0.018   0.522+/-0.055   0.601+/-0.022   0.091+/-0.024   0.099+/-0.074   0.582+/-0.113 
+Hybrid (LightGBM + CNN-BiLSTM)  3  0.772+/-0.012   0.636+/-0.007*  0.668+/-0.017   0.030+/-0.001   0.200+/-0.006*  0.512+/-0.038 
+
+  Best Acc       : LightGBM (class-aware MI)      0.776+/-0.019
+  Best MacroF1   : Hybrid (LightGBM + CNN-BiLSTM) 0.636+/-0.007
+  Best MCC       : LightGBM (class-aware MI)      0.675+/-0.026
+  Best NormalFPR : Random forest (class-aware)    0.029+/-0.001
+  Best R2L-rec   : Hybrid (LightGBM + CNN-BiLSTM) 0.200+/-0.006
+  Best U2R-rec   : CNN only                       0.642+/-0.015
+  Ranking by Macro-F1 : Hybrid (LightGBM + CNN-BiLSTM) (0.636) > LightGBM (class-aware MI) (0.634) > Random forest (class-aware) (0.566) > LightGBM (global MI) (0.562) > MLP (0.560) > CNN-BiLSTM (proposed) (0.554) > CNN only (0.549) > CNN-BiLSTM + dual attention (0.542) > LSTM only (0.522) > CNN-BiLSTM, global MI (0.514)
+  Verdict: best classical model (LightGBM (class-aware MI)) vs best deep model (MLP): Macro-F1 0.634 vs 0.560 (diff +0.074, within 2 pooled std; few seeds, indicative only).
+           Deep models lead only on rare-class recall: best U2R recall = CNN only (0.642).
+  Hybrid vs best single model (LightGBM): Macro-F1 0.636+/-0.007 vs 0.634+/-0.024 (no significant gain); U2R recall 0.512+/-0.038 vs 0.408+/-0.075; benign FPR 0.030+/-0.001 vs 0.029+/-0.002; seed std of Macro-F1 0.007 vs 0.024.
+
+-- 1b. where the classifiers fail (per attack sub-type, LightGBM class-aware, seed 0)
+  sub-type         class   flows in training exact recall
+  guess_passwd     R2L      1231        True           0%
+  mscan            Probe     996       False           8%
+  apache2          DoS       737       False           0%
+  processtable     DoS       685       False           0%
+  warezmaster      R2L       943        True          57%
+  snmpguess        R2L       331       False           0%
+  Why: 'guess_passwd' IS in the training data (53 flows) yet 1231 of its 1231 test flows are missed. Training: services {'telnet': 1.0}, flags {'RSTO': 0.85, 'RSTR': 0.08, 'SF': 0.04}, logged_in 0.02.
+       Test: services {'pop_3': 0.61, 'telnet': 0.31, 'ftp': 0.08}, flags {'SF': 0.97, 'RSTO': 0.02, 'S3': 0.0}, logged_in 0.62  -> the test examples behave differently from every training example (within-sub-type distribution shift); no supervised model can learn this from the training split.
+
+-- 1c. site-calibrated Normal decision for the classifier (LightGBM class-aware; threshold on P(attack) from a clean commissioning window)
+  argmax           Macro-F1 0.632+/-0.025 | Acc 0.767+/-0.020 | benign FPR 0.029+/-0.002 | attack detection 0.658+/-0.047
+  site alpha=0.02  Macro-F1 0.483+/-0.034 | Acc 0.694+/-0.016 | benign FPR 0.021+/-0.002 | attack detection 0.504+/-0.030
+  site alpha=0.05  Macro-F1 0.659+/-0.022 | Acc 0.814+/-0.005 | benign FPR 0.052+/-0.002 | attack detection 0.794+/-0.025
+  site alpha=0.1   Macro-F1 0.651+/-0.022 | Acc 0.819+/-0.003 | benign FPR 0.102+/-0.001 | attack detection 0.892+/-0.021
+  All targets are shown, none is selected: pick alpha from the site's false-alarm budget. Too strict a target (2%) hurts because the classifier's P(attack) is inflated on shifted benign traffic.
+
+====================================================================================================
+2. ABLATIONS
+====================================================================================================
+  Feature selection (CNN-BiLSTM): class-aware MI 0.554+/-0.018 vs global MI 0.514+/-0.002 Macro-F1 (delta +0.040)
+  Feature selection (LightGBM)  : class-aware MI 0.634+/-0.024 vs global MI 0.562+/-0.009 Macro-F1 (delta +0.072); R2L recall 0.191+/-0.004 vs 0.076+/-0.012
+  Dual attention: Macro-F1 0.554+/-0.018 (without) vs 0.542+/-0.027 (with), delta -0.013; round latency 14.99 vs 13.68 ms
+  Feature order: canonical 0.554+/-0.018, random 0.557+/-0.036, mi 0.561+/-0.029  -> order does not matter (differences within std)
+  Poisoning (targeted, 50% of R2L/U2R relabelled Normal): R2L recall 0.183+/-0.041 -> 0.054+/-0.047, U2R recall 0.527+/-0.031 -> 0.204+/-0.202
+  Poisoning (random 30% label noise)                    : Macro-F1 0.554+/-0.018 -> 0.555+/-0.037  (robust to random noise, vulnerable to targeted poisoning)
+  Distribution shift: LightGBM accuracy 0.988+/-0.001 on a deduplicated random split vs 0.776+/-0.019 on the official split (novel attack types)
+
+====================================================================================================
+3. UNSEEN ATTACK TYPES (Normal-profile novelty detector fused with each classifier, threshold = 2% FPR on validation)
+====================================================================================================
+Model                             novel det: alone -> fused  seen det (fused)   benign FPR: alone -> fused    MacroF1: alone -> fused
+proposed CNN-BiLSTM              0.41+/-0.11 -> 0.60+/-0.02       0.85+/-0.01 0.081+/-0.029 -> 0.084+/-0.029 0.554+/-0.018 -> 0.576+/-0.022
+LightGBM (class-aware MI)        0.30+/-0.13 -> 0.58+/-0.06       0.82+/-0.01 0.029+/-0.002 -> 0.032+/-0.002 0.634+/-0.024 -> 0.667+/-0.029
+LightGBM (global MI)             0.41+/-0.09 -> 0.65+/-0.02       0.79+/-0.01 0.030+/-0.001 -> 0.033+/-0.001 0.562+/-0.009 -> 0.590+/-0.002
+MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.077+/-0.028 -> 0.079+/-0.028 0.560+/-0.028 -> 0.576+/-0.028
+Hybrid (LightGBM + CNN-BiLSTM)   0.28+/-0.10 -> 0.56+/-0.03       0.82+/-0.01 0.030+/-0.001 -> 0.033+/-0.001 0.636+/-0.007 -> 0.645+/-0.013
+  Detector comparison (threshold at 2% validation FPR; AUROC is threshold-free, higher = better ranking under shift):
+    iforest                AUROC 0.942+/-0.003 (unseen types 0.948+/-0.002) | benign flag rate 0.019+/-0.001 | detects seen 0.65+/-0.01, unseen 0.52+/-0.02
+    mahalanobis            AUROC 0.966+/-0.000 (unseen types 0.951+/-0.001) | benign flag rate 0.016+/-0.000 | detects seen 0.67+/-0.08, unseen 0.54+/-0.01
+    iforest+mahalanobis    AUROC 0.956+/-0.001 (unseen types 0.953+/-0.001) | benign flag rate 0.059+/-0.005 | detects seen 0.69+/-0.01, unseen 0.67+/-0.04
+    Caution: detector ranking was inspected on NSL-KDD test data (kNN-distance: best validation AUROC, worst test AUROC under shift, rejected). Confirm on UNSW-NB15 / Edge-IIoTset.
+  Site calibration (threshold from a clean commissioning window = 10% of test-domain Normal flows, held out; mean of 20 windows, LightGBM class-aware):
+    iforest                Macro-F1 0.662+/-0.028 (alone 0.632+/-0.025) | benign FPR 0.033+/-0.002 | seen 0.82+/-0.01 | unseen 0.60+/-0.06
+    mahalanobis            Macro-F1 0.708+/-0.006 (alone 0.632+/-0.025) | benign FPR 0.039+/-0.001 | seen 0.95+/-0.00 | unseen 0.64+/-0.01
+    iforest+mahalanobis    Macro-F1 0.664+/-0.031 (alone 0.632+/-0.025) | benign FPR 0.034+/-0.003 | seen 0.82+/-0.01 | unseen 0.65+/-0.02
+  Trade-off: class-aware MI raises R2L/U2R recall and Macro-F1 but lowers unseen-type detection of the classifier alone (0.30+/-0.13 vs 0.41+/-0.09 with global MI); the novelty fusion recovers it (0.58+/-0.06).
+  Novelty detector alone: detects 0.52+/-0.02 of unseen-type attacks and 0.65+/-0.01 of seen-type attacks at 0.019+/-0.001 benign flag rate.
+  3695 of 12251 test attacks belong to sub-types absent from training. Best unseen-type detection: LightGBM (global MI) + novelty (0.65).
+
+====================================================================================================
+4. ZERO-TRUST LAYER (replay of real classifier outputs through simulated devices)
+====================================================================================================
+
+-- homogeneous fleet
+  Rule                                   false quar.  detect  delay seen type novel type stealth30%  released
+  confidence (original Eq.4)                    0.0%      0%     --        0%         0%         0%      100%
+  beta reputation                               0.0%     72%      8      100%         0%         0%      100%
+  CUSUM fleet-baseline (classifier)             0.0%    100%      2      100%       100%        97%      100%
+  CUSUM fleet-baseline (+novelty)               0.0%    100%      2      100%       100%        97%      100%
+  CUSUM device-baseline (+novelty)              0.0%    100%      2      100%       100%        96%      100%
+
+-- heterogeneous fleet (devices on different services)
+  Rule                                   false quar.  detect  delay seen type novel type stealth30%  released
+  confidence (original Eq.4)                    0.0%      0%     --        0%         0%         0%      100%
+  beta reputation                               0.0%     76%      8      100%         0%         0%      100%
+  CUSUM fleet-baseline (classifier)            18.5%    100%      2      100%       100%        82%       74%
+  CUSUM fleet-baseline (+novelty)               4.5%    100%      2      100%       100%        88%       68%
+  CUSUM device-baseline (+novelty)              0.0%    100%      2      100%       100%        88%       96%
+  Contaminated commissioning (up to 45% of fleet already compromised): fleet-median baseline still detects 100%, per-device baseline only 2%.
+  Sensitivity (29 settings of k, alpha, m, warm-up): false quarantine 0.0-0.0% overall (0.0% max for k>=0.05); compromised-device detection 100-100%; stealth(30%) detection 70-100%.
+  Proved bounds hold empirically: false-quarantine <= certified alpha in 12/12 settings (incl. correlated flows): True; measured delay <= proved delay bound for all attack classes: True.
+  Delay (measured vs bound, rounds): DoS 2.0 vs 3.5, Probe 2.0 vs 3.7, R2L 3.4 vs 7.8, U2R 1.3 vs 2.5
+
+====================================================================================================
+5. AUDIT LEDGER (tamper detection rate)
+====================================================================================================
+  hash chain only            mean detection  16.7% | not fully detected: edit_rehash_no_key (0%), edit_rehash_with_key (0%), delete_relink_no_key (0%), truncate_with_key (0%), rewrite_own_key (0%)
+  + signatures               mean detection  66.7% | not fully detected: edit_rehash_with_key (0%), truncate_with_key (0%)
+  + signatures + anchors     mean detection  90.6% | not fully detected: edit_rehash_with_key (94%), truncate_with_key (50%)
+  Cost: append 10.2 us (hash only) vs 51.7 us (signed); verification of 10k blocks 1.11 s
+  Verdict: a plain hash chain detects only in-place edits without re-hashing; signatures + external anchors are needed for real tamper evidence. It is an audit log, not a blockchain.
+
+====================================================================================================
+6. PRIVACY (DP-SGD with RDP accountant)
+====================================================================================================
+       epsilon  sigma    Acc  MacroF1  U2R-rec  MIA-AUC
+   non-private     --  0.775    0.624    0.343    0.492
+         50.00   0.34  0.744    0.475    0.000    0.497
+         25.00   0.36  0.745    0.471    0.000    0.495
+          8.00   0.49  0.734    0.453    0.000    0.494
+          4.00   0.59  0.724    0.449    0.000    0.496
+          1.00   0.96  0.718    0.448    0.000    0.496
+  Cost of privacy: Macro-F1 0.624 -> 0.475 (eps=50); U2R recall 0.34 -> 0.00. Membership-inference AUC is ~0.5 even without DP, so it gives no empirical evidence of leakage either way; the claim rests on the formal accountant (delta=1/N, single seed).
+
+====================================================================================================
+7. EXPLAINABILITY (SHAP)
+====================================================================================================
+  n=867 flows (GradientExplainer). Deletion test, mask top-5 features: probability drop NN-SHAP 0.517 vs TreeSHAP order 0.487 vs random 0.172 -> SHAP ranking is faithful to the model.
+  Agreement between CNN-BiLSTM and LightGBM attributions: Spearman rho=0.23 (p=0.26) -> models rely on different features; explanations are model-specific.
+  Top NN features: dst_host_same_src_port_rate, dst_host_srv_count, flag=SF, hot, dst_host_same_srv_rate, dst_host_diff_srv_rate
+
+====================================================================================================
+8. LATENCY / FOOTPRINT (single thread, same hardware)
+====================================================================================================
+  plain      params 462,725 | 5.6 MB | 1 flow 4.20 ms | 20-flow round 11.19 ms (p99 18.18) | end-to-end round 14.99 ms (7x margin vs an ASSUMED 100 ms per-round budget) | 1631 flows/s
+  attention  params 471,205 | 5.7 MB | 1 flow 3.57 ms | 20-flow round 9.88 ms (p99 11.33) | end-to-end round 13.68 ms (7x margin vs an ASSUMED 100 ms per-round budget) | 1785 flows/s
+  Pipeline parts (mean ms): preprocess(20 flows) 3.72, trust update 0.009, signed ledger append 0.073; SHAP 4.56 s per flow (offline only).
+  Note: per-round ms is the reliable figure; the batch throughput comes from one timed 500-flow batch and is order/warm-up sensitive.
+
+====================================================================================================
+9. RUN TIME
+====================================================================================================
+  Algorithm                    runs  median s/run  total min   (wall time incl. data preparation for the first job of a configuration)
+  CNN-BiLSTM (proposed)           3         402.6       19.6
+  CNN-BiLSTM + attention          3         346.8       15.7
+  CNN-BiLSTM, global MI           3         348.1       17.9
+  CNN only                        3         169.7        7.7
+  LSTM only                       3          67.3        3.4
+  MLP                             3           5.8        0.3
+  LightGBM (class-aware)          3           1.9        0.1
+  Random forest                   3           1.2        0.1
+  DP-SGD (all eps)                6         368.1       43.1
+
+-- pipeline stages
+  detector         3 s  (   0.1 min)
+  novelty        173 s  (   2.9 min)
+  novel            6 s  (   0.1 min)
+  trust           26 s  (   0.4 min)
+  theory         105 s  (   1.8 min)
+  ledger         177 s  (   3.0 min)
+  dp              53 s  (   0.9 min)
+  shap           378 s  (   6.3 min)
+  latency         75 s  (   1.2 min)
+  tables           5 s  (   0.1 min)
+  figures          9 s  (   0.1 min)
+  sensitivity      39 s  (   0.7 min)
+  TOTAL         1049 s  (  17.5 min = 0.29 h)
+
+====================================================================================================
+EXTERNAL CONFIRMATION (additional datasets, identical protocol)
+====================================================================================================
+
+-- edge: 3 seed(s)
+  lgbm         Acc 0.942+/-0.001  Macro-F1 0.913+/-0.001  MCC 0.937+/-0.001
+  mlp          Acc 0.799+/-0.001  Macro-F1 0.760+/-0.003  MCC 0.784+/-0.001
+  rf           Acc 0.931+/-0.002  Macro-F1 0.903+/-0.002  MCC 0.925+/-0.002
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.913+/-0.001 | Acc 0.941+/-0.001 | benign FPR 0.000+/-0.000 | attack detection 1.000+/-0.000
+    site alpha=0.02  Macro-F1 0.910+/-0.000 | Acc 0.938+/-0.000 | benign FPR 0.022+/-0.000 | attack detection 1.000+/-0.000
+    site alpha=0.05  Macro-F1 0.904+/-0.000 | Acc 0.934+/-0.000 | benign FPR 0.054+/-0.003 | attack detection 1.000+/-0.000
+    site alpha=0.1   Macro-F1 0.897+/-0.000 | Acc 0.926+/-0.000 | benign FPR 0.104+/-0.004 | attack detection 1.000+/-0.000
+  Leave-one-attack-class-out (5 held-out classes x 3 seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):
+    iforest      AUROC clf 1.000 | detector 0.829 | fused 0.998   ||  detection at ~5% benign FPR: clf 1.000 (FPR 0.051), detector 0.078 (FPR 0.048), fused 1.000 (FPR 0.050)
+    mahalanobis  AUROC clf 1.000 | detector 1.000 | fused 0.998   ||  detection at ~5% benign FPR: clf 1.000 (FPR 0.051), detector 1.000 (FPR 0.055), fused 1.000 (FPR 0.053)
+    Verdict (iforest): novelty fusion NOT confirmed (detection +0.00, AUROC -0.002 vs the classifier at matched FPR): do not claim it generalises.
+    Verdict (mahalanobis): novelty fusion NOT confirmed (detection +0.00, AUROC -0.002 vs the classifier at matched FPR): do not claim it generalises.
+
+-- unsw: 3 seed(s)
+  lgbm         Acc 0.673+/-0.002  Macro-F1 0.521+/-0.006  MCC 0.577+/-0.002
+  mlp          Acc 0.602+/-0.007  Macro-F1 0.386+/-0.010  MCC 0.488+/-0.010
+  rf           Acc 0.670+/-0.003  Macro-F1 0.504+/-0.002  MCC 0.575+/-0.003
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.526+/-0.006 | Acc 0.677+/-0.002 | benign FPR 0.386+/-0.005 | attack detection 0.989+/-0.004
+    site alpha=0.02  Macro-F1 0.543+/-0.004 | Acc 0.817+/-0.002 | benign FPR 0.020+/-0.001 | attack detection 0.677+/-0.011
+    site alpha=0.05  Macro-F1 0.549+/-0.002 | Acc 0.818+/-0.003 | benign FPR 0.050+/-0.000 | attack detection 0.756+/-0.013
+    site alpha=0.1   Macro-F1 0.550+/-0.004 | Acc 0.807+/-0.003 | benign FPR 0.101+/-0.000 | attack detection 0.836+/-0.012
+  Leave-one-attack-class-out (5 held-out classes x 3 seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):
+    iforest      AUROC clf 0.921 | detector 0.679 | fused 0.903   ||  detection at ~5% benign FPR: clf 0.529 (FPR 0.049), detector 0.156 (FPR 0.050), fused 0.501 (FPR 0.050)
+    mahalanobis  AUROC clf 0.921 | detector 0.726 | fused 0.903   ||  detection at ~5% benign FPR: clf 0.529 (FPR 0.049), detector 0.185 (FPR 0.051), fused 0.506 (FPR 0.049)
+    Verdict (iforest): novelty fusion NOT confirmed (detection -0.03, AUROC -0.018 vs the classifier at matched FPR): do not claim it generalises.
+    Verdict (mahalanobis): novelty fusion NOT confirmed (detection -0.02, AUROC -0.018 vs the classifier at matched FPR): do not claim it generalises.
+
+====================================================================================================
+10. BOTTOM LINE
+====================================================================================================
+  * Best classifier alone (before novelty fusion): Hybrid (LightGBM + CNN-BiLSTM) (Macro-F1 0.636+/-0.007, accuracy 0.772+/-0.012); best rare-class (U2R) recall: CNN only (0.642+/-0.015). Differences between the top models are within seed noise; the deep models do not beat gradient boosting.
+  * Trust: the original confidence-only rule detects 0% of compromised devices; the class-aware CUSUM rule detects 100% (median 2 rounds), with 0.0% false quarantines on a heterogeneous fleet using per-device baselines; the proved bounds held empirically: True.
+  * Ledger: mean tamper detection hash chain only 17%, + signatures 67%, + signatures + anchors 91% (signatures + external anchors needed; it is an audit log, not a blockchain).
+  * Privacy: formal DP-SGD (eps 1-50) lowers Macro-F1 from 0.62 to 0.45-0.48 and U2R recall from 0.34 to 0.00: report it as a privacy-utility trade-off.                                                                                    
+  * Best system: LightGBM (class-aware MI) [mahalanobis, site-calibrated threshold] + CUSUM trust: Macro-F1 0.708+/-0.006 (classifier alone 0.632+/-0.025), benign FPR 0.039+/-0.001 (+1.0 points vs alone), unseen-type detection 0.64+/-0.01 (alone 0.30+/-0.13), seen-type detection 0.95+/-0.00.                                                              
+    Best strict configuration (no test-domain data used for any threshold): LightGBM (class-aware MI) [mahalanobis, validation threshold], Macro-F1 0.704+/-0.022, seen 0.89+/-0.03, unseen 0.59+/-0.02, benign FPR 0.035+/-0.002. The site-calibrated and detector choices were made after inspecting NSL-KDD results: confirm on UNSW-NB15 / Edge-IIoTset.
+    The a-priori hybrid ensemble reached Macro-F1 0.645+/-0.013 with iforest fusion, i.e. it did not beat the best single model; report it as a negative result.
+  * External datasets were run (see the EXTERNAL CONFIRMATION section): the novelty-fusion claim stands only where its verdict says CONFIRMED (edge/iforest: not confirmed, edge/mahalanobis: not confirmed, unsw/iforest: not confirmed, unsw/mahalanobis: not confirmed). Trust results are a replay simulation, not a deployment.
+
+[final report saved to C:\Zero_Trust_IIoT5.0\results_v2\final_report.txt]
+(.venv) PS C:\Zero_Trust_IIoT5.0> Compress-Archive -Path results_v2\*.json, results_v2\final_report.txt, results_extra, tables, edge_log.txt, unsw_log.txt, edge_log2.txt -DestinationPath send_to_claude.zip -Force
+(.venv) PS C:\Zero_Trust_IIoT5.0> git add .; git commit -m "v2.4 full run"; git push origin main                      
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it                
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it                 
+warning: in the working copy of 'RUN_THIS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'make_report.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'make_tables.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'run_dataset.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'run_novelty.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/config.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/data.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/dp.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/dpsgd.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/ensemble.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/evalutil.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/evidence.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/generic.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/jobs.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/ledger.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/loo.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/novelty.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/trust.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ztids/calibrate.py', LF will be replaced by CRLF the next time Git touches it
+[main 2d8ad4ef] v2.4 full run
+ 28 files changed, 10980 insertions(+), 415861 deletions(-)
+ delete mode 100644 data/edge/ML-EdgeIIoT-dataset.csv
+ delete mode 100644 data/edge/ML-EdgeIIoT-dataset.csv.zip
+ delete mode 100644 data/unsw/UNSW_NB15_testing-set.csv
+ delete mode 100644 data/unsw/UNSW_NB15_training-set.csv
+ create mode 100644 edge_log.txt
+ create mode 100644 edge_log2.txt
+ create mode 100644 results_extra/edge_seed0.json
+ create mode 100644 results_extra/edge_seed1.json
+ create mode 100644 results_extra/edge_seed2.json
+ create mode 100644 results_extra/unsw_seed2.json
+ create mode 100644 send_to_claude.zip
+ create mode 100644 unsw_log.txt
+ create mode 100644 ztids/calibrate.py
+Enumerating objects: 52, done.
+Counting objects: 100% (52/52), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (31/31), done.
+Writing objects: 100% (31/31), 211.09 KiB | 3.20 MiB/s, done.
+Total 31 (delta 19), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (19/19), completed with 14 local objects.
+To https://github.com/Al3nzy/Zero_Trust_IIoT5.0.git
+   fa0fbb5a..2d8ad4ef  main -> main
+(.venv) PS C:\Zero_Trust_IIoT5.0> 
