@@ -686,5 +686,119 @@
     }
    ]
   }
+ },
+ "shift_diagnostic": {
+  "proposed CNN-BiLSTM": {
+   "sub": "guess_passwd",
+   "cls": "R2L",
+   "missed": 1229,
+   "exact_recall": 0.0016246953696181965,
+   "n_train": 53,
+   "n_test": 1231,
+   "train_service": {
+    "telnet": 1.0
+   },
+   "test_service": {
+    "pop_3": 0.61,
+    "telnet": 0.31,
+    "ftp": 0.08
+   },
+   "train_flag": {
+    "RSTO": 0.85,
+    "RSTR": 0.08,
+    "SF": 0.04
+   },
+   "test_flag": {
+    "SF": 0.97,
+    "RSTO": 0.02,
+    "S3": 0.0
+   },
+   "train_logged_in": 0.018867924528301886,
+   "test_logged_in": 0.6181965881397238
+  },
+  "LightGBM (class-aware MI)": {
+   "sub": "guess_passwd",
+   "cls": "R2L",
+   "missed": 1231,
+   "exact_recall": 0.0,
+   "n_train": 53,
+   "n_test": 1231,
+   "train_service": {
+    "telnet": 1.0
+   },
+   "test_service": {
+    "pop_3": 0.61,
+    "telnet": 0.31,
+    "ftp": 0.08
+   },
+   "train_flag": {
+    "RSTO": 0.85,
+    "RSTR": 0.08,
+    "SF": 0.04
+   },
+   "test_flag": {
+    "SF": 0.97,
+    "RSTO": 0.02,
+    "S3": 0.0
+   },
+   "train_logged_in": 0.018867924528301886,
+   "test_logged_in": 0.6181965881397238
+  },
+  "LightGBM (global MI)": {
+   "sub": "guess_passwd",
+   "cls": "R2L",
+   "missed": 1228,
+   "exact_recall": 0.002437043054427295,
+   "n_train": 53,
+   "n_test": 1231,
+   "train_service": {
+    "telnet": 1.0
+   },
+   "test_service": {
+    "pop_3": 0.61,
+    "telnet": 0.31,
+    "ftp": 0.08
+   },
+   "train_flag": {
+    "RSTO": 0.85,
+    "RSTR": 0.08,
+    "SF": 0.04
+   },
+   "test_flag": {
+    "SF": 0.97,
+    "RSTO": 0.02,
+    "S3": 0.0
+   },
+   "train_logged_in": 0.018867924528301886,
+   "test_logged_in": 0.6181965881397238
+  },
+  "CNN-BiLSTM + attention": {
+   "sub": "guess_passwd",
+   "cls": "R2L",
+   "missed": 1230,
+   "exact_recall": 0.0008123476848090983,
+   "n_train": 53,
+   "n_test": 1231,
+   "train_service": {
+    "telnet": 1.0
+   },
+   "test_service": {
+    "pop_3": 0.61,
+    "telnet": 0.31,
+    "ftp": 0.08
+   },
+   "train_flag": {
+    "RSTO": 0.85,
+    "RSTR": 0.08,
+    "SF": 0.04
+   },
+   "test_flag": {
+    "SF": 0.97,
+    "RSTO": 0.02,
+    "S3": 0.0
+   },
+   "train_logged_in": 0.018867924528301886,
+   "test_logged_in": 0.6181965881397238
+  }
  }
 }

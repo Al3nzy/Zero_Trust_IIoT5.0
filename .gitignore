@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+# large generated artefacts (keep the small .json results and tables/figures)
+results*/*.npz
+results*/*.keras
