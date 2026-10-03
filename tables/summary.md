@@ -287,7 +287,7 @@ N=107063 records, delta=1/N, 3 epochs, batch 256, clip 1.0. MIA AUC = loss-thres
 
 | Model | Params | MB | 1 flow (ms) | 20 flows (ms) | p99 (ms) | flows/s | Round total (ms) | Budget margin |
 |---|---|---|---|---|---|---|---|---|
-| plain | 462,725 | 5.6 | 7.68 | 23.71 | 35.76 | 785 | 32.70 | 3x |
-| attention | 471,205 | 5.7 | 9.31 | 24.44 | 35.94 | 897 | 33.43 | 3x |
+| plain | 462,725 | 5.6 | 4.20 | 11.19 | 18.18 | 1631 | 14.99 | 7x |
+| attention | 471,205 | 5.7 | 3.57 | 9.88 | 11.33 | 1785 | 13.68 | 7x |
 
-Stages (mean ms): preprocess(20)=8.82, trust update=0.018, signed ledger append=0.151; SHAP per flow=10.85 s; peak RSS=547 MB; hardware: Windows-11-10.0.26220-SP0, 8 cores.
+Stages (mean ms): preprocess(20)=3.72, trust update=0.009, signed ledger append=0.073; SHAP per flow=4.56 s; peak RSS=571 MB; hardware: Windows-11-10.0.26220-SP0, 8 cores.

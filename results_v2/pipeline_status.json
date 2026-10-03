@@ -1,15 +1,15 @@
 {
  "detector": "ok [3s]",
- "novelty": "ok [366s]",
- "novel": "ok [17s]",
- "trust": "ok [77s]",
- "theory": "ok [346s]",
+ "novelty": "ok [188s]",
+ "novel": "ok [6s]",
+ "trust": "ok [26s]",
+ "theory": "ok [105s]",
  "ledger": "ok [177s]",
- "dp": "ok [1388s]",
+ "dp": "ok [53s]",
  "shap": "ok [378s]",
- "latency": "ok [205s]",
+ "latency": "ok [75s]",
  "extra": "skipped (no dataset paths given)",
- "tables": "ok [12s]",
- "figures": "ok [24s]",
- "sensitivity": "ok [134s]"
+ "tables": "FAILED (exit 1) [3s]",
+ "figures": "ok [9s]",
+ "sensitivity": "ok [39s]"
 }
