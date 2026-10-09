@@ -3,5 +3,9 @@
  "site": "ok [15s]",
  "selection": "ok [2s]",
  "inflation": "ok [207s]",
- "trust": "ok [22s]"
+ "trust": "ok [22s]",
+ "theory": "ok [30s]",
+ "sensitivity": "ok [26s]",
+ "ledger": "ok [4s]",
+ "latency": "ok [41s]"
 }

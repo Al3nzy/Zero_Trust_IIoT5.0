@@ -1,0 +1,152 @@
+[
+ {
+  "family": "Beta(2,8)",
+  "T": 250,
+  "alpha": 0.05,
+  "c": 5000.0,
+  "empirical": 0.013333333333333334,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.04733301949633556
+ },
+ {
+  "family": "Beta(2,8)",
+  "T": 250,
+  "alpha": 0.01,
+  "c": 25000.0,
+  "empirical": 0.0,
+  "bound": 0.01,
+  "n": 150,
+  "wilson_hi": 0.02429259716610854
+ },
+ {
+  "family": "Beta(2,8)",
+  "T": 1000,
+  "alpha": 0.05,
+  "c": 20000.0,
+  "empirical": 0.013333333333333334,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.04733301949633556
+ },
+ {
+  "family": "Poisson counts (ties)",
+  "T": 250,
+  "alpha": 0.05,
+  "c": 5000.0,
+  "empirical": 0.013333333333333334,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.04733301949633556
+ },
+ {
+  "family": "Poisson counts (ties)",
+  "T": 250,
+  "alpha": 0.01,
+  "c": 25000.0,
+  "empirical": 0.0,
+  "bound": 0.01,
+  "n": 150,
+  "wilson_hi": 0.02429259716610854
+ },
+ {
+  "family": "Poisson counts (ties)",
+  "T": 1000,
+  "alpha": 0.05,
+  "c": 20000.0,
+  "empirical": 0.013333333333333334,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.04733301949633556
+ },
+ {
+  "family": "Pareto (heavy tail)",
+  "T": 250,
+  "alpha": 0.05,
+  "c": 5000.0,
+  "empirical": 0.006666666666666667,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.03658316774058025
+ },
+ {
+  "family": "Pareto (heavy tail)",
+  "T": 250,
+  "alpha": 0.01,
+  "c": 25000.0,
+  "empirical": 0.0,
+  "bound": 0.01,
+  "n": 150,
+  "wilson_hi": 0.02429259716610854
+ },
+ {
+  "family": "Pareto (heavy tail)",
+  "T": 1000,
+  "alpha": 0.05,
+  "c": 20000.0,
+  "empirical": 0.02666666666666667,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.06686787667748939
+ },
+ {
+  "family": "Bernoulli round mean",
+  "T": 250,
+  "alpha": 0.05,
+  "c": 5000.0,
+  "empirical": 0.0,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.02429259716610854
+ },
+ {
+  "family": "Bernoulli round mean",
+  "T": 250,
+  "alpha": 0.01,
+  "c": 25000.0,
+  "empirical": 0.0,
+  "bound": 0.01,
+  "n": 150,
+  "wilson_hi": 0.02429259716610854
+ },
+ {
+  "family": "Bernoulli round mean",
+  "T": 1000,
+  "alpha": 0.05,
+  "c": 20000.0,
+  "empirical": 0.02666666666666667,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.06686787667748939
+ },
+ {
+  "family": "NSL-KDD benign evidence (private services)",
+  "T": 250,
+  "alpha": 0.05,
+  "c": 5000.0,
+  "empirical": 0.006666666666666667,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.03658316774058025
+ },
+ {
+  "family": "NSL-KDD benign evidence (private services)",
+  "T": 250,
+  "alpha": 0.01,
+  "c": 25000.0,
+  "empirical": 0.0,
+  "bound": 0.01,
+  "n": 150,
+  "wilson_hi": 0.02429259716610854
+ },
+ {
+  "family": "NSL-KDD benign evidence (private services)",
+  "T": 1000,
+  "alpha": 0.05,
+  "c": 20000.0,
+  "empirical": 0.013333333333333334,
+  "bound": 0.05,
+  "n": 150,
+  "wilson_hi": 0.04733301949633556
+ }
+]

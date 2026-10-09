@@ -1,0 +1,62 @@
+{
+ "cpu": "Intel64 Family 6 Model 165 Stepping 3, GenuineIntel",
+ "threads": 1,
+ "flows_per_round": 20,
+ "repetitions": 100,
+ "lightgbm_batch_m": {
+  "median_ms": 1.8128499996237224,
+  "p95_ms": 1.9617899999502697
+ },
+ "lightgbm_single_flow": {
+  "median_ms": 0.510349998876336,
+  "p95_ms": 0.583604997882503
+ },
+ "mahalanobis_batch_m": {
+  "median_ms": 0.4607999999279855,
+  "p95_ms": 0.5179999969186609
+ },
+ "edetector_round_N100": {
+  "median_ms": 0.02519999907235615,
+  "p95_ms": 0.02609999864944257
+ },
+ "edetector_flow_N100": {
+  "median_ms": 0.43430000005173497,
+  "p95_ms": 0.47827499893173814
+ },
+ "edetector_round_N1000": {
+  "median_ms": 0.025400000595254824,
+  "p95_ms": 0.02600500138214556
+ },
+ "edetector_flow_N1000": {
+  "median_ms": 0.4411000008985866,
+  "p95_ms": 0.4770299978190451
+ },
+ "edetector_round_N10000": {
+  "median_ms": 0.02719999974942766,
+  "p95_ms": 0.02890000178012997
+ },
+ "edetector_flow_N10000": {
+  "median_ms": 0.48054999933810905,
+  "p95_ms": 0.8107749987175339
+ },
+ "ledger_append": {
+  "median_ms": 0.046799999836366624,
+  "p95_ms": 0.0850199996420997
+ },
+ "end_to_end_round_N1000": {
+  "median_ms": 2.5781000022107037,
+  "p95_ms": 3.5485450011037827
+ },
+ "macros": {
+  "LatClf": "1.81",
+  "LatClfSingle": "0.51",
+  "LatMah": "0.46",
+  "LatEdet": "0.03",
+  "LatEdetBig": "0.03",
+  "LatEdetFlow": "0.44",
+  "LatLedger": "0.05",
+  "LatEnd": "2.58",
+  "LatEndP": "3.55",
+  "LatCpu": "Intel64 Family 6 Model 165 Stepping 3, GenuineIntel"
+ }
+}

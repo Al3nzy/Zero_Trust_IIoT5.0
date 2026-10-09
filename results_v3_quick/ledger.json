@@ -1,0 +1,45 @@
+{
+ "untampered_verifies": {
+  "hash chain only": true,
+  "+ signatures": true,
+  "+ signatures + anchors": true
+ },
+ "attacks": {
+  "edit_no_rehash": {
+   "hash chain only": 1.0,
+   "+ signatures": 1.0,
+   "+ signatures + anchors": 1.0
+  },
+  "edit_rehash_no_key": {
+   "hash chain only": 0.0,
+   "+ signatures": 1.0,
+   "+ signatures + anchors": 1.0
+  },
+  "edit_rehash_with_key": {
+   "hash chain only": 0.0,
+   "+ signatures": 0.0,
+   "+ signatures + anchors": 0.95
+  },
+  "delete_relink_no_key": {
+   "hash chain only": 0.0,
+   "+ signatures": 1.0,
+   "+ signatures + anchors": 1.0
+  },
+  "truncate_with_key": {
+   "hash chain only": 0.0,
+   "+ signatures": 0.0,
+   "+ signatures + anchors": 0.85
+  },
+  "rewrite_own_key": {
+   "hash chain only": 0.0,
+   "+ signatures": 1.0,
+   "+ signatures + anchors": 1.0
+  }
+ },
+ "perf": {
+  "append_us_hash_only": 7.996399996045512,
+  "append_us_signed": 50.88139999861596,
+  "verify_s_1000": 0.09884320000128355,
+  "verify_s_2000": 0.19546080000145594
+ }
+}
