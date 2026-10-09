@@ -1,0 +1,62 @@
+{
+ "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+ "threads": 1,
+ "flows_per_round": 20,
+ "repetitions": 400,
+ "lightgbm_batch_m": {
+  "median_ms": 2.609918500013464,
+  "p95_ms": 2.8500514499910423
+ },
+ "lightgbm_single_flow": {
+  "median_ms": 0.6033245000480747,
+  "p95_ms": 0.7418523499950425
+ },
+ "mahalanobis_batch_m": {
+  "median_ms": 0.2531009999984235,
+  "p95_ms": 0.34808864997444283
+ },
+ "edetector_round_N100": {
+  "median_ms": 0.017056499984846596,
+  "p95_ms": 0.02848389995051548
+ },
+ "edetector_flow_N100": {
+  "median_ms": 0.3183640000088417,
+  "p95_ms": 0.5116233000194373
+ },
+ "edetector_round_N1000": {
+  "median_ms": 0.017190499988828378,
+  "p95_ms": 0.026717899970662984
+ },
+ "edetector_flow_N1000": {
+  "median_ms": 0.3105994999827999,
+  "p95_ms": 0.38835455004573305
+ },
+ "edetector_round_N10000": {
+  "median_ms": 0.018598999986352283,
+  "p95_ms": 0.029259050000973723
+ },
+ "edetector_flow_N10000": {
+  "median_ms": 0.3339544999789723,
+  "p95_ms": 0.4008101499607619
+ },
+ "ledger_append": {
+  "median_ms": 0.07075850004412132,
+  "p95_ms": 0.09895944996287652
+ },
+ "end_to_end_round_N1000": {
+  "median_ms": 3.200395999954253,
+  "p95_ms": 4.203765399927306
+ },
+ "macros": {
+  "LatClf": "2.61",
+  "LatClfSingle": "0.60",
+  "LatMah": "0.25",
+  "LatEdet": "0.02",
+  "LatEdetBig": "0.02",
+  "LatEdetFlow": "0.31",
+  "LatLedger": "0.07",
+  "LatEnd": "3.20",
+  "LatEndP": "4.20",
+  "LatCpu": "Intel(R) Xeon(R) Processor @ 2.10GHz"
+ }
+}

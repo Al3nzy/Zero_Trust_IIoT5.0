@@ -1,0 +1,9 @@
+\begin{tabular}{lccccccc}
+\toprule
+Model & Acc. & Macro-F1 & MCC & Normal FPR & R2L rec. & U2R rec. & Seeds \\
+\midrule
+official split (proposed) & 0.745$\pm$0.010 & 0.554$\pm$0.018 & 0.620$\pm$0.018 & 0.081$\pm$0.029 & 0.183$\pm$0.041 & 0.527$\pm$0.031 & 3 \\
+deduplicated random split (proposed) & 0.930$\pm$0.004 & 0.708$\pm$0.010 & 0.891$\pm$0.006 & 0.116$\pm$0.008 & 0.950$\pm$0.005 & 0.806$\pm$0.127 & 3 \\
+deduplicated random split (LightGBM) & 0.988$\pm$0.001 & 0.878$\pm$0.013 & 0.981$\pm$0.002 & 0.019$\pm$0.002 & 0.983$\pm$0.002 & 0.875$\pm$0.042 & 3 \\
+\bottomrule
+\end{tabular}

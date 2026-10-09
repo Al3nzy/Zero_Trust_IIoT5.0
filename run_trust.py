@@ -1,88 +1,130 @@
-"""Stage 3: multi-round zero-trust evaluation by replaying real test-set posteriors of the proposed detector through simulated devices.
-NOTE: this is a replay simulation of the trust layer, not a live deployment; the paper must say so."""
-import sys, os, json
+"""Stage `trust`: multi-round device-trust evaluation on replayed real posteriors (replay simulation, not a deployment).
+Eight update rules see identical device streams. Evidence: severity-weighted harm with the Normal-profile flag. Output: results_v3/trust_main.json.
+  python run_trust.py            (ZTIDS_TRUST_SEEDS=0,1,2 classifier seeds; ZTIDS_NDEV devices per seed and cell)"""
+import os, sys, json, math, time, warnings
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import numpy as np, pandas as pd, warnings; warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")
+import numpy as np
+from scipy.stats import kstest
 from ztids import config as C
-from ztids.trust import SEVERITY, H, D, Q, gen_evidence, run_rule
-from ztids.data import CLASSES
 from ztids import evidence as EV_
-E_ = EV_.load(); pt, yt, svc = E_["pt"], E_["yt"], E_["svc"]
-EVC, EVF = E_["EVc"], E_["EVf"]                       # classifier-only evidence, classifier + novelty-detector evidence
-print("novelty detector available:", E_["has_novelty"], flush=True)
-top = pd.Series(svc[yt == 0]).value_counts().index[:3].tolist()
-grp = np.where(np.isin(svc, top), pd.Series(svc).map({s: i for i, s in enumerate(top)}).fillna(3).astype(int).values, 3)
-M, ROUNDS, WARM, ONSET, END, K, ALPHA = 20, 60, 10, 15, 30, 0.05, 0.01
-H_CERT = float(np.log(1 / ALPHA) / (8 * M * K))            # certifies P(ever quarantined) <= ALPHA when mu0 ~ mu_b
-NDEV = 40 if C.QUICK else 200
-PA = {'c': EV_.attack_pools(EVC, yt, E_['novel']), 'f': EV_.attack_pools(EVF, yt, E_['novel'])}
-EVS = {'c': EVC, 'f': EVF}
+from ztids.devices import Pools, make_fleet
+from ztids.trust import run_rule
+from ztids.edetector import run_edetector, run_edetector_flows, threshold_for, OnlineConformal
+
+SEEDS = [int(s) for s in C.TRUST_SEEDS.split(",")]
+NDEV = C.NDEV
+M, ROUNDS, W, ONSET, END = 20, 300, 50, 100, 160
+HOR = ROUNDS - W                                   # rounds after commissioning = false-alarm horizon
+ALPHA = 0.05; C_E = threshold_for(HOR, ALPHA)      # e-detector threshold: P(false quarantine within HOR) <= ALPHA
+K = 0.05; H_HOEF = math.log(100) / (8 * M * K); H_HOR = math.log(HOR / ALPHA) / (8 * M * K)
+Q = "Quarantined"
+RULES = ["Confidence-only", "Beta reputation", "CUSUM, Hoeffding design, fleet baseline", "CUSUM, horizon design, fleet baseline", "CUSUM, horizon design, device baseline",
+         "E-detector, round level, device reference", "E-detector, round level, fleet reference", "E-detector, flow level, device reference",
+         "E-detector, round level, device reference, mode-conditional"]
 
 
-def make_fleet(scn, n, seed, hetero, ev="c", **kw):
-    rng = np.random.RandomState(seed); fleet = []
-    for _ in range(n):
-        g = int(rng.randint(0, 4)) if hetero else -1
-        Pn = EVS[ev][(yt == 0) & (grp == g)] if hetero else EVS[ev][yt == 0]
-        E, fr = gen_evidence(Pn, PA[ev], scn, rng, ROUNDS, M, ONSET, END, **kw); fleet.append(E)
-    return fleet
+def states(rule, F, ctx, i, ref_scores_fleet, modes=None):
+    E = F.mean(1)                                    # (rounds,3) round evidence
+    if rule == "Confidence-only": return run_rule(E, "confidence")[1]
+    if rule == "Beta reputation": return run_rule(E, "beta")[1]
+    if rule.startswith("CUSUM"):
+        mu0 = ctx["fleet_mu0"] if "fleet" in rule else E[:W, 0].mean(); h = H_HOEF if "Hoeffding" in rule else H_HOR
+        return run_rule(E, "cusum", mu0=mu0, k=K, h=h, warm=W)[1]
+    if "mode-conditional" in rule: return run_edetector(E[:, 0], warm=W, c=C_E, seed=i, context=modes)[1]
+    if "round level, device" in rule: return run_edetector(E[:, 0], warm=W, c=C_E, seed=i)[1]
+    if "round level, fleet" in rule: return run_edetector(E[:, 0], ref_scores=ref_scores_fleet, warm=W, c=C_E, seed=i)[1]
+    if "flow level" in rule: return run_edetector_flows(F[:, :, 0], warm=W, c=C_E, seed=i)[1]
+    raise ValueError(rule)
 
 
-def summarize(scn, Ss):
-    out = {"ever_quarantined": float(np.mean([(s[WARM:] == Q).any() for s in Ss])),
-           "healthy_frac_after_warmup": float(np.mean([(s[WARM:] == H).mean() for s in Ss]))}
-    if scn in ("compromised", "stealth", "intermittent"):
-        dl = [(np.where(s[ONSET:] == Q)[0][0] + 1) if (s[ONSET:] == Q).any() else np.nan for s in Ss]
-        out.update(detect=float(np.mean(~np.isnan(dl))), median_delay=None if np.all(np.isnan(dl)) else float(np.nanmedian(dl)),
-                   mean_delay=None if np.all(np.isnan(dl)) else float(np.nanmean(dl)), final_healthy=float(np.mean([s[-1] == H for s in Ss])),
-                   frac_time_q=float(np.mean([(s[ONSET:] == Q).mean() for s in Ss])))
+def first(S, a, b=None):
+    q = np.where(np.asarray(S[a:b]) == Q)[0]; return int(q[0]) + 1 if len(q) else np.nan
+
+
+def summarize(scn, SS):
+    out = {"n": len(SS), "ever_quarantined": float(np.mean([(s[W:] == Q).any() for s in SS]))}
+    if scn in ("compromised", "stealth", "intermittent", "novel_attack", "seen_attack"):
+        dl = np.array([first(s, ONSET) for s in SS]); out.update(detect=float(np.mean(~np.isnan(dl))), median_delay=None if np.all(np.isnan(dl)) else float(np.nanmedian(dl)),
+                                                                   p90_delay=None if np.mean(~np.isnan(dl)) < 0.9 else float(np.nanpercentile(dl, 90)))
     if scn == "recovery":
-        rel = [(np.where(s[END:] != Q)[0][0] + 1) if (s[END:] != Q).any() else np.nan for s in Ss]
-        out.update(was_quarantined=float(np.mean([(s[ONSET:END] == Q).any() for s in Ss])), released_by_end=float(np.mean(~np.isnan(rel))),
-                   median_release_delay=None if np.all(np.isnan(rel)) else float(np.nanmedian(rel)), final_healthy=float(np.mean([s[-1] == H for s in Ss])))
+        rel = [(np.where(np.asarray(s[END:]) != Q)[0][0] + 1) if (np.asarray(s[END:]) != Q).any() else np.nan for s in SS]
+        out.update(was_quarantined=float(np.mean([(np.asarray(s[ONSET:END]) == Q).any() for s in SS])), released=float(np.mean(~np.isnan(rel))),
+                   median_release_delay=None if np.all(np.isnan(rel)) else float(np.nanmedian(rel)))
     return out
 
 
-RULES = [("confidence (original Eq.4)", "confidence", None, "c"), ("beta reputation", "beta", None, "c"),
-         ("CUSUM fleet-baseline (classifier)", "cusum", "fleet", "c"), ("CUSUM fleet-baseline (+novelty)", "cusum", "fleet", "f"),
-         ("CUSUM device-baseline (+novelty)", "cusum", "device", "f")]
-SCN = ("benign", "compromised", "recovery", "intermittent", "stealth", "novel_attack", "seen_attack")
-R = {"setup": dict(m=M, rounds=ROUNDS, warmup=WARM, onset=ONSET, end=END, k=K, alpha=ALPHA, h=H_CERT, n_devices=NDEV, device_groups=top + ["other"],
-                   severity=SEVERITY.tolist(), w_unknown=EV_.W_U, novelty_fpr_target=EV_.FPR, novelty_available=bool(E_["has_novelty"]), note="replay simulation of real posteriors; flows within a round are sampled i.i.d.")}
-for hetero in (False, True):
-    key = "hetero" if hetero else "homog"; R[key] = {}
-    for ev in ("c", "f"):
-        ben_means = [E[WARM:, 0].mean() for E in make_fleet("benign", 300 if not C.QUICK else 60, 3, hetero, ev)]
-        R[key]["mu_b_mean_" + ev] = float(np.mean(ben_means)); R[key]["mu_b_sd_across_devices_" + ev] = float(np.std(ben_means))
-        R[key]["mu_att_" + ev] = {**{CLASSES[c]: float(PA[ev][c][:, 0].mean()) for c in (1, 2, 3, 4)}, "novel sub-types": float(PA[ev]["novel"][:, 0].mean()), "seen sub-types": float(PA[ev]["seen"][:, 0].mean())}
-    fleets = {ev: {} for ev in ("c", "f")}
-    for ev in ("c", "f"):
-        for scn in SCN:
-            base, extra = {"novel_attack": ("compromised", dict(attack_cls="novel")), "seen_attack": ("compromised", dict(attack_cls="seen")), "stealth": ("stealth", dict(frac=0.3))}.get(scn, (scn, {}))
-            fleets[ev][scn] = make_fleet(base, NDEV, 7, hetero, ev, **extra)
-    for name, rule, mode, ev in RULES:
-        R[key][name] = {}
-        for scn, fleet in fleets[ev].items():
-            per = np.array([E[:WARM, 0].mean() for E in fleet]); ref = per if mode == "device" else np.full(len(fleet), np.median(per))
-            Ss = [run_rule(E, rule, mu0=ref[i], k=K, h=H_CERT, warm=WARM)[1] for i, E in enumerate(fleet)]
-            R[key][name][scn] = summarize("compromised" if scn in ("novel_attack", "seen_attack") else scn, Ss)
-        b, c, r, s_, nv, sn = (R[key][name][x] for x in ("benign", "compromised", "recovery", "stealth", "novel_attack", "seen_attack"))
-        print(f"{key:7s} {name:34s} FQ={b['ever_quarantined']:.3f} detect={c['detect']:.2f} (seen-subtype {sn['detect']:.2f}, NOVEL-subtype {nv['detect']:.2f}) delay={c['median_delay']} "
-              f"released={r['released_by_end']:.2f} stealth30%={s_['detect']:.2f}", flush=True)
+def evaluate(P, fleet_kind, scn, mode, seed, rules, **kw):
+    hetero = fleet_kind == "hetero"
+    base = {"novel_attack": ("compromised", dict(attack="novel")), "seen_attack": ("compromised", dict(attack="seen"))}.get(scn, (scn, {}))
+    fleet, modes = make_fleet(P, NDEV, base[0], seed * 101 + 7, ROUNDS, M, hetero, onset=ONSET, end=END, mode=mode, **{**base[1], **kw})
+    Ev = [F.mean(1)[:, 0] for F in fleet]
+    ctx = dict(fleet_mu0=float(np.median([e[:W].mean() for e in Ev]))); pooled = np.concatenate([e[:W] for e in Ev])
+    return {r: summarize(scn if scn not in ("novel_attack", "seen_attack") else scn, [states(r, F, ctx, i, pooled, modes[i]) for i, F in enumerate(fleet)]) for r in rules}, fleet, pooled
 
-# commissioning-window contamination: a fraction of the fleet is already compromised while the baseline is being estimated
-R["contamination"] = {}
-for frac in (0.0, 0.1, 0.3, 0.45):
-    rng = np.random.RandomState(21); n_c = int(round(frac * NDEV)); fleet = []
-    for d in range(NDEV):
-        E, _ = gen_evidence(EVF[(yt == 0)], PA["f"], "compromised" if d < n_c else "benign", rng, ROUNDS, M, onset=0, attack_cls=int(rng.choice([1, 2, 3, 4])))
-        fleet.append(E)
-    per = np.array([E[:WARM, 0].mean() for E in fleet])
-    for mode in ("fleet", "device"):
-        ref = per if mode == "device" else np.full(NDEV, np.median(per))
-        Ss = [run_rule(E, "cusum", mu0=ref[i], k=K, h=H_CERT, warm=WARM)[1] for i, E in enumerate(fleet)]
-        q = [(s[WARM:] == Q).any() for s in Ss]
-        R["contamination"][f"{frac}_{mode}"] = dict(frac=frac, mode=mode, detect_contaminated=float(np.mean(q[:n_c])) if n_c else None,
-                                                    false_quarantine_benign=float(np.mean(q[n_c:])))
-    print("contamination", frac, {m: R["contamination"][f"{frac}_{m}"] for m in ("fleet", "device")}, flush=True)
-json.dump(R, open(os.path.join(C.RES, "trust_main.json"), "w"), indent=1, default=float)
+
+def merge(rows):
+    """Pool per-seed summaries: rates are averaged (equal n per seed), delays are the median of per-seed medians."""
+    out = {}
+    for k in rows[0]:
+        vals = [r[k] for r in rows if r.get(k) is not None]
+        out[k] = float(np.mean(vals)) if vals and k != "n" else (sum(r[k] for r in rows) if k == "n" else None)
+        if k in ("median_delay", "p90_delay", "median_release_delay") and vals: out[k] = float(np.median(vals))
+    return out
+
+
+if __name__ == "__main__":
+    t0 = time.time(); R = {"setup": dict(m=M, rounds=ROUNDS, commissioning=W, onset=ONSET, end=END, horizon=HOR, alpha=ALPHA, c=C_E, k=K, h_hoeffding=H_HOEF, h_horizon=H_HOR, n_devices_per_seed=NDEV,
+                                          classifier_seeds=SEEDS, note="replay simulation of real posteriors; temporal structure is injected, not measured")}
+    cells = [("homog", "iid", ["benign", "compromised", "recovery", "intermittent", "stealth", "novel_attack", "seen_attack"]), ("hetero", "iid", ["benign", "compromised", "recovery", "intermittent", "stealth", "novel_attack", "seen_attack"]),
+             ("hetero", "regime", ["benign", "compromised"]), ("hetero", "drift", ["benign", "compromised"])]
+    acc = {}; traj = {}; diag = {"homog": [], "hetero": []}
+    for seed in SEEDS:
+        E_ = EV_.load(seed); P = Pools(E_["EVf"], E_["yt"], E_["svc"], E_["novel"])
+        for fk, mode, scns in cells:
+            for scn in scns:
+                kw = dict(frac=0.3) if scn == "stealth" else {}
+                res, fleet, pooled = evaluate(P, fk, scn, mode, seed, RULES, **kw)
+                for r, v in res.items(): acc.setdefault((fk, mode, scn, r), []).append(v)
+                if scn == "benign" and mode == "iid":          # commissioning diagnostic: KS test of each device's own commissioning rounds against the fleet reference
+                    rng = np.random.RandomState(5); frac_flag = []
+                    for F in fleet[:100]:
+                        oc = OnlineConformal(pooled); pv = [oc.pvalue(x, rng.rand(), add=False) for x in F.mean(1)[:W, 0]]; frac_flag.append(kstest(pv, "uniform").pvalue < 0.05)
+                    diag[fk].append(float(np.mean(frac_flag)))
+                if seed == SEEDS[0] and mode == "iid" and fk == "hetero" and scn in ("benign", "compromised", "recovery", "intermittent"):
+                    F = fleet[3]; E = F.mean(1)
+                    from ztids.trust import run_rule as rr
+                    traj[scn] = {"harm": E[:, 0].tolist(),
+                                 "confidence": rr(E, "confidence")[0].tolist(), "cusum_horizon": rr(E, "cusum", mu0=E[:W, 0].mean(), k=K, h=H_HOR, warm=W)[0].tolist(),
+                                 "edet_round": run_edetector(E[:, 0], warm=W, c=C_E, seed=1)[0].tolist(), "edet_flow": run_edetector_flows(F[:, :, 0], warm=W, c=C_E, seed=1)[0].tolist(),
+}
+                print(f"[seed {seed}] {fk}/{mode}/{scn} done ({time.time() - t0:.0f}s)", flush=True)
+    R["cells"] = {}
+    for (fk, mode, scn, r), v in acc.items(): R["cells"].setdefault(f"{fk}|{mode}", {}).setdefault(r, {})[scn] = merge(v)
+    R["commissioning_diagnostic_share_flagged"] = {k: float(np.mean(v)) for k, v in diag.items()}
+    R["trajectories"] = traj
+
+    # sustained contamination of the commissioning window (a fraction of devices attacked from round 0)
+    R["contamination"] = {}
+    for seed in SEEDS[:1]:
+        E_ = EV_.load(seed); P = Pools(E_["EVf"], E_["yt"], E_["svc"], E_["novel"])
+        for frac in (0.0, 0.1, 0.3, 0.45):
+            rng = np.random.RandomState(31); nc = int(round(frac * NDEV)); fleet = []
+            for d in range(NDEV):
+                from ztids.devices import make_device
+                fleet.append(make_device(P, None, "compromised" if d < nc else "benign", rng, ROUNDS, M, onset=0, attack=int(rng.choice([1, 2, 3, 4])))[0])
+            Ev = [F.mean(1)[:, 0] for F in fleet]; ctx = dict(fleet_mu0=float(np.median([e[:W].mean() for e in Ev]))); pooled = np.concatenate([e[:W] for e in Ev])
+            for r in ("CUSUM, horizon design, fleet baseline", "CUSUM, horizon design, device baseline", "E-detector, round level, device reference", "E-detector, round level, fleet reference"):
+                q = [(np.asarray(states(r, F, ctx, i, pooled)[W:]) == Q).any() for i, F in enumerate(fleet)]
+                R["contamination"][f"{frac}|{r}"] = dict(frac=frac, rule=r, detect_contaminated=float(np.mean(q[:nc])) if nc else None, false_quarantine_benign=float(np.mean(q[nc:])))
+            print("[contamination]", frac, flush=True)
+    # stealth sweep: detection probability against the share of attacked flows per round
+    R["stealth_sweep"] = {}; NDEV = max(NDEV // 2, 20)
+    E_ = EV_.load(SEEDS[0]); P = Pools(E_["EVf"], E_["yt"], E_["svc"], E_["novel"])
+    for cls in (1, 3):
+        for f in (0.05, 0.1, 0.2, 0.3, 0.5):
+            res, _, _ = evaluate(P, "hetero", "stealth", "iid", SEEDS[0], ["CUSUM, horizon design, device baseline", "E-detector, round level, device reference", "E-detector, flow level, device reference"], frac=f, attack=cls)
+            for r, v in res.items(): R["stealth_sweep"].setdefault(r, {})[f"{cls}|{f}"] = v["detect"]
+        print("[stealth sweep] class", cls, flush=True)
+    json.dump(R, open(os.path.join(C.RES, "trust_main.json"), "w"), indent=1, default=float)
+    print(f"trust stage done in {time.time() - t0:.0f}s", flush=True)

@@ -1,0 +1,88 @@
+{
+ "core_s0.json": {
+  "test/acc": [
+   0.757019191132689,
+   0.01
+  ],
+  "test/macro_f1": [
+   0.6170260073851666,
+   0.02
+  ]
+ },
+ "site.json": {
+  "summary/argmax|excl/macro_f1/mean": [
+   0.6018735639720137,
+   0.015
+  ],
+  "summary/argmax|excl/acc/mean": [
+   0.765674491017964,
+   0.01
+  ],
+  "summary/site|0.05/fpr/mean": [
+   0.04940166975881262,
+   0.004
+  ],
+  "summary/site|0.05/macro_f1/mean": [
+   0.6435945046683728,
+   0.02
+  ],
+  "summary/fused-site|0.05|mahalanobis/macro_f1/mean": [
+   0.6782875596213092,
+   0.02
+  ],
+  "summary/fused-site|0.05|mahalanobis/fpr/mean": [
+   0.038836386827458255,
+   0.005
+  ],
+  "summary/fused-site|0.05|mahalanobis/det_unseen/mean": [
+   0.6458863328822734,
+   0.03
+  ]
+ },
+ "trust_main.json": {
+  "cells/hetero|iid/E-detector, round level, device reference/benign/ever_quarantined": [
+   0.011666666666666667,
+   0.02
+  ],
+  "cells/hetero|iid/E-detector, round level, device reference/compromised/detect": [
+   1.0,
+   0.02
+  ],
+  "cells/hetero|iid/E-detector, round level, device reference/compromised/median_delay": [
+   5.0,
+   1.0
+  ],
+  "cells/hetero|regime/E-detector, round level, device reference, mode-conditional/benign/ever_quarantined": [
+   0.013333333333333334,
+   0.02
+  ],
+  "cells/hetero|iid/E-detector, round level, fleet reference/benign/ever_quarantined": [
+   0.2383333333333333,
+   0.04
+  ]
+ },
+ "theory.json": {
+  "cusum/rows/0/within/250": [
+   0.2925,
+   0.03
+  ],
+  "cusum/rows/0/per_round_tail": [
+   0.00573024305555554,
+   0.003
+  ]
+ },
+ "inflation_nsl.json": {
+  "results/0/audited/acc": [
+   0.757019191132689,
+   0.01
+  ],
+  "results/0/random_dedup/acc": [
+   0.9895459774003654,
+   0.01
+  ],
+  "results/0/random_dup_smote_first/acc": [
+   0.995,
+   0.01
+  ]
+ }
+}

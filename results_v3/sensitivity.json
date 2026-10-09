@@ -1,0 +1,283 @@
+{
+ "n_devices": 150,
+ "horizon": 250,
+ "rows": [
+  {
+   "W": 10,
+   "alpha": 0.1,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 2500.0,
+   "false_quarantine": 0.02,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 0.9666666666666667
+  },
+  {
+   "W": 10,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.006666666666666667,
+   "detect_compromised": 1.0,
+   "median_delay": 6.0,
+   "detect_stealth": 0.96
+  },
+  {
+   "W": 10,
+   "alpha": 0.01,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 25000.0,
+   "false_quarantine": 0.0,
+   "detect_compromised": 1.0,
+   "median_delay": 8.0,
+   "detect_stealth": 0.9466666666666667
+  },
+  {
+   "W": 20,
+   "alpha": 0.1,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 2500.0,
+   "false_quarantine": 0.02,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 0.9866666666666667
+  },
+  {
+   "W": 20,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.013333333333333334,
+   "detect_compromised": 1.0,
+   "median_delay": 6.0,
+   "detect_stealth": 0.98
+  },
+  {
+   "W": 20,
+   "alpha": 0.01,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 25000.0,
+   "false_quarantine": 0.006666666666666667,
+   "detect_compromised": 1.0,
+   "median_delay": 7.0,
+   "detect_stealth": 0.9333333333333333
+  },
+  {
+   "W": 50,
+   "alpha": 0.1,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 2500.0,
+   "false_quarantine": 0.013333333333333334,
+   "detect_compromised": 1.0,
+   "median_delay": 4.0,
+   "detect_stealth": 0.9933333333333333
+  },
+  {
+   "W": 50,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.013333333333333334,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 0.9933333333333333
+  },
+  {
+   "W": 50,
+   "alpha": 0.01,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 25000.0,
+   "false_quarantine": 0.0,
+   "detect_compromised": 1.0,
+   "median_delay": 6.0,
+   "detect_stealth": 0.9666666666666667
+  },
+  {
+   "W": 100,
+   "alpha": 0.1,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 2500.0,
+   "false_quarantine": 0.02,
+   "detect_compromised": 1.0,
+   "median_delay": 4.0,
+   "detect_stealth": 0.9933333333333333
+  },
+  {
+   "W": 100,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.006666666666666667,
+   "detect_compromised": 1.0,
+   "median_delay": 4.0,
+   "detect_stealth": 0.9933333333333333
+  },
+  {
+   "W": 100,
+   "alpha": 0.01,
+   "m": 20,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 25000.0,
+   "false_quarantine": 0.0,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 0.9866666666666667
+  },
+  {
+   "W": 50,
+   "alpha": 0.05,
+   "m": 10,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.02,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 0.9866666666666667
+  },
+  {
+   "W": 50,
+   "alpha": 0.05,
+   "m": 50,
+   "eps": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.0,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 1.0
+  },
+  {
+   "W": 50,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.1
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.006666666666666667,
+   "detect_compromised": 1.0,
+   "median_delay": 5.0,
+   "detect_stealth": 0.9
+  },
+  {
+   "W": 50,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.5
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.02,
+   "detect_compromised": 1.0,
+   "median_delay": 4.0,
+   "detect_stealth": 1.0
+  },
+  {
+   "W": 50,
+   "alpha": 0.05,
+   "m": 20,
+   "eps": [
+    0.9
+   ],
+   "c": 5000.0,
+   "false_quarantine": 0.0,
+   "detect_compromised": 1.0,
+   "median_delay": 18.0,
+   "detect_stealth": 1.0
+  }
+ ]
+}

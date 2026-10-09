@@ -1,0 +1,10 @@
+\begin{tabular}{lcccc}
+\toprule
+Benchmark & Records (train + test) & Exact duplicates & Test rows equal to a training row & Train+val / test after audit \\
+\midrule
+NSL-KDD (official split) & 125,973 + 22,544 & 16 (0.01\%) & 664 (2.9\%) & 125,957 / 21,833 \\
+UNSW-NB15 (official split) & 175,341 + 82,332 & 74,301 (42.4\%) & 8,541 (10.4\%) & 101,040 / 52,644 \\
+Edge-IIoTset (random split) & 157,800 & 5,726 (3.6\%) & -- & 96,000 / 24,000 \\
+Edge-IIoTset, capture fields removed & 157,800 & 141,514 (89.7\%) & -- & 13,021 / 3,256 \\
+\bottomrule
+\end{tabular}

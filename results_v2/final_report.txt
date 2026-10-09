@@ -29,12 +29,30 @@ LSTM only                       3  0.731+/-0.018   0.522+/-0.055   0.601+/-0.022
   Verdict: best classical model (LightGBM (class-aware MI)) vs best deep model (MLP): Macro-F1 0.634 vs 0.560 (diff +0.074, within 2 pooled std; few seeds, indicative only).
            Deep models lead only on rare-class recall: best U2R recall = CNN only (0.642).
 
+-- 1b. where the classifiers fail (per attack sub-type, LightGBM class-aware, seed 0)
+  sub-type         class   flows in training exact recall
+  guess_passwd     R2L      1231        True           0%
+  mscan            Probe     996       False           8%
+  apache2          DoS       737       False           0%
+  processtable     DoS       685       False           0%
+  warezmaster      R2L       943        True          57%
+  snmpguess        R2L       331       False           0%
+  Why: 'guess_passwd' IS in the training data (53 flows) yet 1231 of its 1231 test flows are missed. Training: services {'telnet': 1.0}, flags {'RSTO': 0.85, 'RSTR': 0.08, 'SF': 0.04}, logged_in 0.02.
+       Test: services {'pop_3': 0.61, 'telnet': 0.31, 'ftp': 0.08}, flags {'SF': 0.97, 'RSTO': 0.02, 'S3': 0.0}, logged_in 0.62  -> the test examples behave differently from every training example (within-sub-type distribution shift); no supervised model can learn this from the training split.
+
+-- 1c. site-calibrated Normal decision for the classifier (LightGBM class-aware; threshold on P(attack) from a clean commissioning window)
+  argmax           Macro-F1 0.632+/-0.025 | Acc 0.767+/-0.020 | benign FPR 0.029+/-0.002 | attack detection 0.658+/-0.047
+  site alpha=0.02  Macro-F1 0.466+/-0.034 | Acc 0.685+/-0.016 | benign FPR 0.019+/-0.002 | attack detection 0.485+/-0.029
+  site alpha=0.05  Macro-F1 0.660+/-0.021 | Acc 0.813+/-0.007 | benign FPR 0.050+/-0.002 | attack detection 0.787+/-0.029
+  site alpha=0.1   Macro-F1 0.651+/-0.022 | Acc 0.819+/-0.003 | benign FPR 0.100+/-0.001 | attack detection 0.889+/-0.021
+  All targets are shown, none is selected: pick alpha from the site's false-alarm budget. Too strict a target (2%) hurts because the classifier's P(attack) is inflated on shifted benign traffic.
+
 ====================================================================================================
 2. ABLATIONS
 ====================================================================================================
   Feature selection (CNN-BiLSTM): class-aware MI 0.554+/-0.018 vs global MI 0.514+/-0.002 Macro-F1 (delta +0.040)
   Feature selection (LightGBM)  : class-aware MI 0.634+/-0.024 vs global MI 0.562+/-0.009 Macro-F1 (delta +0.072); R2L recall 0.191+/-0.004 vs 0.076+/-0.012
-  Dual attention: Macro-F1 0.554+/-0.018 (without) vs 0.542+/-0.027 (with), delta -0.013; round latency 9.39 vs 9.33 ms
+  Dual attention: Macro-F1 0.554+/-0.018 (without) vs 0.542+/-0.027 (with), delta -0.013; round latency 14.99 vs 13.68 ms
   Feature order: canonical 0.554+/-0.018, random 0.557+/-0.036, mi 0.561+/-0.029  -> order does not matter (differences within std)
   Poisoning (targeted, 50% of R2L/U2R relabelled Normal): R2L recall 0.183+/-0.041 -> 0.054+/-0.047, U2R recall 0.527+/-0.031 -> 0.204+/-0.202
   Poisoning (random 30% label noise)                    : Macro-F1 0.554+/-0.018 -> 0.555+/-0.037  (robust to random noise, vulnerable to targeted poisoning)
@@ -48,6 +66,16 @@ proposed CNN-BiLSTM              0.41+/-0.11 -> 0.60+/-0.02       0.85+/-0.01 0.
 LightGBM (class-aware MI)        0.30+/-0.13 -> 0.58+/-0.06       0.82+/-0.01 0.029+/-0.002 -> 0.032+/-0.002 0.634+/-0.024 -> 0.667+/-0.029
 LightGBM (global MI)             0.41+/-0.09 -> 0.65+/-0.02       0.79+/-0.01 0.030+/-0.001 -> 0.033+/-0.001 0.562+/-0.009 -> 0.590+/-0.002
 MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.077+/-0.028 -> 0.079+/-0.028 0.560+/-0.028 -> 0.576+/-0.028
+Hybrid (LightGBM + CNN-BiLSTM)   0.28+/-0.10 -> 0.56+/-0.03       0.82+/-0.01 0.030+/-0.001 -> 0.033+/-0.001 0.636+/-0.007 -> 0.645+/-0.013
+  Detector comparison (threshold at 2% validation FPR; AUROC is threshold-free, higher = better ranking under shift):
+    iforest                AUROC 0.942+/-0.003 (unseen types 0.948+/-0.002) | benign flag rate 0.019+/-0.001 | detects seen 0.65+/-0.01, unseen 0.52+/-0.02
+    mahalanobis            AUROC 0.966+/-0.000 (unseen types 0.951+/-0.001) | benign flag rate 0.016+/-0.000 | detects seen 0.67+/-0.08, unseen 0.54+/-0.01
+    iforest+mahalanobis    AUROC 0.956+/-0.001 (unseen types 0.953+/-0.001) | benign flag rate 0.059+/-0.005 | detects seen 0.69+/-0.01, unseen 0.67+/-0.04
+    Caution: detector ranking was inspected on NSL-KDD test data (kNN-distance: best validation AUROC, worst test AUROC under shift, rejected). Confirm on UNSW-NB15 / Edge-IIoTset.
+  Site calibration (threshold from a clean commissioning window = 10% of test-domain Normal flows, held out; mean of 20 windows, LightGBM class-aware):
+    iforest                Macro-F1 0.663+/-0.028 (alone 0.632+/-0.025) | benign FPR 0.032+/-0.002 | seen 0.82+/-0.01 | unseen 0.59+/-0.06
+    mahalanobis            Macro-F1 0.707+/-0.004 (alone 0.632+/-0.025) | benign FPR 0.038+/-0.001 | seen 0.94+/-0.01 | unseen 0.63+/-0.01
+    iforest+mahalanobis    Macro-F1 0.664+/-0.031 (alone 0.632+/-0.025) | benign FPR 0.034+/-0.002 | seen 0.82+/-0.01 | unseen 0.64+/-0.03
   Trade-off: class-aware MI raises R2L/U2R recall and Macro-F1 but lowers unseen-type detection of the classifier alone (0.30+/-0.13 vs 0.41+/-0.09 with global MI); the novelty fusion recovers it (0.58+/-0.06).
   Novelty detector alone: detects 0.52+/-0.02 of unseen-type attacks and 0.65+/-0.01 of seen-type attacks at 0.019+/-0.001 benign flag rate.
   3695 of 12251 test attacks belong to sub-types absent from training. Best unseen-type detection: LightGBM (global MI) + novelty (0.65).
@@ -72,6 +100,7 @@ MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.
   CUSUM fleet-baseline (+novelty)               4.5%    100%      2      100%       100%        88%       68%
   CUSUM device-baseline (+novelty)              0.0%    100%      2      100%       100%        88%       96%
   Contaminated commissioning (up to 45% of fleet already compromised): fleet-median baseline still detects 100%, per-device baseline only 2%.
+  Sensitivity (29 settings of k, alpha, m, warm-up): false quarantine 0.0-0.0% overall (0.0% max for k>=0.05); compromised-device detection 100-100%; stealth(30%) detection 70-100%.
   Proved bounds hold empirically: false-quarantine <= certified alpha in 12/12 settings (incl. correlated flows): True; measured delay <= proved delay bound for all attack classes: True.
   Delay (measured vs bound, rounds): DoS 2.0 vs 3.5, Probe 2.0 vs 3.7, R2L 3.4 vs 7.8, U2R 1.3 vs 2.5
 
@@ -89,10 +118,12 @@ MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.
 ====================================================================================================
        epsilon  sigma    Acc  MacroF1  U2R-rec  MIA-AUC
    non-private     --  0.775    0.624    0.343    0.492
+         50.00   0.34  0.744    0.475    0.000    0.497
+         25.00   0.36  0.745    0.471    0.000    0.495
           8.00   0.49  0.734    0.453    0.000    0.494
           4.00   0.59  0.724    0.449    0.000    0.496
           1.00   0.96  0.718    0.448    0.000    0.496
-  Cost of privacy: Macro-F1 0.624 -> 0.453 (eps=8); U2R recall 0.34 -> 0.00. Membership-inference AUC is ~0.5 even without DP, so it gives no empirical evidence of leakage either way; the claim rests on the formal accountant (delta=1/N, single seed).
+  Cost of privacy: Macro-F1 0.624 -> 0.475 (eps=50); U2R recall 0.34 -> 0.00. Membership-inference AUC is ~0.5 even without DP, so it gives no empirical evidence of leakage either way; the claim rests on the formal accountant (delta=1/N, single seed).
 
 ====================================================================================================
 7. EXPLAINABILITY (SHAP)
@@ -104,9 +135,9 @@ MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.
 ====================================================================================================
 8. LATENCY / FOOTPRINT (single thread, same hardware)
 ====================================================================================================
-  plain      params 462,725 | 5.6 MB | 1 flow 2.14 ms | 20-flow round 6.97 ms (p99 10.04) | end-to-end round 9.39 ms | 2167 flows/s
-  attention  params 471,205 | 5.7 MB | 1 flow 2.23 ms | 20-flow round 6.91 ms (p99 7.67) | end-to-end round 9.33 ms | 2269 flows/s
-  Pipeline parts (mean ms): preprocess(20 flows) 2.37, trust update 0.004, signed ledger append 0.046; SHAP 3.50 s per flow (offline only).
+  plain      params 462,725 | 5.6 MB | 1 flow 4.20 ms | 20-flow round 11.19 ms (p99 18.18) | end-to-end round 14.99 ms (7x margin vs an ASSUMED 100 ms per-round budget) | 1631 flows/s
+  attention  params 471,205 | 5.7 MB | 1 flow 3.57 ms | 20-flow round 9.88 ms (p99 11.33) | end-to-end round 13.68 ms (7x margin vs an ASSUMED 100 ms per-round budget) | 1785 flows/s
+  Pipeline parts (mean ms): preprocess(20 flows) 3.72, trust update 0.009, signed ledger append 0.073; SHAP 4.56 s per flow (offline only).
   Note: per-round ms is the reliable figure; the batch throughput comes from one timed 500-flow batch and is order/warm-up sensitive.
 
 ====================================================================================================
@@ -121,28 +152,76 @@ MLP                              0.37+/-0.04 -> 0.57+/-0.01       0.83+/-0.01 0.
   MLP                             3           5.8        0.3
   LightGBM (class-aware)          3           1.9        0.1
   Random forest                   3           1.2        0.1
-  DP-SGD (all eps)                4         318.2       22.6
+  DP-SGD (all eps)                6         368.1       43.1
 
 -- pipeline stages
   detector         3 s  (   0.1 min)
-  novelty         79 s  (   1.3 min)
+  novelty        165 s  (   2.8 min)
   novel            6 s  (   0.1 min)
   trust           26 s  (   0.4 min)
-  theory          98 s  (   1.6 min)
+  theory         105 s  (   1.8 min)
   ledger         177 s  (   3.0 min)
-  dp              55 s  (   0.9 min)
+  dp              53 s  (   0.9 min)
   shap           378 s  (   6.3 min)
-  latency         56 s  (   0.9 min)
-  tables           2 s  (   0.0 min)
-  figures          7 s  (   0.1 min)
-  TOTAL          887 s  (  14.8 min = 0.25 h)
+  latency         75 s  (   1.2 min)
+  tables           3 s  (   0.1 min)
+  figures          2 s  (   0.0 min)
+  sensitivity      39 s  (   0.7 min)
+  TOTAL         1032 s  (  17.2 min = 0.29 h)
+
+====================================================================================================
+EXTERNAL CONFIRMATION (additional datasets, identical protocol)
+====================================================================================================
+
+-- edge_noart: 3 seed(s)
+  lgbm         Acc 0.994+/-0.001  Macro-F1 0.865+/-0.014  MCC 0.969+/-0.006
+  mlp          Acc 0.993+/-0.002  Macro-F1 0.858+/-0.033  MCC 0.966+/-0.010
+  rf           Acc 0.994+/-0.001  Macro-F1 0.860+/-0.010  MCC 0.970+/-0.004
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.865+/-0.014 | Acc 0.994+/-0.001 | benign FPR 0.000+/-0.000 | attack detection 1.000+/-0.000
+  Leave-one-attack-class-out skipped: the commissioning window (10% of clean Normal test flows) is too small for a 5% conformal threshold (needs >= 19 flows). This dataset has too few unique Normal flows to be a usable benchmark.
+
+-- edge: 3 seed(s)
+  lgbm         Acc 0.942+/-0.001  Macro-F1 0.913+/-0.001  MCC 0.937+/-0.001
+  mlp          Acc 0.798+/-0.001  Macro-F1 0.759+/-0.003  MCC 0.784+/-0.001
+  rf           Acc 0.931+/-0.002  Macro-F1 0.903+/-0.002  MCC 0.925+/-0.002
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.913+/-0.001 | Acc 0.941+/-0.001 | benign FPR 0.000+/-0.000 | attack detection 1.000+/-0.000
+    site alpha=0.02  Macro-F1 0.911+/-0.001 | Acc 0.939+/-0.000 | benign FPR 0.018+/-0.000 | attack detection 1.000+/-0.000
+    site alpha=0.05  Macro-F1 0.905+/-0.000 | Acc 0.934+/-0.000 | benign FPR 0.052+/-0.002 | attack detection 1.000+/-0.000
+    site alpha=0.1   Macro-F1 0.897+/-0.000 | Acc 0.927+/-0.000 | benign FPR 0.102+/-0.004 | attack detection 1.000+/-0.000
+  Leave-one-attack-class-out (5 held-out classes x 3 seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):
+    iforest      AUROC clf 1.000 | detector 0.829 | fused 0.998   ||  detection at ~5% benign FPR: clf 1.000 (FPR 0.048), detector 0.073 (FPR 0.046), fused 1.000 (FPR 0.048)
+    mahalanobis  AUROC clf 1.000 | detector 1.000 | fused 0.998   ||  detection at ~5% benign FPR: clf 1.000 (FPR 0.048), detector 1.000 (FPR 0.052), fused 1.000 (FPR 0.051)
+    Verdict (iforest): UNINFORMATIVE: the classifier alone already separates the held-out classes (AUROC > 0.99), so there is nothing for the detector to add (ceiling effect); do not read it as support or as refutation.
+    Verdict (mahalanobis): UNINFORMATIVE: the classifier alone already separates the held-out classes (AUROC > 0.99), so there is nothing for the detector to add (ceiling effect); do not read it as support or as refutation.
+
+-- unsw: 3 seed(s)
+  lgbm         Acc 0.673+/-0.002  Macro-F1 0.521+/-0.006  MCC 0.577+/-0.002
+  mlp          Acc 0.601+/-0.007  Macro-F1 0.386+/-0.010  MCC 0.488+/-0.010
+  rf           Acc 0.670+/-0.003  Macro-F1 0.504+/-0.002  MCC 0.575+/-0.003
+  Classifier decision (LightGBM): argmax vs site-calibrated Normal threshold (commissioning window = 10% of clean test-domain Normal flows, held out):
+    argmax           Macro-F1 0.526+/-0.006 | Acc 0.677+/-0.002 | benign FPR 0.386+/-0.005 | attack detection 0.989+/-0.004
+    site alpha=0.02  Macro-F1 0.542+/-0.004 | Acc 0.816+/-0.002 | benign FPR 0.020+/-0.001 | attack detection 0.676+/-0.011
+    site alpha=0.05  Macro-F1 0.549+/-0.002 | Acc 0.818+/-0.003 | benign FPR 0.050+/-0.000 | attack detection 0.755+/-0.013
+    site alpha=0.1   Macro-F1 0.550+/-0.004 | Acc 0.807+/-0.003 | benign FPR 0.100+/-0.000 | attack detection 0.836+/-0.012
+  Leave-one-attack-class-out (5 held-out classes x 3 seeds; classifier trained WITHOUT the class; all scorers compared at the same benign false-alarm rate):
+    iforest      AUROC clf 0.921 | detector 0.679 | fused 0.903   ||  detection at ~5% benign FPR: clf 0.527 (FPR 0.049), detector 0.155 (FPR 0.050), fused 0.500 (FPR 0.050)
+    mahalanobis  AUROC clf 0.921 | detector 0.726 | fused 0.903   ||  detection at ~5% benign FPR: clf 0.527 (FPR 0.049), detector 0.185 (FPR 0.050), fused 0.505 (FPR 0.049)
+    Verdict (iforest): novelty fusion NOT confirmed (detection -0.03, AUROC -0.018 vs the classifier at matched FPR): do not claim it generalises.
+    Verdict (mahalanobis): novelty fusion NOT confirmed (detection -0.02, AUROC -0.018 vs the classifier at matched FPR): do not claim it generalises.
 
 ====================================================================================================
 10. BOTTOM LINE
 ====================================================================================================
-  * Best overall detector: LightGBM (class-aware MI) (Macro-F1 0.634+/-0.024, accuracy 0.776+/-0.019); best rare-class (U2R) recall: CNN only (0.642+/-0.015).
-  * Unseen attack types are the main weakness of supervised models; the novelty fusion raises unseen-type detection to 0.65 (LightGBM (global MI)) at +0.3 points of benign false alarms and +0.4 points of seen-type detection.
+  * Best classifier alone (before novelty fusion): LightGBM (class-aware MI) (Macro-F1 0.634+/-0.024, accuracy 0.776+/-0.019); best rare-class (U2R) recall: CNN only (0.642+/-0.015). Differences between the top models are within seed noise; the deep models do not beat gradient boosting.
   * Trust: the original confidence-only rule detects 0% of compromised devices; the class-aware CUSUM rule detects 100% (median 2 rounds), with 0.0% false quarantines on a heterogeneous fleet using per-device baselines; the proved bounds held empirically: True.
   * Ledger: mean tamper detection hash chain only 17%, + signatures 67%, + signatures + anchors 91% (signatures + external anchors needed; it is an audit log, not a blockchain).
-  * Privacy: formal DP-SGD (eps 1-8) lowers Macro-F1 from 0.62 to about 0.45 and U2R recall from 0.34 to 0.00: report it as a privacy-utility trade-off.
-  * NOT YET ESTABLISHED: generalisation beyond NSL-KDD (no additional dataset has been run: use --unsw-train/--unsw-test/--edge); trust results are a replay simulation, not a deployment.
+  * Privacy: formal DP-SGD (eps 1-50) lowers Macro-F1 from 0.62 to 0.45-0.48 and U2R recall from 0.34 to 0.00: report it as a privacy-utility trade-off.
+  * Best system on NSL-KDD (not confirmed externally): LightGBM (class-aware MI) [mahalanobis, site-calibrated threshold] + CUSUM trust: Macro-F1 0.707+/-0.004 (classifier alone 0.632+/-0.025), benign FPR 0.038+/-0.001 (+0.9 points vs alone), unseen-type detection 0.63+/-0.01 (alone 0.30+/-0.13), seen-type detection 0.94+/-0.01.
+    Best strict configuration (no test-domain data used for any threshold): LightGBM (class-aware MI) [mahalanobis, validation threshold], Macro-F1 0.704+/-0.022, seen 0.89+/-0.03, unseen 0.59+/-0.02, benign FPR 0.035+/-0.002. The site-calibrated and detector choices were made after inspecting NSL-KDD results: confirm on UNSW-NB15 / Edge-IIoTset.
+    The a-priori hybrid ensemble reached Macro-F1 0.645+/-0.013 with iforest fusion, i.e. it did not beat the best single model; report it as a negative result.
+  * Site-calibrated decision (alpha=5%, LightGBM; helps where the argmax benign FPR is off): edge: acc 94.1% -> 93.4%, benign FPR 0.0% -> 5.2%; unsw: acc 67.7% -> 81.8%, benign FPR 38.6% -> 5.0%; nsl-kdd: acc 76.7% -> 81.3%, benign FPR 2.9% -> 5.0%.
+  * Novelty fusion on external data (matched FPR): edge/iforest UNINFORMATIVE, edge/mahalanobis UNINFORMATIVE, unsw/iforest NOT, unsw/mahalanobis NOT. Its NSL-KDD gain is therefore dataset-specific; present it as such.
+  * Detector ranking: Mahalanobis beats IsolationForest by AUROC on NSL-KDD (0.966 vs 0.942) and on 2 of 2 external datasets.
+  * Not established: trust results are a replay simulation, not a deployment; CNN-BiLSTM was not evaluated on the external datasets.

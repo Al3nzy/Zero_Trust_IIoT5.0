@@ -1,59 +1,51 @@
 #!/usr/bin/env python3
 """
-MASTER SCRIPT. Run this file; it executes every experiment stage in order, never aborts on one failed stage, and writes a status report.
+MASTER SCRIPT (v3, LightGBM-based, no TensorFlow needed).  Run from the repository root.
 
-    python run_everything.py --quick          # smoke test (tiny data, ~15-30 min on a laptop CPU): verifies the whole pipeline
-    python run_everything.py                  # full run (hours; much faster with a GPU for the detector/DP stages)
-    python run_everything.py --only trust theory ledger tables figures      # re-run selected stages
-    python run_everything.py --skip dp latency                              # skip slow stages
-    python run_everything.py --unsw-train UNSW_NB15_training-set.csv --unsw-test UNSW_NB15_testing-set.csv \
-                             --edge ML-EdgeIIoT-dataset.csv                 # also run the additional-dataset stage
+    python verify_install.py                  # 10-second check of the environment and the e-detector
+    python -m pytest -q tests                 # unit tests of the guarantees (about 10-30 seconds)
+    python run_everything.py --quick          # whole pipeline on a small scale (about 10-15 minutes on one core)
+    python run_everything.py                  # full run (about 1.5-2 hours on one core; stages are cached and resumable)
+    python run_everything.py --only trust theory assets      # re-run selected stages
+    python run_everything.py --skip inflation latency        # skip slow stages
 
-Stages (in order): detector novelty novel trust theory ledger dp shap latency extra tables figures report
-(the final 'report' prints the overall results summary and run times at the very end of the log; `--only report` re-prints it from saved results)
-Finished jobs are cached in results_v2/ (or results_v2_quick/), so an interrupted run resumes where it stopped.
+Stages, in order:
+  core       audited NSL-KDD protocol, LightGBM + three Normal-profile detectors, 10 seeds        -> results_v3/core_s*.npz|json
+  site       argmax / site-calibrated / Algorithm 1 / fusion, paired statistics                    -> results_v3/site.json
+  selection  validation-only choice of the Normal-profile detector                                -> results_v3/selection.json
+  inflation  one-factor ablation ladder of evaluation flaws (3 seeds; slowest stage)               -> results_v3/inflation_nsl.json
+  trust      device-trust study: 9 rules, stress modes, contamination, stealth sweep               -> results_v3/trust_main.json
+  theory     numerical validation of the guarantees (CUSUM, e-detector, delay law)                -> results_v3/theory.json
+  sensitivity  commissioning length, level, flows per round, betting function                      -> results_v3/sensitivity.json
+  ledger     tamper-detection experiment of the audit ledger                                       -> results_v3/ledger.json
+  latency    per-round cost on ONE CPU thread (run on an idle machine / on the edge board)         -> results_v3/latency.json
+  assets     tables, figures and numbers.tex of the manuscript                                     -> paper_v3/
+Deep-model, DP-SGD, SHAP and extra-dataset stages are in legacy/ (TensorFlow).  Inflation on UNSW-NB15 / Edge-IIoTset:  see README (python run_inflation.py generic ...).
 """
 import argparse, json, os, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__))
-STAGES = ["detector", "novelty", "novel", "trust", "theory", "ledger", "dp", "shap", "latency", "extra", "tables", "figures", "report"]
-SCRIPT = dict(detector="run_detector.py", novelty="run_novelty.py", novel="run_novel.py", trust="run_trust.py", theory="run_theory.py", ledger="run_ledger.py", dp="run_dp.py",
-              shap="run_shap.py", latency="run_latency.py", tables="make_tables.py", figures="make_figs.py", report="make_report.py")
+STAGES = ["core", "site", "selection", "inflation", "trust", "theory", "sensitivity", "ledger", "latency", "assets"]
+SCRIPT = dict(core="run_core.py", site="run_site.py", selection="run_selection.py", inflation="run_inflation.py", trust="run_trust.py", theory="run_theory.py",
+              sensitivity="run_sensitivity.py", ledger="run_ledger.py", latency="run_latency.py", assets=os.path.join("paper_v3", "make_paper_assets.py"))
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 ap.add_argument("--quick", action="store_true"); ap.add_argument("--only", nargs="*", choices=STAGES); ap.add_argument("--skip", nargs="*", default=[], choices=STAGES)
-ap.add_argument("--seeds", nargs="*", type=int); ap.add_argument("--npc", type=int); ap.add_argument("--epochs", type=int); ap.add_argument("--threads", type=int)
-ap.add_argument("--unsw-train"); ap.add_argument("--unsw-test"); ap.add_argument("--edge"); ap.add_argument("--edge-max-rows", type=int, default=120000)
-a = ap.parse_args()
-env = dict(os.environ)
+a = ap.parse_args(); env = dict(os.environ)
 if a.quick: env["ZTIDS_QUICK"] = "1"
-if a.seeds: env["ZTIDS_SEEDS"] = ",".join(map(str, a.seeds))
-if a.npc: env["ZTIDS_NPC"] = str(a.npc)
-if a.epochs: env["ZTIDS_EPOCHS"] = str(a.epochs)
-if a.threads is not None: env["ZTIDS_THREADS"] = str(a.threads)
-res = os.path.join(HERE, "results_v2_quick" if a.quick else "results_v2"); os.makedirs(res, exist_ok=True)
-todo = [s for s in (a.only or STAGES) if s not in a.skip]
-spath = os.path.join(res, "pipeline_status.json")
-status = json.load(open(spath)) if os.path.exists(spath) else {}      # merged, so a partial re-run never erases earlier stage timings
-run_now = [s for s in todo if s != "report"]; t_all = time.time()
-for st in run_now:
+res = os.environ.get("ZTIDS_RES") or os.path.join(HERE, "results_v3_quick" if a.quick else "results_v3"); os.makedirs(res, exist_ok=True); env["ZTIDS_RES"] = res
+EST = dict(core='about 1 min per seed', site='1-2 min', selection='seconds', inflation='about 4 min per seed (5 preprocessing fits each)', trust='about 2 min (quick) / 6 min (full)', theory='1-2 min',
+           sensitivity='1-3 min', ledger='1-3 min', latency='about 1 min, run on an idle machine', assets='seconds')
+todo = [s for s in (a.only or STAGES) if s not in a.skip and not (a.quick and s == "assets")]       # quick results never overwrite the manuscript tables
+if a.quick: print("quick mode: the `assets` stage is skipped so that small-scale numbers cannot overwrite the manuscript tables")
+spath = os.path.join(res, "pipeline_status.json"); status = json.load(open(spath)) if os.path.exists(spath) else {}; t_all = time.time()
+for st in todo:
     t0 = time.time(); print(f"\n{'=' * 78}\n== stage: {st}\n{'=' * 78}", flush=True)
-    if st == "extra":
-        cmds = []
-        if a.unsw_train and a.unsw_test: cmds.append(["unsw", "--train", a.unsw_train, "--test", a.unsw_test])
-        if a.edge: cmds.append(["edge", "--train", a.edge, "--max-rows", str(a.edge_max_rows)])
-        if not cmds: print("no --unsw-train/--unsw-test/--edge given: stage skipped"); status[st] = "skipped (no dataset paths given)"; continue
-        rc = 0
-        for c in cmds:
-            extra = ["--seeds", *(map(str, a.seeds or ([0] if a.quick else [0, 1, 2])))] + (["--npc", "300", "--epochs", "2"] if a.quick else [])
-            rc |= subprocess.run([sys.executable, os.path.join(HERE, "run_dataset.py"), *c, *extra], env=env, cwd=HERE).returncode
-    else:
-        rc = subprocess.run([sys.executable, os.path.join(HERE, SCRIPT[st])], env=env, cwd=HERE).returncode
-    status[st] = ("ok" if rc == 0 else f"FAILED (exit {rc})") + f" [{time.time() - t0:.0f}s]"
-    json.dump(status, open(os.path.join(res, "pipeline_status.json"), "w"), indent=1)
+    cmd = [sys.executable, os.path.join(HERE, SCRIPT[st])] + (["nsl"] if st == "inflation" else [])
+    print(f"expected time: {EST[st]}. Some steps print nothing for a minute; do not press Ctrl+C. If you do, run the same command again: finished stages are kept.", flush=True)
+    try: rc = subprocess.run(cmd, env=env, cwd=HERE).returncode
+    except KeyboardInterrupt:
+        status[st] = "interrupted"; json.dump(status, open(spath, "w"), indent=1); print(f"\nInterrupted during stage {st}. Run the same command again to resume (finished stages and finished seeds are cached)."); sys.exit(130)
+    status[st] = ("ok" if rc == 0 else f"FAILED (exit {rc})") + f" [{time.time() - t0:.0f}s]"; json.dump(status, open(spath, "w"), indent=1)
 print(f"\n{'=' * 78}\nPIPELINE SUMMARY  (total {(time.time() - t_all) / 60:.1f} min)\n{'=' * 78}")
-for k in run_now: print(f"  {k:10s} {status.get(k, '-')}")
-tab, fig = ("tables_quick", "figures_quick") if a.quick else ("tables", "figures")
-print(f"\nResults: {os.path.relpath(res, HERE)}/   Tables: {tab}/tables.tex + summary.md   Figures: {fig}/")
-ok = all(str(status.get(k, "ok")).startswith(("ok", "skipped")) for k in run_now)
-if "report" in todo:
-    subprocess.run([sys.executable, os.path.join(HERE, "make_report.py")], env=env, cwd=HERE)      # final overall results + run times, printed last
-sys.exit(0 if ok else 1)
+for k in todo: print(f"  {k:12s} {status.get(k, '-')}")
+print(f"\nResults: {os.path.relpath(res, HERE)}/")
+sys.exit(0 if all(str(status.get(k, "ok")).startswith("ok") for k in todo) else 1)

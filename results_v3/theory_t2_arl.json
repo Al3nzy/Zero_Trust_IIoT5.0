@@ -1,0 +1,7 @@
+{
+ "c": 50.0,
+ "censored_at": 2000,
+ "mean_time_to_first_alarm_lower_estimate": 228.2,
+ "n": 500,
+ "share_censored": 0.0
+}

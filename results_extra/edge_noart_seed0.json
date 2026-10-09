@@ -1,0 +1,1338 @@
+{
+ "version": 3,
+ "preset": "edge_noart",
+ "seed": 0,
+ "audit": {
+  "corpus_rows": 157800,
+  "exact_duplicates_removed": 141514,
+  "classes_dropped_lt10": [
+   "Password",
+   "DDoS_TCP"
+  ],
+  "test_overlap_after_split": 0,
+  "counts": {
+   "fit": {
+    "DDoS_UDP": 9858,
+    "Vulnerability_scanner": 490,
+    "Normal": 269,
+    "SQL_injection": 106,
+    "DDoS_HTTP": 86,
+    "MITM": 79,
+    "Backdoor": 60,
+    "Fingerprinting": 60,
+    "XSS": 21,
+    "Ransomware": 19,
+    "Uploading": 19
+   },
+   "val": {
+    "DDoS_UDP": 1740,
+    "Vulnerability_scanner": 87,
+    "Normal": 48,
+    "SQL_injection": 19,
+    "DDoS_HTTP": 15,
+    "MITM": 14,
+    "Backdoor": 11,
+    "Fingerprinting": 10,
+    "XSS": 4,
+    "Uploading": 3,
+    "Ransomware": 3
+   },
+   "test": {
+    "DDoS_UDP": 2900,
+    "Vulnerability_scanner": 144,
+    "Normal": 80,
+    "SQL_injection": 31,
+    "DDoS_HTTP": 25,
+    "MITM": 23,
+    "Backdoor": 18,
+    "Fingerprinting": 18,
+    "XSS": 7,
+    "Ransomware": 5,
+    "Uploading": 5
+   }
+  },
+  "classes": [
+   "Backdoor",
+   "DDoS_HTTP",
+   "DDoS_UDP",
+   "Fingerprinting",
+   "MITM",
+   "Normal",
+   "Ransomware",
+   "SQL_injection",
+   "Uploading",
+   "Vulnerability_scanner",
+   "XSS"
+  ],
+  "selected_features": [
+   "icmp.transmit_timestamp",
+   "http.content_length",
+   "http.request.method=0",
+   "http.request.method=0.0",
+   "http.request.method=GET",
+   "http.referer=0",
+   "http.referer=0.0",
+   "http.request.version=0",
+   "http.request.version=0.0",
+   "http.request.version=HTTP/1.1",
+   "tcp.flags",
+   "tcp.flags.ack",
+   "tcp.len",
+   "udp.stream",
+   "udp.time_delta",
+   "dns.qry.name",
+   "dns.qry.name.len=0",
+   "dns.qry.name.len=0.0",
+   "dns.qry.qu",
+   "mqtt.conack.flags=0",
+   "mqtt.conack.flags=0.0",
+   "mqtt.protoname=0",
+   "mqtt.protoname=0.0",
+   "mqtt.topic=0",
+   "mqtt.topic=0.0"
+  ]
+ },
+ "models": {
+  "lgbm": {
+   "test": {
+    "acc": 0.9923218673218673,
+    "macro_f1": 0.8505314523047406,
+    "mcc": 0.9623873257983613,
+    "n": 3256,
+    "per_class": {
+     "Backdoor": {
+      "p": 0.9090909090909091,
+      "r": 0.5555555555555556,
+      "f1": 0.6896551724137931,
+      "n": 18
+     },
+     "DDoS_HTTP": {
+      "p": 0.9047619047619048,
+      "r": 0.76,
+      "f1": 0.8260869565217391,
+      "n": 25
+     },
+     "DDoS_UDP": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 2900
+     },
+     "Fingerprinting": {
+      "p": 1.0,
+      "r": 0.8888888888888888,
+      "f1": 0.9411764705882353,
+      "n": 18
+     },
+     "MITM": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 23
+     },
+     "Normal": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 80
+     },
+     "Ransomware": {
+      "p": 0.3333333333333333,
+      "r": 0.8,
+      "f1": 0.47058823529411764,
+      "n": 5
+     },
+     "SQL_injection": {
+      "p": 1.0,
+      "r": 0.9354838709677419,
+      "f1": 0.9666666666666667,
+      "n": 31
+     },
+     "Uploading": {
+      "p": 0.7142857142857143,
+      "r": 1.0,
+      "f1": 0.8333333333333334,
+      "n": 5
+     },
+     "Vulnerability_scanner": {
+      "p": 0.965034965034965,
+      "r": 0.9583333333333334,
+      "f1": 0.9616724738675958,
+      "n": 144
+     },
+     "XSS": {
+      "p": 0.5,
+      "r": 1.0,
+      "f1": 0.6666666666666666,
+      "n": 7
+     }
+    },
+    "cm": [
+     [
+      10,
+      1,
+      0,
+      0,
+      0,
+      0,
+      7,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      19,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      2
+     ],
+     [
+      0,
+      0,
+      2900,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      16,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      23,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      80,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      2,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0
+     ],
+     [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      138,
+      5
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7
+     ]
+    ]
+   },
+   "train_s": 10.2,
+   "site_decision": {
+    "argmax": {
+     "macro_f1": 0.8505314523047407,
+     "acc": 0.9923029556650246,
+     "mcc": 0.961576658463294,
+     "fpr": 0.0,
+     "attack_det": 1.0
+    },
+    "0.02": null,
+    "0.05": null,
+    "0.1": null
+   }
+  },
+  "rf": {
+   "test": {
+    "acc": 0.9932432432432432,
+    "macro_f1": 0.8572845987980258,
+    "mcc": 0.966936405472874,
+    "n": 3256,
+    "per_class": {
+     "Backdoor": {
+      "p": 0.8571428571428571,
+      "r": 0.6666666666666666,
+      "f1": 0.75,
+      "n": 18
+     },
+     "DDoS_HTTP": {
+      "p": 1.0,
+      "r": 0.76,
+      "f1": 0.8636363636363636,
+      "n": 25
+     },
+     "DDoS_UDP": {
+      "p": 1.0,
+      "r": 0.9996551724137931,
+      "f1": 0.9998275564752543,
+      "n": 2900
+     },
+     "Fingerprinting": {
+      "p": 0.9444444444444444,
+      "r": 0.9444444444444444,
+      "f1": 0.9444444444444444,
+      "n": 18
+     },
+     "MITM": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 23
+     },
+     "Normal": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 80
+     },
+     "Ransomware": {
+      "p": 0.3,
+      "r": 0.6,
+      "f1": 0.4,
+      "n": 5
+     },
+     "SQL_injection": {
+      "p": 1.0,
+      "r": 0.9354838709677419,
+      "f1": 0.9666666666666667,
+      "n": 31
+     },
+     "Uploading": {
+      "p": 0.7142857142857143,
+      "r": 1.0,
+      "f1": 0.8333333333333334,
+      "n": 5
+     },
+     "Vulnerability_scanner": {
+      "p": 0.9722222222222222,
+      "r": 0.9722222222222222,
+      "f1": 0.9722222222222222,
+      "n": 144
+     },
+     "XSS": {
+      "p": 0.5384615384615384,
+      "r": 1.0,
+      "f1": 0.7,
+      "n": 7
+     }
+    },
+    "cm": [
+     [
+      12,
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      19,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      2
+     ],
+     [
+      0,
+      0,
+      2899,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      17,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      23,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      80,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      2,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      140,
+      4
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7
+     ]
+    ]
+   },
+   "train_s": 3.7,
+   "site_decision": {
+    "argmax": {
+     "macro_f1": 0.8572845987980257,
+     "acc": 0.9932266009852215,
+     "mcc": 0.9662248272098178,
+     "fpr": 0.0,
+     "attack_det": 1.0
+    },
+    "0.02": null,
+    "0.05": null,
+    "0.1": null
+   }
+  },
+  "mlp": {
+   "test": {
+    "acc": 0.9907862407862408,
+    "macro_f1": 0.8315491522111252,
+    "mcc": 0.954751516428781,
+    "n": 3256,
+    "per_class": {
+     "Backdoor": {
+      "p": 0.9,
+      "r": 0.5,
+      "f1": 0.6428571428571429,
+      "n": 18
+     },
+     "DDoS_HTTP": {
+      "p": 1.0,
+      "r": 0.84,
+      "f1": 0.9130434782608695,
+      "n": 25
+     },
+     "DDoS_UDP": {
+      "p": 0.9989665862900448,
+      "r": 1.0,
+      "f1": 0.9994830260210236,
+      "n": 2900
+     },
+     "Fingerprinting": {
+      "p": 1.0,
+      "r": 0.7777777777777778,
+      "f1": 0.875,
+      "n": 18
+     },
+     "MITM": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 23
+     },
+     "Normal": {
+      "p": 1.0,
+      "r": 1.0,
+      "f1": 1.0,
+      "n": 80
+     },
+     "Ransomware": {
+      "p": 0.2857142857142857,
+      "r": 0.8,
+      "f1": 0.42105263157894735,
+      "n": 5
+     },
+     "SQL_injection": {
+      "p": 1.0,
+      "r": 0.9354838709677419,
+      "f1": 0.9666666666666667,
+      "n": 31
+     },
+     "Uploading": {
+      "p": 0.7142857142857143,
+      "r": 1.0,
+      "f1": 0.8333333333333334,
+      "n": 5
+     },
+     "Vulnerability_scanner": {
+      "p": 0.9852941176470589,
+      "r": 0.9305555555555556,
+      "f1": 0.9571428571428572,
+      "n": 144
+     },
+     "XSS": {
+      "p": 0.3684210526315789,
+      "r": 1.0,
+      "f1": 0.5384615384615384,
+      "n": 7
+     }
+    },
+    "cm": [
+     [
+      9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      21,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      2
+     ],
+     [
+      0,
+      0,
+      2900,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      3,
+      14,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      23,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      80,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      2,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      134,
+      10
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7
+     ]
+    ]
+   },
+   "train_s": 42.5,
+   "site_decision": {
+    "argmax": {
+     "macro_f1": 0.8315491522111251,
+     "acc": 0.9907635467980294,
+     "mcc": 0.9537725100017468,
+     "fpr": 0.0,
+     "attack_det": 1.0
+    },
+    "0.02": null,
+    "0.05": null,
+    "0.1": null
+   }
+  }
+ },
+ "loo": {
+  "DDoS_UDP": {
+   "n_test": 2900,
+   "strict": {
+    "iforest": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 0.999551724137931,
+      "fused": 0.9874999999999999
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "fused": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       },
+       "det": {
+        "det_heldout": 0.9920689655172413,
+        "fpr": 0.025,
+        "det_other": 0.10144927536231885
+       },
+       "fused": {
+        "det_heldout": 1.0,
+        "fpr": 0.025,
+        "det_other": 1.0
+       }
+      }
+     }
+    },
+    "mahalanobis": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 1.0,
+      "fused": 0.99375
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "fused": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       },
+       "det": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       },
+       "fused": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       }
+      }
+     }
+    }
+   },
+   "site": {
+    "iforest": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 0.9995766283524905,
+      "fused": 0.9020833333333333
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      }
+     }
+    },
+    "mahalanobis": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 1.0,
+      "fused": 0.9020833333333332
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      }
+     }
+    }
+   }
+  },
+  "Vulnerability_scanner": {
+   "n_test": 144,
+   "strict": {
+    "iforest": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 0.9375,
+      "fused": 0.9874999999999999
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "fused": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": 1.0,
+        "fpr": 0.0,
+        "det_other": 1.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.025,
+        "det_other": 0.95811345646438
+       },
+       "fused": {
+        "det_heldout": 1.0,
+        "fpr": 0.025,
+        "det_other": 1.0
+       }
+      }
+     }
+    },
+    "mahalanobis": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 1.0,
+      "fused": 0.99375
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "fused": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": 1.0,
+        "fpr": 0.0,
+        "det_other": 1.0
+       },
+       "det": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       },
+       "fused": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       }
+      }
+     }
+    }
+   },
+   "site": {
+    "iforest": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 0.9375,
+      "fused": 0.8986111111111112
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      }
+     }
+    },
+    "mahalanobis": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 1.0,
+      "fused": 0.9006944444444447
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      }
+     }
+    }
+   }
+  },
+  "SQL_injection": {
+   "n_test": 31,
+   "strict": {
+    "iforest": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 0.9395161290322581,
+      "fused": 0.9875
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "fused": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": 1.0,
+        "fpr": 0.0,
+        "det_other": 1.0
+       },
+       "det": {
+        "det_heldout": 0.03225806451612903,
+        "fpr": 0.025,
+        "det_other": 0.9233704292527822
+       },
+       "fused": {
+        "det_heldout": 1.0,
+        "fpr": 0.025,
+        "det_other": 1.0
+       }
+      }
+     }
+    },
+    "mahalanobis": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 1.0,
+      "fused": 0.9937499999999999
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "det": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       },
+       "fused": {
+        "det_heldout": 0.0,
+        "fpr": 0.0,
+        "det_other": 0.0
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": 1.0,
+        "fpr": 0.0,
+        "det_other": 1.0
+       },
+       "det": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       },
+       "fused": {
+        "det_heldout": 1.0,
+        "fpr": 0.0125,
+        "det_other": 1.0
+       }
+      }
+     }
+    }
+   },
+   "site": {
+    "iforest": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 0.939516129032258,
+      "fused": 0.9
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      }
+     }
+    },
+    "mahalanobis": {
+     "auroc": {
+      "clf": 1.0,
+      "det": 1.0,
+      "fused": 0.9
+     },
+     "alpha": {
+      "0.02": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      },
+      "0.05": {
+       "clf": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "det": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       },
+       "fused": {
+        "det_heldout": null,
+        "fpr": null,
+        "det_other": null
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

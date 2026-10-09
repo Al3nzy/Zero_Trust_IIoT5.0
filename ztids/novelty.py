@@ -1,29 +1,44 @@
 """
-Normal-profile novelty detector (isolation forest fitted on Normal training flows only) and its fusion with the supervised classifier.
+Normal-profile novelty detectors (fitted on Normal training flows only) and their fusion with the supervised classifier.
 
-Why: a supervised classifier only recognises attack families it was trained on, while a zero-trust layer must also react to behaviour
-that deviates from the device's normal profile. The anomaly threshold is set on VALIDATION Normal flows (target false-alarm rate), never on
-test data. Fusion rule: a flow is an attack if the classifier says so OR the novelty detector flags it; flows flagged only by the novelty
-detector are labelled with the most probable attack class and carry the 'unknown' severity w_u in the trust evidence.
+Why: a supervised classifier only recognises attack families it was trained on, while a zero-trust layer must also react to behaviour that
+deviates from the normal profile. Every threshold is set on VALIDATION Normal flows (target false-alarm rate), never on test data.
+Kinds: 'iforest' (default, a-priori choice), 'mahalanobis' (Gaussian profile, Ledoit-Wolf covariance), 'iforest+mahalanobis' (rank average).
+NOTE: kNN-distance was evaluated and rejected: best validation AUROC but worst test AUROC under distribution shift (see make_report.py section 3).
+Fusion rule: a flow is an attack if the classifier says so OR the detector flags it; flows flagged only by the detector are labelled with the
+most probable attack class and carry the 'unknown' severity w_u in the trust evidence.
 """
 import numpy as np
 from sklearn.ensemble import IsolationForest
+from sklearn.covariance import LedoitWolf
 from .trust import SEVERITY
+
+KINDS = ("iforest", "mahalanobis", "iforest+mahalanobis")
 
 
 class NormalProfile:
-    def __init__(self, fpr=0.02, n_estimators=300, max_samples=256, max_fit=30000, seed=0):
-        self.fpr, self.n_estimators, self.max_samples, self.max_fit, self.seed = fpr, n_estimators, max_samples, max_fit, seed
+    def __init__(self, fpr=0.02, kind="iforest", n_estimators=300, max_samples=256, max_fit=30000, seed=0):
+        assert kind in KINDS, kind
+        self.fpr, self.kind, self.n_estimators, self.max_samples, self.max_fit, self.seed = fpr, kind, n_estimators, max_samples, max_fit, seed
+
+    def _raw(self, X, which):
+        if which == "iforest": return -self.f_.score_samples(X)
+        return self.lw_.mahalanobis(X)
 
     def fit(self, X_normal_fit, X_normal_val):
         rng = np.random.RandomState(self.seed)
         Xn = X_normal_fit[rng.choice(len(X_normal_fit), min(self.max_fit, len(X_normal_fit)), replace=False)]
-        self.f_ = IsolationForest(n_estimators=self.n_estimators, max_samples=self.max_samples, random_state=self.seed, n_jobs=-1).fit(Xn)
+        self.parts_ = ["iforest", "mahalanobis"] if self.kind == "iforest+mahalanobis" else [self.kind]
+        if "iforest" in self.parts_: self.f_ = IsolationForest(n_estimators=self.n_estimators, max_samples=self.max_samples, random_state=self.seed, n_jobs=-1).fit(Xn)
+        if "mahalanobis" in self.parts_: self.lw_ = LedoitWolf().fit(Xn)
+        # reference distribution of each component on validation Normal flows (used to rank-normalise and to set the threshold)
+        self.ref_ = {p: np.sort(self._raw(X_normal_val, p)) for p in self.parts_}
         self.thr_ = float(np.quantile(self.score(X_normal_val), 1 - self.fpr))
         return self
 
     def score(self, X):
-        return -self.f_.score_samples(X)
+        if len(self.parts_) == 1: return self._raw(X, self.parts_[0])
+        return np.mean([np.searchsorted(self.ref_[p], self._raw(X, p)) / len(self.ref_[p]) for p in self.parts_], 0)
 
     def flag(self, X):
         return self.score(X) > self.thr_

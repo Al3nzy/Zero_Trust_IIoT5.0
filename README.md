@@ -1,95 +1,54 @@
-# ztids: leakage-free adaptive zero-trust intrusion detection for IIoT
+# Anytime-valid zero-trust intrusion detection for Industrial IoT
 
-## Which file to run
-**`run_everything.py`**. It is the only file you need to launch. It runs every experiment stage in order, keeps going if one stage fails,
-caches finished jobs (an interrupted run resumes), and finally builds all manuscript tables and figures.
+Code for *Anytime-Valid Zero-Trust Intrusion Detection for Industrial IoT: Site-Calibrated Decisions and Conformal Device Trust on Audited Benchmarks*.
+The pipeline (v3) needs **no TensorFlow**: the primary classifier is a deterministic LightGBM model, the statistical layers are NumPy/SciPy.
 
-## 1. Set up (once)
-```bash
-python -m venv .venv && source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt                          # use tensorflow-cpu if you have no GPU
-```
-The NSL-KDD files are already in `data/`.
+What it contains
+- an **audited evaluation protocol** and a one-factor **leakage-inflation ladder** (`run_inflation.py`);
+- **site-calibrated decisions** with a union-bound false-alarm guarantee (Algorithm 1, `run_site.py`);
+- a **conformal e-detector for device trust** (`ztids/edetector.py`) with ARL, horizon and delay-law guarantees, a flow-level variant and a mode-conditional (Mondrian) variant;
+- a device-stream simulator on real classifier outputs (`ztids/devices.py`), nine trust rules, stress tests (`run_trust.py`), numerical validation of the theory (`run_theory.py`);
+- a signed, anchored audit ledger (`ztids/ledger.py`), a latency stage, and `run_traces.py` to evaluate the rules on **your own time-ordered traces**.
 
-## 2. Check that everything works (smoke test, tiny data)
-```bash
-python run_everything.py --quick
-```
-Uses a few hundred samples per class and 2 epochs, writes to `results_v2_quick/`, `tables_quick/`, `figures_quick/`.
-The numbers from this run are meaningless; it only proves every stage executes. It ends with a summary showing `ok` or `FAILED` per stage.
+## Test it in VS Code (about 20 minutes in total)
+1. Open the folder in VS Code. Use Python 3.10 to 3.13.
+2. Create the environment and install (terminal in VS Code):
+   - Windows PowerShell: `py -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt`
+   - macOS / Linux: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`
+   Then select the interpreter (Ctrl+Shift+P, "Python: Select Interpreter", `.venv`).
+3. Run the tasks from *Terminal > Run Task* (they are defined in `.vscode/tasks.json`), or the commands below:
 
-## 3. Full run
-```bash
-python run_everything.py
-```
-Results go to `results_v2/` (a NEW folder, so results cached by an older version of this code are never reused), tables to `tables/tables.tex` + `tables/summary.md`, figures to `figures/`.
-Measured on a single CPU core: one CNN-BiLSTM job takes about 12 minutes, and the full run trains roughly 35 neural models
-(plus DP-SGD), i.e. many hours on a 1-core machine. A multi-core CPU or a GPU shortens this a lot. DP-SGD is the slowest stage: use
-`--skip dp` first, then run it alone later (`python run_everything.py --only dp`, optionally with `ZTIDS_DP_N=30000` to subsample).
-
-Useful options
-```bash
-python run_everything.py --only trust theory ledger tables figures   # re-run only some stages (all stages: detector novelty novel trust theory ledger dp shap latency extra tables figures)
-python run_everything.py --skip dp latency                          # skip slow stages
-python run_everything.py --seeds 0 1 2 3 4                          # more seeds (seed 0 is always included)
-python run_everything.py --threads 8                                # TensorFlow threads (default: automatic)
-```
-Run the `latency` stage alone on an otherwise idle machine (it forces 1 thread so plain and attention models are timed identically).
-
-## 4. Additional datasets (UNSW-NB15, Edge-IIoTset)
-Download the files yourself, then:
-```bash
-python run_everything.py --only extra --unsw-train UNSW_NB15_training-set.csv --unsw-test UNSW_NB15_testing-set.csv --edge ML-EdgeIIoT-dataset.csv
-# or directly:
-python run_dataset.py unsw --train UNSW_NB15_training-set.csv --test UNSW_NB15_testing-set.csv --seeds 0 1 2
-python run_dataset.py edge --train ML-EdgeIIoT-dataset.csv --seeds 0 1 2 --max-rows 120000
-```
-Results land in `results_extra/` and appear in `tables/tables.tex` (tab:extra) after `python run_everything.py --only tables`.
-The presets in `run_dataset.py` assume the usual column names (`attack_cat` for UNSW-NB15, `Attack_type` for Edge-IIoTset). Check the first
-printed line (rows, classes, overlap) and override with `--label` / `--drop` if your copy differs. This runner has only been tested on synthetic data
-with the same structure, not on the real files, so inspect the first run.
-
-## What each stage does (and which reviewer concern it answers)
-| stage | script | output | answers |
+| step | command | time | what it checks |
 |---|---|---|---|
-| detector | run_detector.py | results/*.json | train/test leakage, MI-before-split, accuracy inconsistencies, baselines (MLP/CNN/LSTM/LightGBM/RF), attention ablation, order ablation, poisoning, multi-seed statistics |
-| novelty | run_novelty.py | novelty.json, novelty_s*_f*.npz | Normal-profile (isolation-forest) novelty detector fused with each classifier; detection of attack sub-types never seen in training |
-| novel | run_novel.py | novel.json | per-sub-type recall of the classifiers alone, seen vs test-only sub-types |
-| trust | run_trust.py | trust_main.json | adaptive zero-trust validation: benign/compromised/recovery/intermittent/stealth, heterogeneous fleets, contaminated commissioning |
-| theory | run_theory.py | trust_theory.json | empirical check of the proved false-quarantine bound, delay bound, minimum detectable attack fraction |
-| ledger | run_ledger.py | ledger.json | tamper-detection of hash chain vs signatures vs anchors (blockchain claims) |
-| dp | run_dp.py | dp_*.json | formal DP-SGD with RDP accounting + membership-inference check (DP claims) |
-| shap | run_shap.py | shap.json | real SHAP interaction values (TreeSHAP surrogate), named features, faithfulness test |
-| latency | run_latency.py | latency.json | end-to-end latency, memory, throughput; plain vs attention on identical hardware |
-| extra | run_dataset.py | results_extra/ | additional datasets |
-| tables / figures | make_tables.py / make_figs.py | tables/, figures/ | every table and figure for the manuscript |
+| 1 | `python verify_install.py` | 10 s | imports, shipped NSL-KDD files, deterministic LightGBM, e-detector bound and detection, ledger |
+| 2 | `python -m pytest -q tests` | about 10-30 s | the guarantees as failing-capable tests (p-values uniform and independent, Doob bound, first-alarm equivalence under freezing, delay-law dominance, Mondrian validity, CUSUM per-round vs horizon, trace script) |
+| 3 | `python run_everything.py --quick` | 10-15 min | the whole pipeline on a small scale (2 seeds, 20 devices, 1 inflation seed) |
+| 4 | `python check_results.py --quick` | 1 s | guarantee checks on the quick results |
+| 5 | `python run_everything.py` | about 2 h on one core, resumable | full results (10 seeds; inflation 3 seeds) |
+| 6 | `python check_results.py` | 1 s | every headline number against `expected_results.json` |
 
-## Protocol (ztids/data.py), the rules that remove the leakage
-- official KDDTrain+/KDDTest+ partitions are preserved; exact duplicates removed; test rows identical to a training row are removed (and counted);
-- the validation set is carved from original training records before any resampling;
-- category vocabulary, scaler, MI feature selection and SMOTE/undersampling are fitted on the training partition only; resampling happens after the split;
-- the `difficulty` column is never a feature; all 17 test-only attack types are kept;
-- standardised features are clipped to |z| <= 5 (training-fitted scaler): the class-aware selection picks rare-event features (num_file_creations, hot, root_shell) whose z-scores reach 200, which made BatchNorm models collapse to a single class in about 40% of runs; runs that still collapse are flagged `degenerate` and counted in the tables;
-- feature selection is class-aware (per-class one-vs-rest MI), and the selected features keep canonical NSL-KDD order.
+All numbers of the manuscript are produced by `python paper_v3/make_paper_assets.py` (tables, figures, `numbers.tex`).
+If a step fails, send the printed `FAIL` lines. A finished stage is cached in `results_v3/`, so a re-run resumes where it stopped.
 
-## Version 2 changes (after the first full run)
-1. **Training collapse fixed**: z-score clipping (`ZTIDS_CLIP`, default 5) and a normalisation switch (`ZTIDS_NORM=bn|ln`, see the run summary for the default); degenerate runs are flagged.
-2. **Novelty detector added** (`ztids/novelty.py`, stage `novelty`): isolation forest on Normal training flows, threshold set on validation Normal flows. Trust evidence uses
-   harm = max(severity-weighted posterior, w_u x flag); `w_u = 0.5` is a policy choice (`ztids/evidence.py`).
-3. **Latency stage no longer fails on Windows** (the Unix-only `resource` module is now optional; `psutil` is used for memory).
-4. Trust and theory stages now also test devices compromised by attack sub-types that were never seen in training.
+## Stages (`python run_everything.py --only <stage> ...`)
+`core` (LightGBM + 3 Normal-profile detectors, 10 seeds) -> `site` -> `selection` -> `inflation` -> `trust` -> `theory` -> `sensitivity` -> `ledger` -> `latency` -> `assets`.
 
-## Things you must state in the paper (limits of this code)
-1. **Trust results are a replay simulation**: real test-set posteriors are sampled into simulated device streams (flows i.i.d. within a round). It is not a deployment.
-2. **The attention baseline is our reimplementation** (channel + temporal attention), not the original ZT-DT code.
-3. **DP scope**: the (eps, delta) guarantee is for the released weights, per original training record. It does not cover the scaler/feature selection, the class weights
-   (treated as public priors), or hyper-parameter choice. Laplace input noise (`laplace` jobs) is augmentation only and carries no DP claim.
-4. **Ledger**: a single-writer signed and anchored audit log; no consensus, no distributed replicas, so it is not a blockchain. Its trust assumptions (key kept outside the
-   log store, anchors in a separate witness) are exactly what `run_ledger.py` tests.
-5. Seeds change the validation split, resampling and initialisation; the official test set is fixed, so the std reflects training randomness only.
-6. Trust thresholds are derived from the certified bound (h = ln(1/alpha) / (8 m k)), not tuned on test data. The commissioning-window assumption (devices clean while the baseline
-   is estimated) is stress-tested in `tab:contam`.
-7. Re-check the class-severity table in `ztids/trust.py` (SEVERITY) against your threat model.
+## On your own data
+- **Inflation on UNSW-NB15 / Edge-IIoTset** (the experiment that quantifies how much duplicates and leakage inflate your scores):
+  `python run_inflation.py generic --name unsw --train UNSW_NB15_training-set.csv --test UNSW_NB15_testing-set.csv --label attack_cat --drop id label`
+  `python run_inflation.py generic --name edge --train ML-EdgeIIoT-dataset.csv --label Attack_type --drop <identifier columns> --max-rows 120000`
+  (3 seeds by default; output `results_v3/inflation_<name>.json`).
+- **Device trust on real traces**: export one row per flow with `device,time,harm[,label]` and run `python run_traces.py traces.csv --m 20 --warm 50 --alpha 0.05`
+  (`examples/example_traces.csv` shows the format). It reports the false-quarantine rate of benign devices and the delay on compromised ones, for the CUSUM and the e-detector.
+- **Edge timing**: run `python run_latency.py` on the gateway (single thread, idle machine).
 
 ## Layout
-`ztids/` library (data, generic, models, jobs, trust, ledger, dp, dpsgd, evalutil, config) | `run_*.py` stages | `make_tables.py`, `make_figs.py` | `check_accountant.py` (optional) | `data/`
+`ztids/` library; `run_*.py` stages; `tests/`; `paper_v3/` manuscript sources and asset generator; `legacy/` TensorFlow stages of the earlier design (CNN-BiLSTM, DP-SGD, SHAP, extra datasets; see `legacy/README.md`);
+`results_v3/` results of this version; `results_v2/`, `results_extra/` earlier runs of the deep models and of UNSW-NB15 / Edge-IIoTset (read by the asset generator).
+
+## Reproducibility notes
+LightGBM runs with `deterministic=True`, `force_row_wise=True`, one thread; the numbers of a machine with the same library versions match the reference exactly. Other versions can move macro-F1 by a few thousandths
+because the rare classes (U2R: 67 test flows) amplify tiny differences. Seed-to-seed standard deviation of macro-F1 is about 0.03, so differences below that are not meaningful.
+The e-detector's guarantees need exchangeability of benign rounds with the commissioning rounds of the same device (or of the same operating mode); `run_trust.py` shows what happens when this fails.
+
+License: MIT. Cite via `CITATION.cff`.

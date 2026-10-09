@@ -3,12 +3,16 @@ whether it is launched by run_everything.py or on its own."""
 import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 QUICK = os.environ.get("ZTIDS_QUICK", "0") == "1"                 # smoke-test mode: tiny data/epochs, results_quick/
-RES = os.environ.get("ZTIDS_RES", os.path.join(ROOT, "results_v2_quick" if QUICK else "results_v2"))
+RES = os.environ.get("ZTIDS_RES", os.path.join(ROOT, "results_v3_quick" if QUICK else "results_v3"))     # results of the v3 stages (LightGBM-based); legacy deep-model stages: set ZTIDS_RES=results_v2
 FIG = os.environ.get("ZTIDS_FIG", os.path.join(ROOT, "figures_quick" if QUICK else "figures"))
 TAB = os.environ.get("ZTIDS_TAB", os.path.join(ROOT, "tables_quick" if QUICK else "tables"))
 DATA = os.environ.get("ZTIDS_DATA", os.path.join(ROOT, "data"))
+EXTRA = os.environ.get("ZTIDS_EXTRA", os.path.join(ROOT, "results_extra"))       # results of run_dataset.py (UNSW-NB15, Edge-IIoTset)
 NPC = int(os.environ.get("ZTIDS_NPC", 300 if QUICK else 4000))        # post-split balanced training size per class
 EPOCHS = int(os.environ.get("ZTIDS_EPOCHS", 2 if QUICK else 14))      # max epochs (early stopping on validation loss)
+CORE_SEEDS = os.environ.get("ZTIDS_CORE_SEEDS", "0,1" if QUICK else ",".join(map(str, range(10))))   # seeds of the core/site/selection stages
+NDEV = int(os.environ.get("ZTIDS_NDEV", 20 if QUICK else 200))                                      # devices per cell in the trust stage
+TRUST_SEEDS = os.environ.get("ZTIDS_TRUST_SEEDS", "0" if QUICK else "0,1,2")
 SEEDS = [int(s) for s in os.environ.get("ZTIDS_SEEDS", "0" if QUICK else "0,1,2").split(",") if s != ""]
 if 0 not in SEEDS: SEEDS.insert(0, 0)                               # seed 0 saves the checkpoints used by SHAP/latency/trust
 THREADS = int(os.environ.get("ZTIDS_THREADS", 0))                  # 0 = let TensorFlow decide

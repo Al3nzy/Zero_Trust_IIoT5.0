@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "ZTIDS: Site-Calibrated and Auditable Zero-Trust Intrusion Detection for Industrial IoT"
+type: software
+authors:
+  - family-names: "Akhmetkaliyev"
+    given-names: "Ali"
+    orcid: "https://orcid.org/0009-0002-6689-9066"
+  - family-names: "Ala'anzy"
+    given-names: "Mohammed Alaa"
+    orcid: "https://orcid.org/0000-0002-0005-7037"
+  - family-names: "Himeur"
+    given-names: "Yassine"
+    orcid: "https://orcid.org/0000-0001-8904-5587"
+repository-code: "https://github.com/Al3nzy/Zero_Trust_IIoT5.0"
+license: MIT
+keywords:
+  - industrial IoT
+  - intrusion detection
+  - zero trust
+  - conformal prediction
+  - CUSUM
+  - differential privacy

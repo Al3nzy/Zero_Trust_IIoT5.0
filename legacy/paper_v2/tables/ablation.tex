@@ -1,0 +1,11 @@
+\begin{tabular}{lccccccc}
+\toprule
+Model & Acc. & Macro-F1 & MCC & Normal FPR & R2L rec. & U2R rec. & Seeds \\
+\midrule
+canonical (family-adjacent) order & 0.745$\pm$0.010 & 0.554$\pm$0.018 & 0.620$\pm$0.018 & 0.081$\pm$0.029 & 0.183$\pm$0.041 & 0.527$\pm$0.031 & 3 \\
+random feature order & 0.748$\pm$0.023 & 0.557$\pm$0.036 & 0.627$\pm$0.038 & 0.073$\pm$0.024 & 0.154$\pm$0.049 & 0.423$\pm$0.009 & 3 \\
+descending-MI order & 0.751$\pm$0.017 & 0.561$\pm$0.029 & 0.631$\pm$0.029 & 0.076$\pm$0.027 & 0.162$\pm$0.090 & 0.448$\pm$0.052 & 3 \\
+Laplace input noise, scale 1/50 (augmentation) & 0.759 & 0.575 & 0.646 & 0.046 & 0.197 & 0.522 & 1 \\
+Laplace input noise, scale 1/10 (augmentation) & 0.753 & 0.554 & 0.636 & 0.043 & 0.145 & 0.493 & 1 \\
+\bottomrule
+\end{tabular}

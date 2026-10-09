@@ -1,0 +1,13 @@
+\begin{tabular}{lccc}
+\toprule
+Attack & hash chain only & + signatures & + signatures + anchors \\
+\midrule
+edit\_no\_rehash & 100.0 & 100.0 & 100.0 \\
+edit\_rehash\_no\_key & 0.0 & 100.0 & 100.0 \\
+edit\_rehash\_with\_key & 0.0 & 0.0 & 93.5 \\
+delete\_relink\_no\_key & 0.0 & 100.0 & 100.0 \\
+truncate\_with\_key & 0.0 & 0.0 & 50.0 \\
+rewrite\_own\_key & 0.0 & 100.0 & 100.0 \\
+untampered chain accepted & yes & yes & yes \\
+\bottomrule
+\end{tabular}

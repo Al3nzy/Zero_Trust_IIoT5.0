@@ -1,0 +1,13 @@
+#!/bin/bash
+set -ex
+# Code Ocean entry point (v3 pipeline, no TensorFlow). Keep Unix (LF) line endings; chmod +x /code/run in the capsule.
+mkdir -p results ../results
+export ZTIDS_RES="$PWD/results/results_v3"; mkdir -p "$ZTIDS_RES"
+export PYTHONUNBUFFERED=1
+# Optional cache: upload a previous results_v3/ to /data/results_v3 to skip finished stages (FULL=1 ignores it).
+if [ "${FULL:-0}" != "1" ] && [ -d ../data/results_v3 ]; then cp -rn ../data/results_v3/. "$ZTIDS_RES/"; fi
+# Stages are cached and resumable; SKIP="inflation latency" skips slow ones.
+python3 run_everything.py --skip $SKIP assets || echo "WARNING: a stage failed, see results/results_v3/pipeline_status.json"
+cp -r results/* ../results/
+python3 paper_v3/make_paper_assets.py && cp -r paper_v3/tables paper_v3/Figures paper_v3/numbers.tex ../results/ || true
+python3 check_results.py || true

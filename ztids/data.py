@@ -174,6 +174,12 @@ class Preprocessor:
         if self.clip: Z = np.clip(Z, -self.clip, self.clip)
         return Z[:, self.sel_].astype(np.float32)
 
+    def transform_all(self, df):
+        """All standardised (and clipped) columns, in the order of `all_cols_`: input of the Normal-profile detectors (no feature selection)."""
+        Z = self.scaler_.transform(self._expand(df).values)
+        if self.clip: Z = np.clip(Z, -self.clip, self.clip)
+        return Z.astype(np.float32)
+
 
 def balance_train(X, y, n_per_class, seed):
     """Post-split balancing of the TRAINING partition: SMOTE up / random undersample down."""
