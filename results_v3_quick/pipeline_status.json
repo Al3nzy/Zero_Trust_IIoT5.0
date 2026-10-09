@@ -1,5 +1,7 @@
 {
  "core": "ok [85s]",
  "site": "ok [15s]",
- "selection": "ok [2s]"
+ "selection": "ok [2s]",
+ "inflation": "ok [207s]",
+ "trust": "ok [22s]"
 }
