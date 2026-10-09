@@ -1,0 +1,12 @@
+{
+ "core": "ok [3s]",
+ "site": "ok [35s]",
+ "selection": "ok [3s]",
+ "inflation": "ok [2s]",
+ "trust": "ok [442s]",
+ "theory": "ok [2s]",
+ "sensitivity": "ok [86s]",
+ "ledger": "ok [169s]",
+ "latency": "ok [43s]",
+ "assets": "FAILED (exit 2) [0s]"
+}

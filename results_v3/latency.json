@@ -1,62 +1,62 @@
 {
- "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+ "cpu": "Intel64 Family 6 Model 165 Stepping 3, GenuineIntel",
  "threads": 1,
  "flows_per_round": 20,
  "repetitions": 400,
  "lightgbm_batch_m": {
-  "median_ms": 2.609918500013464,
-  "p95_ms": 2.8500514499910423
+  "median_ms": 2.6103000000148313,
+  "p95_ms": 7.798189997811274
  },
  "lightgbm_single_flow": {
-  "median_ms": 0.6033245000480747,
-  "p95_ms": 0.7418523499950425
+  "median_ms": 0.6857000007585157,
+  "p95_ms": 1.215659996705653
  },
  "mahalanobis_batch_m": {
-  "median_ms": 0.2531009999984235,
-  "p95_ms": 0.34808864997444283
+  "median_ms": 0.500399999509682,
+  "p95_ms": 0.7031999997707309
  },
  "edetector_round_N100": {
-  "median_ms": 0.017056499984846596,
-  "p95_ms": 0.02848389995051548
+  "median_ms": 0.025400000595254824,
+  "p95_ms": 0.042100000428035855
  },
  "edetector_flow_N100": {
-  "median_ms": 0.3183640000088417,
-  "p95_ms": 0.5116233000194373
+  "median_ms": 0.45989999853190966,
+  "p95_ms": 0.5258449984467006
  },
  "edetector_round_N1000": {
-  "median_ms": 0.017190499988828378,
-  "p95_ms": 0.026717899970662984
+  "median_ms": 0.02609999864944257,
+  "p95_ms": 0.028899998142151162
  },
  "edetector_flow_N1000": {
-  "median_ms": 0.3105994999827999,
-  "p95_ms": 0.38835455004573305
+  "median_ms": 0.44969999908062164,
+  "p95_ms": 0.6200750023708679
  },
  "edetector_round_N10000": {
-  "median_ms": 0.018598999986352283,
-  "p95_ms": 0.029259050000973723
+  "median_ms": 0.02760000279522501,
+  "p95_ms": 0.04519999874901259
  },
  "edetector_flow_N10000": {
-  "median_ms": 0.3339544999789723,
-  "p95_ms": 0.4008101499607619
+  "median_ms": 0.48579999929643236,
+  "p95_ms": 0.5293949994666036
  },
  "ledger_append": {
-  "median_ms": 0.07075850004412132,
-  "p95_ms": 0.09895944996287652
+  "median_ms": 0.04690000059781596,
+  "p95_ms": 0.0510149991896469
  },
  "end_to_end_round_N1000": {
-  "median_ms": 3.200395999954253,
-  "p95_ms": 4.203765399927306
+  "median_ms": 2.899999999499414,
+  "p95_ms": 4.9157899993588225
  },
  "macros": {
   "LatClf": "2.61",
-  "LatClfSingle": "0.60",
-  "LatMah": "0.25",
-  "LatEdet": "0.02",
-  "LatEdetBig": "0.02",
-  "LatEdetFlow": "0.31",
-  "LatLedger": "0.07",
-  "LatEnd": "3.20",
-  "LatEndP": "4.20",
-  "LatCpu": "Intel(R) Xeon(R) Processor @ 2.10GHz"
+  "LatClfSingle": "0.69",
+  "LatMah": "0.50",
+  "LatEdet": "0.03",
+  "LatEdetBig": "0.03",
+  "LatEdetFlow": "0.45",
+  "LatLedger": "0.05",
+  "LatEnd": "2.90",
+  "LatEndP": "4.92",
+  "LatCpu": "Intel64 Family 6 Model 165 Stepping 3, GenuineIntel"
  }
 }

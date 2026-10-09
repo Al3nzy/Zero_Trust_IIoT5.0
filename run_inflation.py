@@ -3,8 +3,10 @@
 (LightGBM, 25 class-aware features, balanced training) and the same seeds; only the evaluation protocol changes.
 
 NSL-KDD (shipped):   python run_inflation.py nsl
-Any corpus:          python run_inflation.py generic --name unsw --train UNSW_NB15_training-set.csv --test UNSW_NB15_testing-set.csv --label attack_cat --drop id label
-                     python run_inflation.py generic --name edge --train ML-EdgeIIoT-dataset.csv --label Attack_type --drop <identifier columns> [--drop-extra <capture fields>]
+UNSW-NB15 / Edge-IIoTset (files in data/external/unsw and data/external/edge are found automatically):
+                     python run_inflation.py generic --preset unsw
+                     python run_inflation.py generic --preset edge
+Any other corpus:    python run_inflation.py generic --name mydata --train train.csv [--test test.csv] --label <label column> --drop <identifier columns> [--max-rows N]
 
 Variants (nsl):
   audited                 official partitions, train duplicates removed, test rows equal to a training row removed, preprocessing fitted on the training partition only
@@ -24,9 +26,25 @@ from ztids import config as C
 from ztids.core import lgbm
 
 NPC = C.NPC
+ROOT = os.path.dirname(os.path.abspath(__file__))
+PRESETS = {"unsw": dict(label="attack_cat", drop=["id", "label"], train="UNSW_NB15_training-set.csv", test="UNSW_NB15_testing-set.csv", max_rows=None),
+           "edge": dict(label="Attack_type", drop=["frame.time", "ip.src_host", "ip.dst_host", "arp.src.proto_ipv4", "arp.dst.proto_ipv4", "http.file_data", "http.request.full_uri", "http.request.uri.query",
+                                                 "tcp.options", "tcp.payload", "tcp.srcport", "tcp.dstport", "udp.port", "mqtt.msg", "icmp.transmission_time", "Attack_label"], train="ML-EdgeIIoT-dataset.csv", test=None, max_rows=120000)}
+
+
+def resolve(path):
+    """A file name is looked up as given, relative to the repository, and then anywhere under data/ (for example data/external/unsw/)."""
+    if path is None: return None
+    for cand in (path, os.path.join(ROOT, path)):
+        if os.path.isfile(cand): return cand
+    base = os.path.basename(path)
+    for dirpath, _, files in os.walk(os.path.join(ROOT, "data")):
+        if base in files: return os.path.join(dirpath, base)
+    raise SystemExit(f"File not found: {path}\nLooked in the current folder, the repository root and everywhere under {os.path.join(ROOT, 'data')}. Pass the full path with --train / --test.")
 
 
 def score(y, pred, classes):
+    if len(y) == 0: return dict(acc=None, macro_f1=None, mcc=None, n=0)          # e.g. no test row has a copy in the training data
     out = dict(acc=float(accuracy_score(y, pred)), macro_f1=float(f1_score(y, pred, labels=range(classes), average="macro", zero_division=0)), mcc=float(matthews_corrcoef(y, pred)), n=int(len(y)))
     for c, nm in ((3, "r2l"), (4, "u2r")):
         if classes > 4: out[nm] = float((pred[y == c] == c).mean()) if (y == c).any() else None
@@ -73,8 +91,10 @@ def nsl(seeds):
 
 def generic(a, seeds):
     from ztids.generic import split_generic, GenericPrep, balance, _hash
-    tr = pd.read_csv(a.train, low_memory=False); tr.columns = [c.strip() for c in tr.columns]; te = None
-    if a.test: te = pd.read_csv(a.test, low_memory=False); te.columns = [c.strip() for c in te.columns]
+    ftr = resolve(a.train); fte = resolve(a.test) if a.test else None; print(f"train: {ftr}\ntest:  {fte}", flush=True)
+    tr = pd.read_csv(ftr, low_memory=False); tr.columns = [c.strip() for c in tr.columns]; te = None
+    if fte: te = pd.read_csv(fte, low_memory=False); te.columns = [c.strip() for c in te.columns]
+    if a.label not in tr.columns: raise SystemExit(f"label column '{a.label}' not in the file; columns are: {list(tr.columns)[:15]} ...")
     drop = [c.strip() for c in list(a.drop) + list(a.drop_extra) if c.strip() in tr.columns]; feat = [c for c in tr.columns if c not in set(drop) | {a.label}]; res = {}
     for s in seeds:
         t0 = time.time(); r = {}
@@ -105,7 +125,12 @@ def generic(a, seeds):
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("mode", choices=["nsl", "generic"]); ap.add_argument("--seeds", nargs="*", type=int, default=[0] if C.QUICK else [0, 1, 2]); ap.add_argument("--name", default="nsl")
+    ap = argparse.ArgumentParser(); ap.add_argument("mode", choices=["nsl", "generic"]); ap.add_argument("--seeds", nargs="*", type=int, default=[0] if C.QUICK else [0, 1, 2]); ap.add_argument("--name", default=None); ap.add_argument("--preset", choices=list(PRESETS))
     ap.add_argument("--train"); ap.add_argument("--test"); ap.add_argument("--label"); ap.add_argument("--drop", nargs="*", default=[]); ap.add_argument("--drop-extra", nargs="*", default=[]); ap.add_argument("--max-rows", type=int)
-    a = ap.parse_args(); res = nsl(a.seeds) if a.mode == "nsl" else generic(a, a.seeds)
+    a = ap.parse_args()
+    if a.mode == "generic":
+        if a.preset:
+            P = PRESETS[a.preset]; a.name = a.name or a.preset; a.train = a.train or P["train"]; a.test = a.test or P["test"]; a.label = a.label or P["label"]; a.drop = a.drop or P["drop"]; a.max_rows = a.max_rows or P["max_rows"]
+        if not (a.train and a.label): ap.error("generic mode needs --preset unsw|edge, or --train and --label")
+    a.name = a.name or "nsl"; res = nsl(a.seeds) if a.mode == "nsl" else generic(a, a.seeds)
     json.dump(dict(dataset=a.name, seeds=a.seeds, npc=NPC, results=res), open(os.path.join(C.RES, f"inflation_{a.name}.json"), "w"), indent=1)
